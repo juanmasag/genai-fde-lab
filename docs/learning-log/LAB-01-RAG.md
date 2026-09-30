@@ -54,6 +54,17 @@ Explicado correctamente con palabras propias:
 
 Estado: **Comprendido**
 
+### 6. Chunking y overlap
+Explicado correctamente con palabras propias:
+
+- Chunking es agrupar texto en fragmentos con sentido, como párrafos o secciones.
+- A cada chunk se le genera un embedding.
+- Overlap consiste en repetir parte del chunk anterior en el siguiente para conservar continuidad y contexto.
+- Se corrigió que un overlap mayor no garantiza más precisión: demasiado overlap puede introducir duplicación y ruido.
+- El overlap aumenta el volumen procesado y almacenado; sólo aumenta los tokens enviados al LLM si esos chunks repetidos terminan siendo recuperados y enviados como contexto.
+
+Estado: **Comprendido**
+
 ## Flujo que ya debe poder explicarse
 
 Documento
