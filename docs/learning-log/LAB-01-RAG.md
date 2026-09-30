@@ -76,6 +76,16 @@ Explicado correctamente con palabras propias:
 
 Estado: **Comprendido**
 
+### 8. Cierre de retrieval: top-k + threshold
+Explicado correctamente con palabras propias:
+
+- Se puede pedir un máximo de candidatos, por ejemplo top_k = 6.
+- Después, un threshold alto puede hacer que sólo algunos de esos candidatos sean aceptados.
+- Por ejemplo, de 6 candidatos podrían quedar sólo 2 por superar el umbral definido.
+- Se entendió que el resultado con mayor similitud no necesariamente contiene la respuesta correcta; sólo es el más cercano semánticamente según la métrica usada.
+
+Estado: **Comprendido**
+
 ## Flujo que ya debe poder explicarse
 
 Documento
