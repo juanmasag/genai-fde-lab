@@ -86,6 +86,16 @@ Explicado correctamente con palabras propias:
 
 Estado: **Comprendido**
 
+### 9. Grounding y abstención
+Explicado correctamente con palabras propias:
+
+- Grounding puede implementarse como una instrucción que obliga al modelo a tratar una fuente concreta como única fuente de verdad.
+- Si la información no aparece en la evidencia recuperada, el modelo debe indicarlo en vez de inventar una respuesta.
+- Se relacionó correctamente con una práctica ya utilizada: pedir a un modelo que valide una solución exclusivamente contra documentación oficial y que avise cuando no encuentre respaldo.
+- Se aclaró que, en sistemas más robustos, estas reglas pueden reforzarse con validaciones, citas obligatorias o lógica adicional; no dependen necesariamente sólo del prompt.
+
+Estado: **Comprendido**
+
 ## Flujo que ya debe poder explicarse
 
 Documento
