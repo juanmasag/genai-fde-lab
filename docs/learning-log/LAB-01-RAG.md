@@ -106,6 +106,16 @@ Explicado correctamente con palabras propias:
 
 Estado: **Comprendido**
 
+### 11. Metadata y trazabilidad de chunks
+Explicado correctamente con palabras propias:
+
+- Se relacionó la metadata de un chunk con la metadata de una fotografía: el contenido principal es visible, pero existen datos adicionales que lo describen.
+- En RAG, esa metadata puede incluir documento de origen, sección, identificador, versión u otros atributos.
+- La metadata permite identificar, filtrar y rastrear el origen del chunk y construir citas verificables.
+- Se entendió que la cita no debe depender de que el LLM recuerde la fuente: el sistema ya conoce el origen del chunk recuperado.
+
+Estado: **Comprendido**
+
 ## Flujo que ya debe poder explicarse
 
 Documento
