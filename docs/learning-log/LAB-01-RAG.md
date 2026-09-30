@@ -129,27 +129,18 @@ Documento
 → contexto para el LLM
 → respuesta fundamentada
 
-## Conceptos pendientes antes del mini-proyecto
+## Checkpoint: fundamentos completados
 
-1. Chunking:
-   - qué es un chunk;
-   - por qué no usar documentos completos;
-   - tamaño de chunk;
-   - overlap.
+Los fundamentos conceptuales necesarios para comenzar el mini-proyecto fueron explicados con palabras propias:
 
-2. Retrieval:
-   - top-k;
-   - diferencia entre similitud y relevancia suficiente;
-   - qué pasa cuando no hay evidencia útil.
+- tokens y embeddings;
+- similitud vectorial;
+- chunking y overlap;
+- retrieval;
+- top-k y threshold;
+- grounding y abstención;
+- metadata y citas.
 
-3. Grounding:
-   - por qué el modelo debe responder sólo con evidencia recuperada;
-   - abstención cuando no existe respuesta en los documentos.
+**Estado:** teoría base completada. Se habilita el inicio del mini-proyecto LAB-01.
 
-4. Metadata y citas:
-   - guardar origen, documento, sección y chunk_id;
-   - usar esa información para mostrar fuentes.
-
-## Regla para avanzar
-
-LAB-01 pasa de teoría a mini-proyecto cuando estos conceptos puedan explicarse de forma simple y con palabras propias, sin depender de la implementación.
+El desarrollo se realizará por etapas didácticas, comenzando con un vector playground antes de construir el RAG completo.
