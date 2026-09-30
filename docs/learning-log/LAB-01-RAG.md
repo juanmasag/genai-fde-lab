@@ -96,6 +96,16 @@ Explicado correctamente con palabras propias:
 
 Estado: **Comprendido**
 
+### 10. Tokens, vectores y generación del LLM
+Explicado correctamente con palabras propias:
+
+- El LLM no opera sobre palabras como unidades humanas de significado, sino sobre tokens.
+- Los tokens se convierten en representaciones vectoriales internas que el transformer procesa en contexto.
+- La salida se genera token a token a partir de distribuciones de probabilidad.
+- Se corrigió que la generación no debe resumirse únicamente como comparación vectorial: intervienen múltiples capas y transformaciones internas antes de producir las probabilidades del próximo token.
+
+Estado: **Comprendido**
+
 ## Flujo que ya debe poder explicarse
 
 Documento
