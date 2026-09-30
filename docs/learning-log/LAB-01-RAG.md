@@ -65,6 +65,17 @@ Explicado correctamente con palabras propias:
 
 Estado: **Comprendido**
 
+### 7. Retrieval: top-k, threshold y nivel de exigencia
+Explicado correctamente con palabras propias:
+
+- Al buscar información en documentos, se pueden definir criterios sobre qué tan estricta será la selección de chunks recuperados.
+- top_k limita cuántos candidatos se recuperan.
+- threshold define qué nivel mínimo de similitud se acepta.
+- Se entendió que estos parámetros no hacen al embedding más preciso; controlan la selección de resultados.
+- Se entendió que una búsqueda más estricta puede descartar resultados útiles y una más permisiva puede introducir ruido.
+
+Estado: **Comprendido**
+
 ## Flujo que ya debe poder explicarse
 
 Documento
