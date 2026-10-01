@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<title>RAG Engine Lab</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon.svg">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <div class="eyebrow">LAB-01 · DOCUAYUDA</div>
+    <h1>RAG Engine Lab</h1>
+    <p>Analizá documentación real y observá cada engranaje desde el transformer hasta la respuesta.</p>
+  </div>
+  <div id="health" class="pill">Comprobando sistema…</div>
+</header>
+
+<main>
+<section class="hero-grid">
+  <article class="panel">
+    <div class="section-head"><div><span class="step-tag">1</span><h2>Documento</h2></div><span class="hint">.md / .txt</span></div>
+    <div class="field-row">
+      <label>Nombre<input id="title" value="manual-accesos.md"></label>
+      <label class="upload-label">Abrir archivo<input id="file" type="file" accept=".md,.txt,text/plain,text/markdown"></label>
+    </div>
+    <textarea id="document"># Manual de accesos
+## Alta de usuarios
+El alta de un usuario puede demorar hasta 48 horas.
+La solicitud debe ser aprobada por el responsable del área.
+
+## Vacaciones
+Las vacaciones deben solicitarse con 15 días de anticipación.
+
+## Servicios
+El comedor abre todos los días a las 12.</textarea>
+    <div class="controls-grid">
+      <label>Chunk size <output id="chunkSizeOut">90</output><input id="chunkSize" type="range" min="30" max="200" value="90"></label>
+      <label>Overlap <output id="overlapOut">18</output><input id="overlap" type="range" min="0" max="60" value="18"></label>
+    </div>
+    <button id="ingest" class="primary">Ingerir + generar embeddings</button>
+    <div id="ingestStatus" class="status-line"></div>
+  </article>
+
+  <article class="panel">
+    <div class="section-head"><div><span class="step-tag">2</span><h2>Pregunta</h2></div><span class="hint">retrieval + LLM</span></div>
+    <label>Consulta<input id="question" value="¿Cuánto demora crear un usuario?"></label>
+    <div class="controls-grid">
+      <label>top_k <output id="topKOut">5</output><input id="topK" type="range" min="1" max="10" value="5"></label>
+      <label>threshold <output id="thresholdOut">0.35</output><input id="threshold" type="range" min="0" max="0.95" step="0.05" value="0.60"></label>
+    </div>
+    <button id="analyze" class="primary">Ejecutar análisis E2E</button>
+    <div id="analysisStatus" class="status-line"></div>
+    <div class="mini-note">Podés cambiar top_k y threshold y repetir la misma pregunta para ver cómo cambia el contexto.</div>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="section-head">
+    <div><span class="step-tag">3</span><h2>Pipeline visible</h2></div>
+    <button id="play" class="secondary">▶ Recorrer</button>
+  </div>
+  <div id="pipeline" class="pipeline">
+    <button data-stage="0">📄<span>Documento</span></button><i>→</i>
+    <button data-stage="1">✂️<span>Chunks</span></button><i>→</i>
+    <button data-stage="2">⚙️<span>Transformer</span></button><i>→</i>
+    <button data-stage="3">🧩<span>Embeddings</span></button><i>→</i>
+    <button data-stage="4">🗄️<span>Vector DB</span></button><i>→</i>
+    <button data-stage="5">🎯<span>Retrieval</span></button><i>→</i>
+    <button data-stage="6">📦<span>Contexto</span></button><i>→</i>
+    <button data-stage="7">🤖<span>LLM</span></button><i>→</i>
+    <button data-stage="8">🔗<span>Citas</span></button>
+  </div>
+  <div id="stageViewer" class="stage-viewer">
+    <div class="empty-state">Ingerí un documento y ejecutá una pregunta para llenar el laboratorio.</div>
+  </div>
+</section>
+
+<section class="viz-grid">
+  <article class="panel">
+    <div class="section-head"><div><span class="step-tag">4</span><h2>Comparación de vectores</h2></div><span class="hint">coseno + ángulo</span></div>
+    <p class="explain">La pregunta queda fija apuntando a la derecha. Cada chunk se dibuja con el ángulo que surge de su similitud coseno real.</p>
+    <div id="vectorPlot" class="vector-plot"><div class="empty-state">Todavía no hay vectores comparados.</div></div>
+    <div id="vectorLegend" class="legend"></div>
+  </article>
+
+  <article class="panel">
+    <div class="section-head"><div><span class="step-tag">5</span><h2>Ranking de similitud</h2></div><span class="hint">retrieval real</span></div>
+    <div id="similarityBars" class="bars"><div class="empty-state">Esperando una consulta.</div></div>
+  </article>
+</section>
+
+<section class="viz-grid">
+  <article class="panel">
+    <div class="section-head"><div><span class="step-tag">6</span><h2>Vector por dimensiones</h2></div><span class="hint">muestra parcial</span></div>
+    <p class="explain">Un embedding real tiene 768 dimensiones. Acá vemos las primeras 12 para comparar la forma numérica.</p>
+    <div id="dimensions" class="dimensions"><div class="empty-state">Esperando embeddings.</div></div>
+  </article>
+
+  <article class="panel">
+    <div class="section-head"><div><span class="step-tag">7</span><h2>Respuesta grounded</h2></div><span class="hint">Qwen3 · local</span></div>
+    <div id="answer" class="answer"><div class="empty-state">La respuesta aparecerá después del retrieval.</div></div>
+    <div id="citations" class="citations"></div>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="section-head"><div><span class="step-tag">8</span><h2>Inspector técnico</h2></div><span class="hint">para aprender qué viaja entre capas</span></div>
+  <div class="tabs">
+    <button class="tab active" data-tab="chunks">Chunks</button>
+    <button class="tab" data-tab="tokens">Tokens</button>
+    <button class="tab" data-tab="database">Vector DB</button>
+    <button class="tab" data-tab="prompt">Prompt</button>
+  </div>
+  <div id="technical" class="technical"><div class="empty-state">Sin datos todavía.</div></div>
+</section>
+
+<section class="panel architecture">
+  <div class="section-head"><div><span class="step-tag">9</span><h2>Qué es real y qué es educativo</h2></div></div>
+  <div class="truth-grid">
+    <div><strong>REAL</strong><p>Chunking, embeddings con <code>nomic-embed-text</code>, 768 dimensiones, PostgreSQL + pgvector, similitud coseno, top_k, threshold, contexto, Qwen3 y citas.</p></div>
+    <div><strong>EDUCATIVO</strong><p>La animación del “interior” del transformer. Ollama ejecuta el transformer real, pero no expone sus matrices de atención. La UI explica esa etapa sin inventar valores internos.</p></div>
+    <div><strong>SUPABASE READY</strong><p>El mismo esquema pgvector está en <code>sql/supabase.sql</code>. Cambiando <code>DATABASE_URL</code>, el backend puede usar Supabase PostgreSQL.</p></div>
+  </div>
+</section>
+</main>
+
+<footer>RAG Engine Lab · LAB-01 · datos y modelos ejecutados en tu máquina salvo que configures Supabase.</footer>
+<script src="/app.js" defer></script>
+</body>
+</html>
