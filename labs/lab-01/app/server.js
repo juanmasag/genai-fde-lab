@@ -13,8 +13,16 @@ const LLM_MODEL = process.env.LLM_MODEL || 'qwen3:8b';
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://raglab:raglab@127.0.0.1:5433/raglab';
 const pool = new Pool({connectionString:DATABASE_URL,ssl:process.env.PGSSL==='true'?{rejectUnauthorized:false}:false});
 const app = express();
+app.use((req,res,next)=>{
+  if(req.path==='/' || req.path==='/index.html' || req.path==='/app.js' || req.path==='/styles.css' || req.path==='/sw.js'){
+    res.set('Cache-Control','no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma','no-cache');
+    res.set('Expires','0');
+  }
+  next();
+});
 app.use(express.json({limit:'5mb'}));
-app.use(express.static(path.join(__dirname,'public')));
+app.use(express.static(path.join(__dirname,'public'),{etag:false,maxAge:0}));
 
 function clamp(n,a,b){ return Math.max(a,Math.min(b,n)); }
 function vec(v){ return '[' + v.map(x=>Number(x).toFixed(8)).join(',') + ']'; }

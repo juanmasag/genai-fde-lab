@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1020"><title>RAG Engine Lab</title>
-<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><link rel="stylesheet" href="/styles.css?v=8">
+<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><link rel="stylesheet" href="/styles.css?v=9">
 </head>
-<body>
+<body data-mobile-step="0">
 <header class="topbar">
   <div><div class="eyebrow">LAB-01 · RECORRIDO GUIADO</div><h1>RAG Engine Lab</h1>
   <p>Un laboratorio funcional para ver cómo un documento termina convertido en una respuesta grounded.</p></div>
@@ -43,7 +43,7 @@
   </div>
 </section>
 
-<section class="hero-grid" id="step-document">
+<section class="hero-grid mobile-screen" id="step-document" data-mobile-screen="0">
   <article class="panel">
     <div class="section-head"><div><span class="step-tag">1</span><h2>Documento de laboratorio</h2></div><span class="hint">editable</span></div>
     <label>Nombre<input id="title" value="guia-soporte.md"></label>
@@ -79,7 +79,7 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   </article>
 </section>
 
-<section class="panel" id="step-transformer">
+<section class="panel mobile-screen" id="step-transformer" data-mobile-screen="1">
   <div class="section-head"><div><span class="step-tag">3</span><h2>Microscopio del transformer</h2></div><span class="hint">modelo didáctico + embedding real</span></div>
   <p class="explain">Elegí una frase. La parte izquierda muestra un transformer mínimo calculado en el navegador para que puedas ver la matemática. La parte derecha muestra el embedding real producido por <code>nomic-embed-text</code>.</p>
   <div class="transformer-layout">
@@ -95,7 +95,7 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   </div>
 </section>
 
-<section class="panel" id="step-db">
+<section class="panel mobile-screen" id="step-db" data-mobile-screen="2">
   <div class="section-head"><div><span class="step-tag">4</span><h2>Base vectorial en vivo</h2></div><span class="hint">PostgreSQL + pgvector real</span></div>
   <p class="explain">La animación reproduce operaciones que el backend realmente ejecutó. No es una base ficticia: cada tarjeta corresponde a una fila escrita en PostgreSQL.</p>
   <button id="ingestHere" class="primary db-ingest-cta">Ejecutar ingesta y ver proceso</button>
@@ -108,7 +108,7 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   <div id="dbEvents" class="event-log"><div class="empty-state">Ejecutá una ingesta para ver la transacción.</div></div>
 </section>
 
-<section class="panel" id="step-db-browser">
+<section class="panel mobile-screen" id="step-db-browser" data-mobile-screen="7">
   <div class="section-head"><div><span class="step-tag">5</span><h2>Dentro de pgvector</h2></div><span class="hint">filas reales</span></div>
   <p class="explain">Esta tabla se consulta directamente desde PostgreSQL. Tocá una fila para abrir el chunk real, su metadata y las 768 dimensiones del embedding.</p>
   <div class="db-toolbar">
@@ -125,8 +125,8 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   <div id="dbChunkDetail" class="db-detail"><div class="empty-state">Seleccioná una fila para abrirla.</div></div>
 </section>
 
-<section class="hero-grid" id="step-query">
-  <article class="panel">
+<section class="hero-grid mobile-screen" id="step-query" data-mobile-screen="3">
+  <article class="panel query-card" data-mobile-screen-inner="3">
     <div class="section-head"><div><span class="step-tag">5</span><h2>Pregunta y retrieval</h2></div><span class="hint">real</span></div>
     <label>Consulta<input id="question" value="¿Cuánto demora crear un usuario?"></label>
     <div class="controls-grid">
@@ -142,7 +142,7 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
     <button id="analyze" class="primary">Ejecutar análisis E2E</button>
     <div id="analysisStatus" class="status-line"></div>
   </article>
-  <article class="panel pipeline-panel">
+  <article class="panel pipeline-panel" data-mobile-screen-inner="4">
     <div class="section-head"><div><span class="step-tag">6</span><h2>Pipeline</h2></div><button id="play" class="secondary">Recorrer</button></div>
     <div id="pipeline" class="pipeline-board">
       <button data-stage="0"><span class="pipe-icon">DOC</span><span>Documento</span></button>
@@ -160,7 +160,7 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   </article>
 </section>
 
-<section class="viz-grid" id="step-vectors">
+<section class="viz-grid mobile-screen" id="step-vectors" data-mobile-screen="5">
   <article class="panel">
     <div class="section-head"><div><span class="step-tag">7</span><h2>Geometría de los vectores</h2></div><span class="hint">coseno + ángulo real</span></div>
     <div id="vectorPlot" class="vector-plot"><div class="empty-state">Esperando consulta.</div></div>
@@ -172,7 +172,7 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   </article>
 </section>
 
-<section class="viz-grid" id="step-answer">
+<section class="viz-grid mobile-screen" id="step-answer" data-mobile-screen="6">
   <article class="panel">
     <div class="section-head"><div><span class="step-tag">9</span><h2>Embedding real</h2></div><span class="hint">12 de 768 dimensiones</span></div>
     <div id="dimensions" class="dimensions"><div class="empty-state">Esperando embeddings.</div></div>
@@ -184,12 +184,18 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   </article>
 </section>
 
-<section class="panel">
+<section class="panel technical-panel">
   <div class="section-head"><div><span class="step-tag">11</span><h2>Inspector técnico</h2></div><span class="hint">datos reales entre capas</span></div>
   <div class="tabs"><button class="tab active" data-tab="chunks">Chunks</button><button class="tab" data-tab="tokens">Tokens</button><button class="tab" data-tab="database">Vector DB</button><button class="tab" data-tab="prompt">Prompt</button></div>
   <div id="technical" class="technical"><div class="empty-state">Sin datos todavía.</div></div>
 </section>
 </main>
+<div id="mobileWizardNav" class="mobile-wizard-nav">
+  <button id="mobilePrev" class="secondary">Anterior</button>
+  <div class="mobile-step-info"><strong id="mobileStepTitle">Documento</strong><span id="mobileStepProgress">1 / 8</span></div>
+  <button id="mobileNext" class="primary compact">Siguiente</button>
+</div>
+
 <footer>RAG Engine Lab · El cálculo didáctico del transformer se separa explícitamente del embedding real.</footer>
-<script src="/app.js?v=8" defer></script>
+<script src="/app.js?v=9" defer></script>
 </body></html>

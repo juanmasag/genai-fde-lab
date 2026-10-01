@@ -1,6 +1,6 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const EXAMPLE_DOC=$('#document').value;
-const state={ingest:null,analysis:null,tab:'chunks',stage:0,guide:0,playTimer:null,dbTimer:null};
+const state={ingest:null,analysis:null,tab:'chunks',stage:0,guide:0,playTimer:null,dbTimer:null,mobileStep:0,attentionToken:0,transformerSubstep:0};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const fmt=n=>Number(n).toFixed(3);
@@ -109,25 +109,35 @@ function populateTransformerSentences(){
 function renderTransformer(){
   const text=$('#transformerSentence').value||parseSections($('#document').value)[0]?.text||'';
   const t=toyTransformer(text);if(!t.toks.length)return;
-  $('#calcSteps').innerHTML=[
-    ['① Tokens',t.toks.map((x,i)=>'<span class="token">'+i+' · '+esc(x)+'</span>').join('')],
-    ['② Token → vector inicial','Elegimos <b>'+esc(t.toks[0])+'</b>: '+vecStr(baseVector(t.toks[0]))],
-    ['③ + posición','posición 0 = '+vecStr(positional(0))+'<br>entrada = '+vecStr(t.x[0])],
-    ['④ Q, K y V','Q = '+vecStr(t.q[0])+'<br>K = '+vecStr(t.k[0])+'<br>V = '+vecStr(t.val[0])],
-    ['⑤ Atención','score(q₀,kⱼ) = (Q·K)/√d → softmax → pesos que suman 1'],
-    ['⑥ Vector contextual','contexto token 0 = Σ pesoⱼ × Vⱼ = '+vecStr(t.ctx[0])],
-    ['⑦ Pooling','promedio de vectores contextualizados = '+vecStr(t.pooled)],
-    ['⑧ Proyección didáctica','0.45·d1 − 0.25·d2 + 0.55·d3 + 0.15·d4 = <b>'+t.scalar.toFixed(4)+'</b>']
-  ].map(([h,b])=>'<div class="calc-card"><strong>'+h+'</strong><div>'+b+'</div></div>').join('');
-  renderHeatmap(t);
+  state.attentionToken=clamp(state.attentionToken,0,t.toks.length-1);
+  const f=state.attentionToken;
+  const steps=[
+    ['1. Tokens',t.toks.map((x,i)=>'<button class="token token-pick '+(i===f?'token-selected':'')+'" data-token="'+i+'">'+i+' · '+esc(x)+'</button>').join('')],
+    ['2. Vector inicial','Token elegido: <b>'+esc(t.toks[f])+'</b><br>'+vecStr(baseVector(t.toks[f]))],
+    ['3. Posición','Vector posición '+f+' = '+vecStr(positional(f))+'<br>Entrada al transformer = '+vecStr(t.x[f])],
+    ['4. Q, K y V','Q = '+vecStr(t.q[f])+'<br>K = '+vecStr(t.k[f])+'<br>V = '+vecStr(t.val[f])],
+    ['5. Scores','Cada Q se compara con cada K: score = (Q · K) / sqrt(d). Esos scores todavía no son probabilidades.'],
+    ['6. Softmax / atención','Softmax convierte los scores en pesos que suman 1. El heatmap muestra a qué tokens atiende más <b>'+esc(t.toks[f])+'</b>.'],
+    ['7. Vector contextual','Se mezclan los V usando esos pesos: Σ peso_j × V_j = '+vecStr(t.ctx[f])],
+    ['8. Pooling / salida','Se resumen los vectores contextualizados. Pooling = '+vecStr(t.pooled)+'<br>Proyección didáctica = <b>'+t.scalar.toFixed(4)+'</b>']
+  ];
+  state.transformerSubstep=clamp(state.transformerSubstep,0,steps.length-1);
+  $('#calcSteps').innerHTML='<div class="transformer-step-nav"><button id="tfPrev" class="secondary">Anterior</button><span>'+(state.transformerSubstep+1)+' / 8</span><button id="tfNext" class="primary compact">Siguiente</button></div>'+steps.map(([h,b],i)=>'<div class="calc-card transformer-card '+(i===state.transformerSubstep?'active':'')+'"><strong>'+h+'</strong><div>'+b+'</div></div>').join('');
+  $$('.token-pick').forEach(b=>b.addEventListener('click',()=>{state.attentionToken=Number(b.dataset.token);renderTransformer();}));
+  $('#tfPrev').disabled=state.transformerSubstep===0;$('#tfNext').disabled=state.transformerSubstep===7;
+  $('#tfPrev').addEventListener('click',()=>{state.transformerSubstep=Math.max(0,state.transformerSubstep-1);renderTransformer();});
+  $('#tfNext').addEventListener('click',()=>{state.transformerSubstep=Math.min(7,state.transformerSubstep+1);renderTransformer();});
+  renderHeatmap(t,f);
   const real=state.ingest?.chunks?.find(c=>c.content.includes(text.slice(0,18)))||state.ingest?.chunks?.[0];
-  $('#formulaBox').innerHTML='<strong>Separación importante</strong><p>Este cálculo de 4 dimensiones es un transformer mínimo educativo: muestra las operaciones sin afirmar que son los pesos internos de Ollama.</p>'+
-  (real?'<p><b>Salida real:</b> embedding de '+real.dimensions+' dimensiones. Primeros valores: '+real.vectorSample.slice(0,6).map(x=>Number(x).toFixed(4)).join(', ')+'…</p>':'<p>Ejecutá la ingesta para compararlo con un embedding real.</p>');
+  $('#formulaBox').innerHTML='<strong>Qué es real y qué es didáctico</strong><p>Los pasos 1–8 usan un transformer mínimo de 4 dimensiones para que puedas seguir la matemática. No son los pesos internos de Ollama.</p>'+(real?'<p><b>Embedding real:</b> '+real.dimensions+' dimensiones. Primeros valores: '+real.vectorSample.slice(0,6).map(x=>Number(x).toFixed(4)).join(', ')+'…</p>':'<p>Ejecutá la ingesta para compararlo con el embedding real.</p>');
 }
-function renderHeatmap(t){
+function renderHeatmap(t,focus){
   const n=t.toks.length,wrap=$('#attentionHeatmap');
-  let html='<div class="heat-grid" style="grid-template-columns:84px repeat('+n+',minmax(32px,1fr))"><span></span>'+t.toks.map(x=>'<span class="heat-label">'+esc(x)+'</span>').join('');
-  t.toks.forEach((tok,i)=>{html+='<span class="heat-label row-label">'+esc(tok)+'</span>';t.att[i].forEach(w=>{const a=.08+.85*w;html+='<span class="heat-cell" style="background:rgba(96,165,250,'+a.toFixed(2)+')" title="'+w.toFixed(4)+'">'+w.toFixed(2)+'</span>';});});
+  const row=t.att[focus]||[];
+  const ranked=row.map((w,i)=>({w,i})).sort((a,b)=>b.w-a.w);
+  const chosen=new Set(ranked.slice(0,Math.min(3,ranked.length)).map(x=>x.i));chosen.add(focus);
+  let html='<div class="heat-grid" style="grid-template-columns:84px repeat('+n+',minmax(32px,1fr))"><span></span>'+t.toks.map((x,i)=>'<span class="heat-label '+(chosen.has(i)?'heat-label-selected':'')+'">'+esc(x)+'</span>').join('');
+  t.toks.forEach((tok,i)=>{html+='<span class="heat-label row-label '+(i===focus?'heat-label-focus':'')+'">'+esc(tok)+'</span>';t.att[i].forEach((w,j)=>{const a=.10+.78*w;const selected=i===focus&&chosen.has(j);const bg=selected?'rgba(52,211,153,'+Math.min(.95,.22+a).toFixed(2)+')':'rgba(96,165,250,'+a.toFixed(2)+')';html+='<span class="heat-cell '+(selected?'heat-selected':'')+'" style="background:'+bg+'" title="'+w.toFixed(4)+'">'+w.toFixed(2)+'</span>';});});
   wrap.innerHTML=html+'</div>';
 }
 $('#transformerSentence').addEventListener('change',renderTransformer);
@@ -201,11 +211,26 @@ $('#guidePrev').addEventListener('click',()=>setGuide(state.guide-1,true));
 $('#guideNext').addEventListener('click',()=>setGuide(state.guide===guides.length-1?0:state.guide+1,true));
 $$('#journeyTrack button').forEach((b,i)=>b.addEventListener('click',()=>setGuide(i,true)));
 
+
+const mobileScreens=[
+  ['Documento','#step-document'],['Transformer','#step-transformer'],['Base vectorial','#step-db'],['Pregunta','#step-query'],['Pipeline','#step-query'],['Vectores','#step-vectors'],['Respuesta','#step-answer'],['Dentro de pgvector','#step-db-browser']
+];
+function setMobileStep(i,scroll=true){
+  state.mobileStep=clamp(i,0,mobileScreens.length-1);
+  document.body.dataset.mobileStep=String(state.mobileStep);
+  $('#mobileStepTitle').textContent=mobileScreens[state.mobileStep][0];
+  $('#mobileStepProgress').textContent=(state.mobileStep+1)+' / '+mobileScreens.length;
+  $('#mobilePrev').disabled=state.mobileStep===0;$('#mobileNext').disabled=state.mobileStep===mobileScreens.length-1;
+  if(scroll&&window.innerWidth<760)document.querySelector(mobileScreens[state.mobileStep][1])?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('#mobilePrev').addEventListener('click',()=>setMobileStep(state.mobileStep-1));
+$('#mobileNext').addEventListener('click',()=>setMobileStep(state.mobileStep+1));
+
 $$('#pipeline button').forEach((b,i)=>b.addEventListener('click',()=>{state.stage=i;renderStage();}));
 $('#pipelinePrev').addEventListener('click',()=>{state.stage=Math.max(0,state.stage-1);renderStage();});
 $('#pipelineNext').addEventListener('click',()=>{state.stage=Math.min(8,state.stage+1);renderStage();});
 $('#play').addEventListener('click',()=>{if(state.playTimer){clearInterval(state.playTimer);state.playTimer=null;$('#play').textContent='Recorrer';return;}state.stage=0;renderStage();$('#play').textContent='Pausar';state.playTimer=setInterval(()=>{state.stage++;if(state.stage>8){clearInterval(state.playTimer);state.playTimer=null;state.stage=8;$('#play').textContent='Recorrer';}renderStage();},1100);});
 $$('.tab').forEach(b=>b.addEventListener('click',()=>{$$('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;renderTechnical();}));
 
-wireRanges();updateDocStats();setGuide(0);health();renderAll();loadDbBrowser().catch(()=>{});
+wireRanges();updateDocStats();setGuide(0);setMobileStep(0,false);health();renderAll();loadDbBrowser().catch(()=>{});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
