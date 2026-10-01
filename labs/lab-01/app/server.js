@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import pg from 'pg';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const { Pool } = pg;
@@ -27,7 +28,42 @@ app.use(express.static(path.join(__dirname,'public'),{etag:false,maxAge:0}));
 function clamp(n,a,b){ return Math.max(a,Math.min(b,n)); }
 function vec(v){ return '[' + v.map(x=>Number(x).toFixed(8)).join(',') + ']'; }
 function norm(v){ return Math.sqrt(v.reduce((s,x)=>s+x*x,0)); }
-function tokenizeApprox(text){ return (text.match(/[\p{L}\p{N}]+|[^\s\p{L}\p{N}]/gu)||[]); }
+const BERT_VOCAB_PATH=path.join(__dirname,'data','bert-base-uncased-vocab.txt');
+const BERT_VOCAB=new Set(fs.readFileSync(BERT_VOCAB_PATH,'utf8').split(/\r?\n/).filter(Boolean));
+function normalizeBertToken(s){ return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
+function basicBertTokens(text){ return String(text).replace(/[\u0000\ufffd]/g,' ').match(/[\p{L}\p{N}]+|[^\s\p{L}\p{N}]/gu)||[]; }
+function wordPieceTokenize(text){
+  const out=[];
+  for(const raw of basicBertTokens(text)){
+    const token=normalizeBertToken(raw);
+    if(BERT_VOCAB.has(token)){ out.push(token); continue; }
+    if(token.length>100){ out.push('[UNK]'); continue; }
+    let start=0,pieces=[],bad=false;
+    while(start<token.length){
+      let end=token.length,cur=null;
+      while(start<end){
+        const sub=(start>0?'##':'')+token.slice(start,end);
+        if(BERT_VOCAB.has(sub)){ cur=sub; break; }
+        end--;
+      }
+      if(cur===null){ bad=true; break; }
+      pieces.push(cur); start=end;
+    }
+    out.push(...(bad?['[UNK]']:pieces));
+  }
+  return out;
+}
+function detokenizeWordPieces(tokens){
+  let out='';
+  for(const tok of tokens){
+    if(tok.startsWith('##')) out+=tok.slice(2);
+    else if(/^[.,!?;:%)\]}]$/.test(tok)) out+=tok;
+    else if(/^[([{¿¡]$/.test(tok)) out+=(out?' ':'')+tok;
+    else out+=(out?' ':'')+tok;
+  }
+  return out.replace(/\s+([.,!?;:%)\]}])/g,'$1').replace(/([([{¿¡])\s+/g,'$1');
+}
+function tokenizeApprox(text){ return wordPieceTokenize(text); }
 
 async function initDb(){
   await pool.query('create extension if not exists vector');
@@ -51,17 +87,22 @@ function sectionsFromMarkdown(text){
 }
 
 function chunkDocument(text,chunkSize=90,overlap=18){
-  chunkSize=clamp(Number(chunkSize)||90,30,300);
+  chunkSize=clamp(Number(chunkSize)||90,30,512);
   overlap=clamp(Number(overlap)||0,0,Math.max(0,chunkSize-1));
   const chunks=[]; let idx=0;
-  for(const s of sectionsFromMarkdown(text)){
-    const words=s.text.split(/\s+/).filter(Boolean);
+  for(const sec of sectionsFromMarkdown(text)){
+    const tokens=wordPieceTokenize(sec.text);
     const stride=Math.max(1,chunkSize-overlap);
-    for(let start=0;start<words.length;start+=stride){
-      const part=words.slice(start,start+chunkSize);
+    for(let start=0;start<tokens.length;start+=stride){
+      const part=tokens.slice(start,start+chunkSize);
       if(!part.length) break;
-      chunks.push({chunk_index:idx++,section:s.section,content:part.join(' '),word_start:start,word_end:start+part.length});
-      if(start+chunkSize>=words.length) break;
+      chunks.push({
+        chunk_index:idx++,section:sec.section,content:detokenizeWordPieces(part),tokens:part,
+        token_start:start,token_end:start+part.length,
+        overlap_from_previous:start>0?Math.min(overlap,part.length):0,
+        overlap_to_next:start+chunkSize<tokens.length?Math.min(overlap,part.length):0
+      });
+      if(start+chunkSize>=tokens.length) break;
     }
   }
   return chunks;
@@ -89,12 +130,22 @@ app.get('/api/health', async (req,res)=>{
   }catch(e){res.status(500).json({ok:false,error:e.message});}
 });
 
+app.post('/api/chunk-preview',(req,res)=>{
+  try{
+    const text=String(req.body.text||'').trim();
+    const chunkSize=clamp(Number(req.body.chunkSize)||90,30,512);
+    const overlap=clamp(Number(req.body.overlap)||18,0,chunkSize-1);
+    const chunks=chunkDocument(text,chunkSize,overlap);
+    res.json({ok:true,chunkSize,overlap,tokenCount:wordPieceTokenize(text).length,tokenizer:'BERT WordPiece / nomic-bert',chunks:chunks.map(c=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,tokens:c.tokens,tokenStart:c.token_start,tokenEnd:c.token_end,overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next}))});
+  }catch(e){res.status(500).json({error:e.message});}
+});
+
 app.post('/api/ingest', async (req,res)=>{
   try{
     const text=String(req.body.text||'').trim();
     const title=String(req.body.title||'documento.md').slice(0,180);
     if(text.length<20) return res.status(400).json({error:'El documento es demasiado corto.'});
-    const chunkSize=clamp(Number(req.body.chunkSize)||90,30,300);
+    const chunkSize=clamp(Number(req.body.chunkSize)||90,30,512);
     const overlap=clamp(Number(req.body.overlap)||18,0,chunkSize-1);
     const chunks=chunkDocument(text,chunkSize,overlap);
     const embeddings=await embed(chunks.map(c=>c.content));
@@ -112,7 +163,7 @@ app.post('/api/ingest', async (req,res)=>{
       for(let i=0;i<chunks.length;i++){
         const c=chunks[i];
         const chunkId='chunk_'+String(c.chunk_index+1).padStart(3,'0');
-        const metadata={source:title,section:c.section,chunk_id:chunkId,word_start:c.word_start,word_end:c.word_end};
+        const metadata={source:title,section:c.section,chunk_id:chunkId,token_start:c.token_start,token_end:c.token_end,token_count:c.tokens.length};
         const ir=await client.query('insert into rag_chunks(document_id,chunk_index,section,content,embedding,metadata) values($1,$2,$3,$4,$5::vector,$6::jsonb) returning id',[documentId,c.chunk_index,c.section,c.content,vec(embeddings[i]),JSON.stringify(metadata)]);
         dbEvents.push({type:'insert_chunk',label:'Chunk + embedding insertados en pgvector',chunkId,rowId:ir.rows[0].id,dimensions:embeddings[i].length,section:c.section});
       }
@@ -120,7 +171,7 @@ app.post('/api/ingest', async (req,res)=>{
       dbEvents.push({type:'transaction_commit',label:'COMMIT confirmado'});
     }catch(e){await client.query('rollback');dbEvents.push({type:'transaction_rollback',label:'ROLLBACK'});throw e;}finally{client.release();}
     const stored=await pool.query('select count(*)::int as rows from rag_chunks where document_id=$1',[documentId]);
-    res.json({ok:true,documentId,title,chunkSize,overlap,tokenEstimate:tokenizeApprox(text).length,dbEvents,storedRows:stored.rows[0].rows,chunks:chunks.map((c,i)=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,wordStart:c.word_start,wordEnd:c.word_end,dimensions:embeddings[i].length,vectorSample:embeddings[i].slice(0,10),norm:norm(embeddings[i])}))});
+    res.json({ok:true,documentId,title,chunkSize,overlap,tokenEstimate:tokenizeApprox(text).length,tokenizer:'BERT WordPiece / nomic-bert',dbEvents,storedRows:stored.rows[0].rows,chunks:chunks.map((c,i)=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,tokens:c.tokens,tokenStart:c.token_start,tokenEnd:c.token_end,overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next,dimensions:embeddings[i].length,vectorSample:embeddings[i].slice(0,10),norm:norm(embeddings[i])}))});
   }catch(e){res.status(500).json({error:e.message});}
 });
 
