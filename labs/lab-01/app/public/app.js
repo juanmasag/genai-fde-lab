@@ -224,6 +224,42 @@ $('#guideNext').addEventListener('click',()=>setGuide(state.guide===guides.lengt
 $$('#journeyTrack button').forEach((b,i)=>b.addEventListener('click',()=>setGuide(i,true)));
 
 
+
+function installTaskAnimations(){
+  const specs=[
+    ['#step-document','doc',`<div class="anim-doc"><div class="anim-page"><span></span><span></span><span></span><i></i></div><div class="anim-arrow"></div><div class="anim-mini-chunks"><b></b><b></b><b></b></div></div>`,'Documento → bloques de texto'],
+    ['#step-transformer','transformer',`<div class="anim-transformer"><div class="anim-tokens"><b>T1</b><b>T2</b><b>T3</b><b>T4</b></div><div class="anim-flow-line"></div><div class="anim-core"><i></i><i></i><i></i></div><div class="anim-vector-out"><span></span><span></span><span></span><span></span></div></div>`,'Tokens → atención → vector'],
+    ['#step-db','db',`<div class="anim-db"><div class="anim-stack"><b></b><b></b><b></b></div><div class="anim-db-track"><i></i></div><div class="anim-db-cylinder"><span>pgvector</span><b></b><b></b><b></b></div></div>`,'Chunks + embeddings → pgvector'],
+    ['#step-query .query-card','query',`<div class="anim-query"><div class="anim-question">Q</div><div class="anim-query-wave"><i></i><i></i><i></i></div><div class="anim-query-vector"><b></b><b></b><b></b><b></b></div></div>`,'Pregunta → embedding'],
+    ['#step-query .pipeline-panel','pipeline',`<div class="anim-pipeline"><b>DOC</b><i></i><b>VEC</b><i></i><b>DB</b><i></i><b>RET</b><i></i><b>LLM</b></div>`,'Flujo E2E activo'],
+    ['#step-vectors','vectors',`<div class="anim-vectors"><div class="anim-origin"></div><span class="anim-vq"></span><span class="anim-v1"></span><span class="anim-v2"></span><span class="anim-v3"></span><div class="anim-angle"></div></div>`,'Comparación por similitud coseno'],
+    ['#step-answer','answer',`<div class="anim-answer"><div class="anim-context-pills"><b></b><b></b><b></b></div><div class="anim-answer-arrow"></div><div class="anim-llm-box">LLM</div><div class="anim-stream"><span></span><span></span><span></span><span></span></div></div>`,'Contexto → LLM → respuesta'],
+    ['#step-db-browser','browser',`<div class="anim-browser"><div class="anim-table"><span></span><span></span><span></span><span></span></div><div class="anim-magnifier"></div><div class="anim-dims"><b></b><b></b><b></b><b></b><b></b></div></div>`,'Inspección de filas y dimensiones reales']
+  ];
+  for(const [selector,type,visual,label] of specs){
+    const host=$(selector); if(!host||host.querySelector('.task-animation')) continue;
+    const card=document.createElement('div');
+    card.className='task-animation task-'+type;
+    card.innerHTML='<div class="task-animation-visual" aria-hidden="true">'+visual+'</div><div class="task-animation-label">'+label+'</div>';
+    const head=host.querySelector('.section-head');
+    if(head) head.insertAdjacentElement('afterend',card); else host.prepend(card);
+  }
+  syncTaskAnimations();
+}
+function syncTaskAnimations(){
+  const all=$$('.task-animation');
+  all.forEach(x=>x.classList.remove('animation-active'));
+  if(window.innerWidth<760){
+    const current=mobileScreens[state.mobileStep]?.[1];
+    if(current){
+      const screen=document.querySelector(current);
+      if(state.mobileStep===3)screen?.querySelector('.query-card .task-animation')?.classList.add('animation-active');
+      else if(state.mobileStep===4)screen?.querySelector('.pipeline-panel .task-animation')?.classList.add('animation-active');
+      else screen?.querySelector('.task-animation')?.classList.add('animation-active');
+    }
+  }else all.forEach(x=>x.classList.add('animation-active'));
+}
+
 const mobileScreens=[
   ['Documento','#step-document'],['Transformer','#step-transformer'],['Base vectorial','#step-db'],['Pregunta','#step-query'],['Pipeline','#step-query'],['Vectores','#step-vectors'],['Respuesta','#step-answer'],['Dentro de pgvector','#step-db-browser']
 ];
@@ -233,6 +269,7 @@ function setMobileStep(i,scroll=true){
   $('#mobileStepTitle').textContent=mobileScreens[state.mobileStep][0];
   $('#mobileStepProgress').textContent=(state.mobileStep+1)+' / '+mobileScreens.length;
   $('#mobilePrev').disabled=state.mobileStep===0;$('#mobileNext').disabled=state.mobileStep===mobileScreens.length-1;
+  syncTaskAnimations();
   if(scroll&&window.innerWidth<760)document.querySelector(mobileScreens[state.mobileStep][1])?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('#mobilePrev').addEventListener('click',()=>setMobileStep(state.mobileStep-1));
@@ -244,5 +281,6 @@ $('#pipelineNext').addEventListener('click',()=>{state.stage=Math.min(8,state.st
 $('#play').addEventListener('click',()=>{if(state.playTimer){clearInterval(state.playTimer);state.playTimer=null;$('#play').textContent='Recorrer';return;}state.stage=0;renderStage();$('#play').textContent='Pausar';state.playTimer=setInterval(()=>{state.stage++;if(state.stage>8){clearInterval(state.playTimer);state.playTimer=null;state.stage=8;$('#play').textContent='Recorrer';}renderStage();},1100);});
 $$('.tab').forEach(b=>b.addEventListener('click',()=>{$$('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;renderTechnical();}));
 
-wireRanges();updateDocStats();setGuide(0);setMobileStep(0,false);health();renderAll();loadDbBrowser().catch(()=>{});
+wireRanges();updateDocStats();setGuide(0);installTaskAnimations();setMobileStep(0,false);health();renderAll();loadDbBrowser().catch(()=>{});
+window.addEventListener('resize',syncTaskAnimations);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
