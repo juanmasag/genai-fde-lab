@@ -69,10 +69,10 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   <article class="panel">
     <div class="section-head"><div><span class="step-tag">2</span><h2>Parámetros de ingesta</h2></div><span class="hint">cambian todo el pipeline</span></div>
     <div class="controls-grid">
-      <label>Chunk size <output id="chunkSizeOut">55</output><input id="chunkSize" type="range" min="30" max="160" value="55"></label>
-      <label>Overlap <output id="overlapOut">10</output><input id="overlap" type="range" min="0" max="50" value="10"></label>
+      <label>Chunk size <span class="unit-label">tokens</span> <output id="chunkSizeOut">55</output><input id="chunkSize" type="range" min="30" max="512" value="55"></label>
+      <label>Overlap <span class="unit-label">tokens</span> <output id="overlapOut">10</output><input id="overlap" type="range" min="0" max="128" value="10"></label>
     </div>
-    <button id="previewChunks" class="secondary full">Previsualizar chunks</button>
+    <p class="tokenizer-note">El corte se calcula con el tokenizer BERT/WordPiece usado por <code>nomic-bert</code>. El overlap se marca en otro color.</p><button id="previewChunks" class="secondary full">Previsualizar chunks</button>
     <button id="ingest" class="primary">Ejecutar ingesta real</button>
     <div id="ingestStatus" class="status-line"></div>
     <div id="chunkPreview" class="cards compact-cards"></div>
