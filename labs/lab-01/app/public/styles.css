@@ -174,3 +174,19 @@ footer{padding:4px 0 28px;color:var(--muted);font-size:.72rem;text-align:center}
   .pipeline-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;scroll-snap-type:none}.pipeline-board button{min-width:0;min-height:84px}.pipeline-nav{position:static;background:transparent;border:0;padding:0;backdrop-filter:none}
   .db-table-wrap{max-height:340px}.db-detail{max-height:420px;overflow:auto}.vector-full{max-height:250px}
 }
+
+
+/* Token-based chunk preview */
+.unit-label{font-size:.72rem;color:var(--muted);font-weight:600;margin-left:4px}
+.tokenizer-note{margin:8px 0 10px;color:var(--muted);font-size:.78rem;line-height:1.4}
+.overlap-legend{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:.72rem;margin:6px 0 10px}
+.overlap-swatch{width:18px;height:12px;border-radius:4px;background:rgba(251,191,36,.26);border:1px solid rgba(251,191,36,.72);box-shadow:0 0 10px rgba(251,191,36,.12)}
+.chunk-token-stream{display:flex;flex-wrap:wrap;gap:4px 5px;margin:10px 0 8px;line-height:1.45}
+.chunk-token{display:inline-block;padding:2px 4px;border-radius:5px;color:var(--text)}
+.chunk-token.overlap-token{background:rgba(251,191,36,.18);border:1px solid rgba(251,191,36,.54);color:#fde68a;box-shadow:0 0 9px rgba(251,191,36,.08)}
+.preview-card small{display:block;color:var(--muted);margin-top:5px}
+@media(max-width:759px){
+  .chunk-token-stream{gap:3px 4px}
+  .chunk-token{font-size:.78rem}
+  .overlap-legend{position:sticky;top:0;z-index:2;background:rgba(13,20,36,.95);padding:6px;border-radius:8px}
+}
