@@ -136,7 +136,7 @@ app.post('/api/chunk-preview',(req,res)=>{
     const chunkSize=clamp(Number(req.body.chunkSize)||90,30,512);
     const overlap=clamp(Number(req.body.overlap)||18,0,chunkSize-1);
     const chunks=chunkDocument(text,chunkSize,overlap);
-    res.json({ok:true,chunkSize,overlap,tokenCount:wordPieceTokenize(text).length,tokenizer:'BERT WordPiece / nomic-bert',chunks:chunks.map(c=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,tokens:c.tokens,tokenStart:c.token_start,tokenEnd:c.token_end,overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next}))});
+    res.json({ok:true,chunkSize,overlap,tokenCount:wordPieceTokenize(text).length,tokenizer:'BERT WordPiece usado por el laboratorio' ,chunks:chunks.map(c=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,tokens:c.tokens,tokenStart:c.token_start,tokenEnd:c.token_end,overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next}))});
   }catch(e){res.status(500).json({error:e.message});}
 });
 
@@ -163,7 +163,7 @@ app.post('/api/ingest', async (req,res)=>{
       for(let i=0;i<chunks.length;i++){
         const c=chunks[i];
         const chunkId='chunk_'+String(c.chunk_index+1).padStart(3,'0');
-        const metadata={source:title,section:c.section,chunk_id:chunkId,token_start:c.token_start,token_end:c.token_end,token_count:c.tokens.length};
+        const metadata={source:title,section:c.section,chunk_id:chunkId,token_start:c.token_start,token_end:c.token_end,token_count:c.tokens.length,overlap_from_previous:c.overlap_from_previous,overlap_to_next:c.overlap_to_next};
         const ir=await client.query('insert into rag_chunks(document_id,chunk_index,section,content,embedding,metadata) values($1,$2,$3,$4,$5::vector,$6::jsonb) returning id',[documentId,c.chunk_index,c.section,c.content,vec(embeddings[i]),JSON.stringify(metadata)]);
         dbEvents.push({type:'insert_chunk',label:'Chunk + embedding insertados en pgvector',chunkId,rowId:ir.rows[0].id,dimensions:embeddings[i].length,section:c.section});
       }
@@ -171,7 +171,7 @@ app.post('/api/ingest', async (req,res)=>{
       dbEvents.push({type:'transaction_commit',label:'COMMIT confirmado'});
     }catch(e){await client.query('rollback');dbEvents.push({type:'transaction_rollback',label:'ROLLBACK'});throw e;}finally{client.release();}
     const stored=await pool.query('select count(*)::int as rows from rag_chunks where document_id=$1',[documentId]);
-    res.json({ok:true,documentId,title,chunkSize,overlap,tokenEstimate:tokenizeApprox(text).length,tokenizer:'BERT WordPiece / nomic-bert',dbEvents,storedRows:stored.rows[0].rows,chunks:chunks.map((c,i)=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,tokens:c.tokens,tokenStart:c.token_start,tokenEnd:c.token_end,overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next,dimensions:embeddings[i].length,vectorSample:embeddings[i].slice(0,10),norm:norm(embeddings[i])}))});
+    res.json({ok:true,documentId,title,chunkSize,overlap,tokenEstimate:tokenizeApprox(text).length,tokenizer:'BERT WordPiece usado por el laboratorio' ,dbEvents,storedRows:stored.rows[0].rows,chunks:chunks.map((c,i)=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,tokens:c.tokens,tokenStart:c.token_start,tokenEnd:c.token_end,overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next,dimensions:embeddings[i].length,vectorSample:embeddings[i].slice(0,10),norm:norm(embeddings[i])}))});
   }catch(e){res.status(500).json({error:e.message});}
 });
 

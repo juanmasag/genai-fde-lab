@@ -60,7 +60,7 @@ No se versionan credenciales.
 La aplicación puede publicarse dentro del tailnet sin abrirla a Internet:
 
 ```bash
-tailscale serve --bg --https=8446 4173
+tailscale serve --bg --https=8447 4173
 ```
 
 Abrir la URL HTTPS informada por Tailscale desde un teléfono conectado al mismo tailnet. Al servirse por HTTPS, puede instalarse como PWA.
@@ -72,3 +72,15 @@ La PWA incluye un documento corto de laboratorio (`data/guia-soporte.md`) y un g
 El **Microscopio del transformer** ejecuta en el navegador un transformer mínimo de 4 dimensiones con matrices fijas para poder inspeccionar la matemática: vector inicial, codificación posicional, Q/K/V, producto punto escalado, softmax, atención, vector contextual, pooling y una proyección final. Este cálculo está rotulado como educativo y no pretende ser una extracción de los pesos internos de Ollama. Al lado se muestra el embedding real de 768 dimensiones producido por `nomic-embed-text`.
 
 La vista **Base vectorial en vivo** reproduce eventos que provienen de operaciones reales del backend: `BEGIN`, inserción del documento, inserciones de chunks+embeddings y `COMMIT`. La búsqueda posterior se limita al documento actualmente ingerido para que cambiar el documento cambie coherentemente todo el recorrido.
+
+## Coherencia entre módulos
+
+La previsualización y la ingesta llaman al mismo `chunkDocument()` del backend, por lo que `chunk_size`, `overlap`, límites y tokens son los mismos antes y después de persistir. La metadata de pgvector conserva `token_start`, `token_end`, `token_count`, `overlap_from_previous` y `overlap_to_next`.
+
+El overlap visual se muestra dentro del propio chunk: los tokens verdes al final de un chunk son los que se repiten al comienzo del chunk siguiente. Si una sección completa entra en un solo chunk, no se muestra overlap porque no existe un límite interno real.
+
+Ejecutar la auditoría de integración con:
+
+```bash
+npm run check:integration
+```

@@ -1,5 +1,5 @@
-const CACHE='rag-engine-lab-v11';
-const APP_SHELL=['/','/styles.css?v=11','/app.js?v=11','/manifest.webmanifest','/icon.svg','/icon-192.png','/icon-512.png'];
+const CACHE='rag-engine-lab-v12';
+const APP_SHELL=['/','/styles.css?v=12','/app.js?v=12','/manifest.webmanifest','/icon.svg','/icon-192.png','/icon-512.png'];
 self.addEventListener('install',event=>{
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_SHELL)));

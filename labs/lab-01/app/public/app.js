@@ -1,6 +1,6 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const EXAMPLE_DOC=$('#document').value;
-const state={ingest:null,analysis:null,tab:'chunks',stage:0,guide:0,playTimer:null,dbTimer:null,mobileStep:0,attentionToken:0,transformerSubstep:0};
+const state={ingest:null,analysis:null,activeDocumentId:null,tab:'chunks',stage:0,guide:0,playTimer:null,dbTimer:null,mobileStep:0,attentionToken:0,transformerSubstep:0};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const fmt=n=>Number(n).toFixed(3);
@@ -35,12 +35,21 @@ async function previewChunking(){
     if(seq!==previewSeq)return [];
     const tokenStat=$('#tokenStat');if(tokenStat)tokenStat.textContent=data.tokenCount+' tokens WordPiece';
     const chunks=data.chunks||[];
-    const tokenHtml=c=>(c.tokens||[]).map((tok,i)=>{
-      const overlap=i<c.overlapFromPrevious || i>=Math.max(0,c.tokens.length-c.overlapToNext);
-      return '<span class="chunk-token '+(overlap?'overlap-token':'')+'">'+esc(tok)+'</span>';
+    const tokenHtml=(c,chunkIndex)=>(c.tokens||[]).map((tok,i)=>{
+      const repeatsInNext=c.overlapToNext>0 && i>=Math.max(0,c.tokens.length-c.overlapToNext);
+      const repeatedFromPrevious=c.overlapFromPrevious>0 && i<c.overlapFromPrevious;
+      const cls=repeatsInNext?'overlap-token overlap-to-next':(repeatedFromPrevious?'overlap-token overlap-from-previous':'');
+      const title=repeatsInNext&&chunks[chunkIndex+1]?'Se repite en '+chunks[chunkIndex+1].chunkId:(repeatedFromPrevious&&chunks[chunkIndex-1]?'Repetido desde '+chunks[chunkIndex-1].chunkId:'');
+      return '<span class="chunk-token '+cls+'" title="'+esc(title)+'">'+esc(tok)+'</span>';
     }).join('');
-    box.innerHTML='<div class="overlap-legend"><span class="overlap-swatch"></span> overlap · '+data.overlap+' tokens repetidos entre chunks</div>'+
-      chunks.map(c=>'<div class="data-card preview-card"><strong>'+esc(c.chunkId)+' · '+esc(c.section)+'</strong><div class="chunk-token-stream">'+tokenHtml(c)+'</div><small>tokens '+c.tokenStart+'–'+(Math.max(c.tokenStart,c.tokenEnd-1))+' · '+c.tokens.length+' tokens</small></div>').join('');
+    const hasRealOverlap=chunks.some(c=>c.overlapToNext>0);
+    const overlapStatus=hasRealOverlap?'':'<p class="no-overlap-note">Con esta configuración cada sección entra en un único chunk; no hay overlap real para resaltar.</p>';
+    box.innerHTML=overlapStatus+chunks.map((c,idx)=>{
+      const next=chunks[idx+1];
+      const sameSection=next&&next.section===c.section;
+      const overlapNote=c.overlapToNext>0&&sameSection?'<div class="chunk-overlap-note"><span></span>'+c.overlapToNext+' tokens en verde se repiten en '+esc(next.chunkId)+'</div>':'';
+      return '<div class="data-card preview-card"><strong>'+esc(c.chunkId)+' · '+esc(c.section)+'</strong><div class="chunk-token-stream">'+tokenHtml(c,idx)+'</div>'+overlapNote+'<small>tokens '+c.tokenStart+'–'+(Math.max(c.tokenStart,c.tokenEnd-1))+' · '+c.tokens.length+' tokens</small></div>';
+    }).join('');
     return chunks;
   }catch(e){
     if(seq===previewSeq)box.innerHTML='<div class="empty-state">No se pudo calcular la previsualización: '+esc(e.message)+'</div>';
@@ -68,6 +77,7 @@ async function runIngest(btn,status,stayOnDb=false){
     setBusy(btn,true,'Ejecutando proceso real…');status.className='status-line';status.textContent='Chunking → embeddings → BEGIN → INSERT → COMMIT…';
     if(stayOnDb) document.querySelector('#step-db')?.scrollIntoView({behavior:'smooth',block:'start'});
     state.ingest=await api('/api/ingest',{title:$('#title').value,text:$('#document').value,chunkSize:+$('#chunkSize').value,overlap:+$('#overlap').value});
+    state.activeDocumentId=state.ingest.documentId;
     status.className='status-line ok';status.textContent='✓ '+state.ingest.storedRows+' filas confirmadas en pgvector · '+state.ingest.chunks[0]?.dimensions+'D';
     populateTransformerSentences();replayDbEvents();renderAll();health();setGuide(4);
     if(stayOnDb) setTimeout(()=>document.querySelector('#step-db')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
@@ -81,7 +91,7 @@ $('#analyze').addEventListener('click',async()=>{
   const btn=$('#analyze'),status=$('#analysisStatus');
   try{
     setBusy(btn,true,'Embedding → búsqueda → LLM…');status.className='status-line';status.textContent='Calculando embedding de pregunta y comparando contra pgvector…';
-    state.analysis=await api('/api/analyze',{question:$('#question').value,topK:+$('#topK').value,threshold:+$('#threshold').value,documentId:state.ingest?.documentId||null});
+    state.analysis=await api('/api/analyze',{question:$('#question').value,topK:+$('#topK').value,threshold:+$('#threshold').value,documentId:state.ingest?.documentId||state.activeDocumentId||null});
     status.className='status-line ok';status.textContent='✓ '+state.analysis.retrieval.ranked.length+' candidatos · '+state.analysis.citations.length+' aceptados';
     state.stage=5;renderAll();setGuide(6);
   }catch(e){status.className='status-line bad';status.textContent='Error: '+e.message;}
@@ -154,7 +164,7 @@ function renderHeatmap(t,focus){
 }
 $('#transformerSentence').addEventListener('change',renderTransformer);
 $('#refreshDb').addEventListener('click',()=>loadDbBrowser($('#dbDocumentSelect').value).catch(()=>{}));
-$('#dbDocumentSelect').addEventListener('change',()=>loadDbBrowser($('#dbDocumentSelect').value).catch(()=>{}));
+$('#dbDocumentSelect').addEventListener('change',()=>{state.activeDocumentId=Number($('#dbDocumentSelect').value)||null;loadDbBrowser(state.activeDocumentId).catch(()=>{});});
 
 function replayDbEvents(){
   if(state.dbTimer)clearInterval(state.dbTimer);
@@ -185,6 +195,7 @@ async function loadDbBrowser(documentId){
   const data=await api('/api/db-browser'+q);
   const sel=$('#dbDocumentSelect');
   if(!sel)return;
+  state.activeDocumentId=data.documentId||state.activeDocumentId;
   sel.innerHTML=data.documents.map(d=>'<option value="'+d.id+'" '+(String(d.id)===String(data.documentId)?'selected':'')+'>'+esc(d.title)+' · '+d.chunk_count+' chunks</option>').join('');
   $('#dbRealSummary').innerHTML='<span>document_id '+(data.documentId??'—')+'</span><span>'+data.rows.length+' filas</span><span>PostgreSQL real</span><span>pgvector</span>';
   const tbody=$('#dbRows');
