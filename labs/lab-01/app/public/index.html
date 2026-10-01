@@ -142,14 +142,20 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
     <button id="analyze" class="primary">Ejecutar análisis E2E</button>
     <div id="analysisStatus" class="status-line"></div>
   </article>
-  <article class="panel">
-    <div class="section-head"><div><span class="step-tag">6</span><h2>Pipeline</h2></div><button id="play" class="secondary">▶ Recorrer</button></div>
-    <div id="pipeline" class="pipeline">
-      <button data-stage="0"><span>Documento</span></button><i>→</i><button data-stage="1">✂️<span>Chunks</span></button><i>→</i>
-      <button data-stage="2">⚙️<span>Transformer</span></button><i>→</i><button data-stage="3"><span>Embeddings</span></button><i>→</i>
-      <button data-stage="4">️<span>Vector DB</span></button><i>→</i><button data-stage="5"><span>Retrieval</span></button><i>→</i>
-      <button data-stage="6"><span>Contexto</span></button><i>→</i><button data-stage="7"><span>LLM</span></button><i>→</i><button data-stage="8"><span>Citas</span></button>
+  <article class="panel pipeline-panel">
+    <div class="section-head"><div><span class="step-tag">6</span><h2>Pipeline</h2></div><button id="play" class="secondary">Recorrer</button></div>
+    <div id="pipeline" class="pipeline-board">
+      <button data-stage="0"><span class="pipe-icon">DOC</span><span>Documento</span></button>
+      <button data-stage="1"><span class="pipe-icon">CHK</span><span>Chunks</span></button>
+      <button data-stage="2"><span class="pipe-icon">TRF</span><span>Transformer</span></button>
+      <button data-stage="3"><span class="pipe-icon">VEC</span><span>Embeddings</span></button>
+      <button data-stage="4"><span class="pipe-icon">DB</span><span>Vector DB</span></button>
+      <button data-stage="5"><span class="pipe-icon">RET</span><span>Retrieval</span></button>
+      <button data-stage="6"><span class="pipe-icon">CTX</span><span>Contexto</span></button>
+      <button data-stage="7"><span class="pipe-icon">LLM</span><span>LLM</span></button>
+      <button data-stage="8"><span class="pipe-icon">SRC</span><span>Citas</span></button>
     </div>
+    <div class="pipeline-nav"><button id="pipelinePrev" class="secondary">Anterior</button><span id="pipelineProgress">1 / 9</span><button id="pipelineNext" class="primary compact">Siguiente</button></div>
     <div id="stageViewer" class="stage-viewer"><div class="empty-state">Ejecutá el recorrido para llenar el laboratorio.</div></div>
   </article>
 </section>
