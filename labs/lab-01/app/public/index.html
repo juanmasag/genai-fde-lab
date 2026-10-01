@@ -106,6 +106,23 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   <div id="dbEvents" class="event-log"><div class="empty-state">EjecutÃ¡ una ingesta para ver la transacciÃ³n.</div></div>
 </section>
 
+<section class="panel" id="step-db-browser">
+  <div class="section-head"><div><span class="step-tag">5</span><h2>Dentro de pgvector</h2></div><span class="hint">filas reales</span></div>
+  <p class="explain">Esta tabla se consulta directamente desde PostgreSQL. TocÃ¡ una fila para abrir el chunk real, su metadata y las 768 dimensiones del embedding.</p>
+  <div class="db-toolbar">
+    <label>Documento almacenado<select id="dbDocumentSelect"></select></label>
+    <button id="refreshDb" class="secondary">Actualizar</button>
+  </div>
+  <div id="dbRealSummary" class="doc-stats"></div>
+  <div class="db-table-wrap">
+    <table class="db-real-table">
+      <thead><tr><th>row id</th><th>chunk</th><th>secciÃ³n</th><th>contenido</th><th>vector</th><th></th></tr></thead>
+      <tbody id="dbRows"><tr><td colspan="6" class="empty-state">Cargando PostgreSQLâ€¦</td></tr></tbody>
+    </table>
+  </div>
+  <div id="dbChunkDetail" class="db-detail"><div class="empty-state">SeleccionÃ¡ una fila para abrirla.</div></div>
+</section>
+
 <section class="hero-grid" id="step-query">
   <article class="panel">
     <div class="section-head"><div><span class="step-tag">5</span><h2>Pregunta y retrieval</h2></div><span class="hint">real</span></div>
@@ -126,10 +143,10 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   <article class="panel">
     <div class="section-head"><div><span class="step-tag">6</span><h2>Pipeline</h2></div><button id="play" class="secondary">â–¶ Recorrer</button></div>
     <div id="pipeline" class="pipeline">
-      <button data-stage="0">í ½í³„<span>Documento</span></button><i>â†’</i><button data-stage="1">âœ‚ï¸<span>Chunks</span></button><i>â†’</i>
-      <button data-stage="2">âš™ï¸<span>Transformer</span></button><i>â†’</i><button data-stage="3">í ¾í·©<span>Embeddings</span></button><i>â†’</i>
-      <button data-stage="4">í ½í·„ï¸<span>Vector DB</span></button><i>â†’</i><button data-stage="5">í ¼í¾¯<span>Retrieval</span></button><i>â†’</i>
-      <button data-stage="6">í ½í³¦<span>Contexto</span></button><i>â†’</i><button data-stage="7">í ¾í´–<span>LLM</span></button><i>â†’</i><button data-stage="8">í ½í´—<span>Citas</span></button>
+      <button data-stage="0"><span>Documento</span></button><i>â†’</i><button data-stage="1">âœ‚ï¸<span>Chunks</span></button><i>â†’</i>
+      <button data-stage="2">âš™ï¸<span>Transformer</span></button><i>â†’</i><button data-stage="3"><span>Embeddings</span></button><i>â†’</i>
+      <button data-stage="4">ï¸<span>Vector DB</span></button><i>â†’</i><button data-stage="5"><span>Retrieval</span></button><i>â†’</i>
+      <button data-stage="6"><span>Contexto</span></button><i>â†’</i><button data-stage="7"><span>LLM</span></button><i>â†’</i><button data-stage="8"><span>Citas</span></button>
     </div>
     <div id="stageViewer" class="stage-viewer"><div class="empty-state">EjecutÃ¡ el recorrido para llenar el laboratorio.</div></div>
   </article>

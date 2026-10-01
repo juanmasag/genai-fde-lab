@@ -147,6 +147,52 @@ app.get('/api/chunks',async(req,res)=>{
   try{const r=await pool.query('select c.id,c.document_id,c.chunk_index,c.section,c.content,c.metadata,d.title from rag_chunks c join rag_documents d on d.id=c.document_id order by c.id desc limit 100');res.json(r.rows);}catch(e){res.status(500).json({error:e.message});}
 });
 
+app.get('/api/db-browser', async (req,res)=>{
+  try{
+    const requested=req.query.documentId?Number(req.query.documentId):null;
+    const docs=await pool.query(`
+      select d.id,d.title,d.created_at,count(c.id)::int as chunk_count
+      from rag_documents d
+      left join rag_chunks c on c.document_id=d.id
+      group by d.id,d.title,d.created_at
+      order by d.id desc
+      limit 50`);
+    const documentId=requested || docs.rows[0]?.id || null;
+    if(!documentId) return res.json({ok:true,documents:[],documentId:null,rows:[]});
+    const rows=await pool.query(`
+      select c.id,c.document_id,c.chunk_index,c.section,c.content,c.metadata,
+             vector_dims(c.embedding) as dimensions,
+             c.embedding::text as embedding_text,
+             d.title
+      from rag_chunks c
+      join rag_documents d on d.id=c.document_id
+      where c.document_id=$1
+      order by c.chunk_index,c.id`,[documentId]);
+    res.json({ok:true,documents:docs.rows,documentId,rows:rows.rows.map(r=>{
+      const vector=String(r.embedding_text||'').replace(/[\[\]]/g,'').split(',').filter(Boolean).map(Number);
+      delete r.embedding_text;
+      return {...r,dimensions:Number(r.dimensions),vectorSample:vector.slice(0,12)};
+    })});
+  }catch(e){res.status(500).json({error:e.message});}
+});
+
+app.get('/api/db-browser/chunk/:id', async (req,res)=>{
+  try{
+    const id=Number(req.params.id);
+    const r=await pool.query(`
+      select c.id,c.document_id,c.chunk_index,c.section,c.content,c.metadata,
+             vector_dims(c.embedding) as dimensions,c.embedding::text as embedding_text,d.title,d.created_at
+      from rag_chunks c
+      join rag_documents d on d.id=c.document_id
+      where c.id=$1`,[id]);
+    if(!r.rowCount) return res.status(404).json({error:'Chunk no encontrado'});
+    const row=r.rows[0];
+    const vector=String(row.embedding_text||'').replace(/[\[\]]/g,'').split(',').filter(Boolean).map(Number);
+    delete row.embedding_text;
+    res.json({ok:true,row:{...row,dimensions:Number(row.dimensions),vector}});
+  }catch(e){res.status(500).json({error:e.message});}
+});
+
 app.use((req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
 
 initDb().then(()=>app.listen(PORT,'127.0.0.1',()=>console.log('RAG Engine Lab http://127.0.0.1:'+PORT))).catch(e=>{console.error(e);process.exit(1)});

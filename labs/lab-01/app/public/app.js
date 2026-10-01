@@ -128,6 +128,8 @@ function renderHeatmap(t){
   wrap.innerHTML=html+'</div>';
 }
 $('#transformerSentence').addEventListener('change',renderTransformer);
+$('#refreshDb').addEventListener('click',()=>loadDbBrowser($('#dbDocumentSelect').value).catch(()=>{}));
+$('#dbDocumentSelect').addEventListener('change',()=>loadDbBrowser($('#dbDocumentSelect').value).catch(()=>{}));
 
 function replayDbEvents(){
   if(state.dbTimer)clearInterval(state.dbTimer);
@@ -152,7 +154,33 @@ function renderVectorPlot(){const box=$('#vectorPlot'),legend=$('#vectorLegend')
 function renderDimensions(){const box=$('#dimensions');if(!state.analysis){box.innerHTML='<div class="empty-state">Esperando embeddings.</div>';return;}const rows=[{name:'Pregunta',v:state.analysis.questionVector.sample},...state.analysis.retrieval.ranked.slice(0,3).map(r=>({name:r.metadata?.chunk_id||String(r.id),v:r.vectorSample}))];let h='<div class="dimension-table"><div class="dim-row dim-head"><span></span>'+Array.from({length:12},(_,i)=>'<div class="dim-cell">d'+(i+1)+'</div>').join('')+'</div>';rows.forEach(r=>{h+='<div class="dim-row"><span>'+esc(r.name)+'</span>'+r.v.slice(0,12).map(v=>'<div class="dim-cell '+(v<0?'neg':'')+'" title="'+Number(v).toFixed(5)+'"><i style="height:'+Math.min(50,Math.abs(v)*240)+'%"></i></div>').join('')+'</div>';});box.innerHTML=h+'</div>';}
 function renderAnswer(){if(!state.analysis){$('#answer').innerHTML='<div class="empty-state">Esperando análisis.</div>';$('#validation').innerHTML='';$('#citations').innerHTML='';return;}$('#answer').textContent=state.analysis.generation.text;const v=state.analysis.validation;$('#validation').innerHTML=v?'<span class="'+(v.citationsValid?'valid':'invalid')+'">'+(v.citationsValid?'✓ Citas válidas':'✕ Cita inválida')+'</span><span>'+v.citedIds.length+' referencias del LLM</span>':'';$('#citations').innerHTML=state.analysis.citations.map(c=>'<div class="citation"><strong>'+esc(c.chunkId)+' · '+fmt(c.similarity)+' · '+esc(c.source)+' → '+esc(c.section)+'</strong><p>'+esc(c.content)+'</p></div>').join('');}
 function renderTechnical(){const b=$('#technical');if(state.tab==='chunks'){b.innerHTML=state.ingest?'<pre>'+esc(JSON.stringify(state.ingest.chunks,null,2))+'</pre>':'<div class="empty-state">Sin chunks.</div>';return;}if(state.tab==='tokens'){const toks=state.analysis?.questionTokens||[];b.innerHTML=toks.length?toks.map((t,i)=>'<span class="token">'+i+': '+esc(t)+'</span>').join(''):'<div class="empty-state">Ejecutá una pregunta.</div>';return;}if(state.tab==='database'){b.innerHTML=state.ingest?'<pre>'+esc(JSON.stringify({documentId:state.ingest.documentId,storedRows:state.ingest.storedRows,events:state.ingest.dbEvents},null,2))+'</pre>':'<div class="empty-state">Sin transacción.</div>';return;}b.innerHTML=state.analysis?'<pre>'+esc(state.analysis.prompt)+'</pre>':'<div class="empty-state">Sin prompt.</div>';}
-function renderAll(){renderStage();renderBars();renderVectorPlot();renderDimensions();renderAnswer();renderTechnical();renderTransformer();}
+
+async function loadDbBrowser(documentId){
+  const q=documentId?'?documentId='+encodeURIComponent(documentId):'';
+  const data=await api('/api/db-browser'+q);
+  const sel=$('#dbDocumentSelect');
+  if(!sel)return;
+  sel.innerHTML=data.documents.map(d=>'<option value="'+d.id+'" '+(String(d.id)===String(data.documentId)?'selected':'')+'>'+esc(d.title)+' · '+d.chunk_count+' chunks</option>').join('');
+  $('#dbRealSummary').innerHTML='<span>document_id '+(data.documentId??'—')+'</span><span>'+data.rows.length+' filas</span><span>PostgreSQL real</span><span>pgvector</span>';
+  const tbody=$('#dbRows');
+  tbody.innerHTML=data.rows.length?data.rows.map(r=>'<tr data-row-id="'+r.id+'"><td>'+r.id+'</td><td>'+esc(r.metadata?.chunk_id||('chunk_'+r.chunk_index))+'</td><td>'+esc(r.section)+'</td><td class="db-content-cell">'+esc(r.content)+'</td><td><code>vector('+r.dimensions+')</code><br><small>['+r.vectorSample.slice(0,4).map(x=>Number(x).toFixed(3)).join(', ')+', …]</small></td><td><button class="secondary db-open" data-id="'+r.id+'">Abrir</button></td></tr>').join(''):'<tr><td colspan="6" class="empty-state">Sin filas.</td></tr>';
+  $$('.db-open').forEach(b=>b.addEventListener('click',()=>openDbChunk(b.dataset.id)));
+}
+
+async function openDbChunk(id){
+  const box=$('#dbChunkDetail');
+  box.innerHTML='<div class="empty-state">Leyendo fila '+esc(id)+' directamente desde PostgreSQL…</div>';
+  try{
+    const d=await api('/api/db-browser/chunk/'+encodeURIComponent(id));
+    const r=d.row;
+    const cells=r.vector.map((v,i)=>'<div class="vector-dim"><span>d'+String(i+1).padStart(3,'0')+'</span><b>'+Number(v).toFixed(6)+'</b><i style="width:'+Math.min(100,Math.abs(v)*500)+'%"></i></div>').join('');
+    box.innerHTML='<div class="db-detail-head"><div><div class="eyebrow">FILA REAL #'+r.id+'</div><h3>'+esc(r.metadata?.chunk_id||('chunk_'+r.chunk_index))+' · '+esc(r.section)+'</h3></div><span class="pill ok">vector('+r.dimensions+')</span></div>'+
+      '<div class="db-detail-grid"><div class="data-card"><strong>Contenido almacenado</strong><p>'+esc(r.content)+'</p></div><div class="data-card"><strong>Metadata JSONB</strong><pre>'+esc(JSON.stringify(r.metadata,null,2))+'</pre></div></div>'+
+      '<div class="vector-full-head"><strong>Embedding completo</strong><span>'+r.dimensions+' dimensiones reales</span></div><div class="vector-full">'+cells+'</div>';
+  }catch(e){box.innerHTML='<div class="status-line bad">Error: '+esc(e.message)+'</div>';}
+}
+
+function renderAll(){renderStage();renderBars();renderVectorPlot();renderDimensions();renderAnswer();renderTechnical();renderTransformer();loadDbBrowser(state.ingest?.documentId).catch(()=>{});}
 
 const guides=[
 ['Documento','Este documento corto está diseñado para probar chunking, similitud, grounding, citas y abstención. Podés editar cualquier frase y todo el sistema se recalcula.','#step-document'],
@@ -174,5 +202,5 @@ $$('#pipeline button').forEach((b,i)=>b.addEventListener('click',()=>{state.stag
 $('#play').addEventListener('click',()=>{if(state.playTimer){clearInterval(state.playTimer);state.playTimer=null;$('#play').textContent='▶ Recorrer';return;}state.stage=0;renderStage();$('#play').textContent='⏸ Pausar';state.playTimer=setInterval(()=>{state.stage++;if(state.stage>8){clearInterval(state.playTimer);state.playTimer=null;state.stage=8;$('#play').textContent='▶ Recorrer';}renderStage();},1100);});
 $$('.tab').forEach(b=>b.addEventListener('click',()=>{$$('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;renderTechnical();}));
 
-wireRanges();updateDocStats();setGuide(0);health();renderAll();
+wireRanges();updateDocStats();setGuide(0);health();renderAll();loadDbBrowser().catch(()=>{});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
