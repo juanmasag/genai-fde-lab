@@ -98,6 +98,8 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
 <section class="panel" id="step-db">
   <div class="section-head"><div><span class="step-tag">4</span><h2>Base vectorial en vivo</h2></div><span class="hint">PostgreSQL + pgvector real</span></div>
   <p class="explain">La animación reproduce operaciones que el backend realmente ejecutó. No es una base ficticia: cada tarjeta corresponde a una fila escrita en PostgreSQL.</p>
+  <button id="ingestHere" class="primary db-ingest-cta">Ejecutar ingesta y ver proceso</button>
+  <div id="ingestHereStatus" class="status-line"></div>
   <div class="db-machine">
     <div class="db-source">Chunks<br><small>texto + metadata + vector</small></div>
     <div class="db-pipe"><span id="dbPacket">●</span></div>

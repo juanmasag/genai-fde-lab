@@ -51,16 +51,19 @@ $('#restoreDoc').addEventListener('click',()=>{$('#title').value='guia-soporte.m
 $('#document').addEventListener('input',updateDocStats);
 $('#previewChunks').addEventListener('click',previewChunking);
 
-$('#ingest').addEventListener('click',async()=>{
-  const btn=$('#ingest'),status=$('#ingestStatus');
+async function runIngest(btn,status,stayOnDb=false){
   try{
     setBusy(btn,true,'Ejecutando proceso real…');status.className='status-line';status.textContent='Chunking → embeddings → BEGIN → INSERT → COMMIT…';
+    if(stayOnDb) document.querySelector('#step-db')?.scrollIntoView({behavior:'smooth',block:'start'});
     state.ingest=await api('/api/ingest',{title:$('#title').value,text:$('#document').value,chunkSize:+$('#chunkSize').value,overlap:+$('#overlap').value});
     status.className='status-line ok';status.textContent='✓ '+state.ingest.storedRows+' filas confirmadas en pgvector · '+state.ingest.chunks[0]?.dimensions+'D';
     populateTransformerSentences();replayDbEvents();renderAll();health();setGuide(4);
+    if(stayOnDb) setTimeout(()=>document.querySelector('#step-db')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
   }catch(e){status.className='status-line bad';status.textContent='Error: '+e.message;}
   finally{setBusy(btn,false);}
-});
+}
+$('#ingest').addEventListener('click',()=>runIngest($('#ingest'),$('#ingestStatus'),false));
+$('#ingestHere').addEventListener('click',()=>runIngest($('#ingestHere'),$('#ingestHereStatus'),true));
 
 $('#analyze').addEventListener('click',async()=>{
   const btn=$('#analyze'),status=$('#analysisStatus');
