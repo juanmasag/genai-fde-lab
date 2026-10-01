@@ -219,3 +219,4 @@ footer{padding:4px 0 28px;color:var(--muted);font-size:.72rem;text-align:center}
 .overlap-legend{display:none!important}
 @media(max-width:759px){.compact-cards{display:grid!important;grid-template-columns:1fr!important}.preview-card{max-width:100%;overflow:hidden}.chunk-token-stream{font-size:.78rem}}
 .no-overlap-note{margin:4px 0 8px;padding:8px 10px;border-left:3px solid #64748b;background:rgba(100,116,139,.08);color:var(--muted);font-size:.72rem;line-height:1.45;border-radius:0 8px 8px 0}
+.range-limit{font-size:.64rem;color:#7f93b2;font-weight:500;margin-left:auto}.controls-grid label{min-width:0}.no-overlap-note b{color:#cbd5e1}

@@ -87,23 +87,34 @@ function sectionsFromMarkdown(text){
 }
 
 function chunkDocument(text,chunkSize=90,overlap=18){
-  chunkSize=clamp(Number(chunkSize)||90,30,512);
+  const sections=sectionsFromMarkdown(text);
+  const stream=[];
+  for(const sec of sections){
+    const toks=wordPieceTokenize(sec.text);
+    for(const tok of toks) stream.push({token:tok,section:sec.section});
+  }
+  const totalTokens=stream.length;
+  if(!totalTokens) return [];
+  chunkSize=clamp(Number(chunkSize)||Math.min(90,totalTokens),1,totalTokens);
   overlap=clamp(Number(overlap)||0,0,Math.max(0,chunkSize-1));
+  const stride=Math.max(1,chunkSize-overlap);
   const chunks=[]; let idx=0;
-  for(const sec of sectionsFromMarkdown(text)){
-    const tokens=wordPieceTokenize(sec.text);
-    const stride=Math.max(1,chunkSize-overlap);
-    for(let start=0;start<tokens.length;start+=stride){
-      const part=tokens.slice(start,start+chunkSize);
-      if(!part.length) break;
-      chunks.push({
-        chunk_index:idx++,section:sec.section,content:detokenizeWordPieces(part),tokens:part,
-        token_start:start,token_end:start+part.length,
-        overlap_from_previous:start>0?Math.min(overlap,part.length):0,
-        overlap_to_next:start+chunkSize<tokens.length?Math.min(overlap,part.length):0
-      });
-      if(start+chunkSize>=tokens.length) break;
-    }
+  for(let start=0;start<totalTokens;start+=stride){
+    const slice=stream.slice(start,start+chunkSize);
+    if(!slice.length) break;
+    const tokens=slice.map(x=>x.token);
+    const sectionNames=[];
+    for(const x of slice) if(sectionNames[sectionNames.length-1]!==x.section) sectionNames.push(x.section);
+    const section=sectionNames.length===1?sectionNames[0]:sectionNames.join(' → ');
+    const hasPrevious=start>0;
+    const hasNext=start+chunkSize<totalTokens;
+    chunks.push({
+      chunk_index:idx++,section,sections:sectionNames,content:detokenizeWordPieces(tokens),tokens,
+      token_start:start,token_end:start+tokens.length,
+      overlap_from_previous:hasPrevious?Math.min(overlap,tokens.length):0,
+      overlap_to_next:hasNext?Math.min(overlap,tokens.length):0
+    });
+    if(!hasNext) break;
   }
   return chunks;
 }
@@ -133,10 +144,11 @@ app.get('/api/health', async (req,res)=>{
 app.post('/api/chunk-preview',(req,res)=>{
   try{
     const text=String(req.body.text||'').trim();
-    const chunkSize=clamp(Number(req.body.chunkSize)||90,30,512);
-    const overlap=clamp(Number(req.body.overlap)||18,0,chunkSize-1);
+    const totalTokens=wordPieceTokenize(sectionsFromMarkdown(text).map(s=>s.text).join(' ')).length;
+    const chunkSize=clamp(Number(req.body.chunkSize)||Math.min(90,totalTokens||1),1,Math.max(1,totalTokens));
+    const overlap=clamp(Number(req.body.overlap)||0,0,Math.max(0,chunkSize-1));
     const chunks=chunkDocument(text,chunkSize,overlap);
-    res.json({ok:true,chunkSize,overlap,tokenCount:wordPieceTokenize(text).length,tokenizer:'BERT WordPiece usado por el laboratorio' ,chunks:chunks.map(c=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,tokens:c.tokens,tokenStart:c.token_start,tokenEnd:c.token_end,overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next}))});
+    res.json({ok:true,chunkSize,overlap,tokenCount:totalTokens,tokenizer:'BERT WordPiece usado por el laboratorio' ,chunks:chunks.map(c=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,tokens:c.tokens,tokenStart:c.token_start,tokenEnd:c.token_end,overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next}))});
   }catch(e){res.status(500).json({error:e.message});}
 });
 
@@ -145,8 +157,9 @@ app.post('/api/ingest', async (req,res)=>{
     const text=String(req.body.text||'').trim();
     const title=String(req.body.title||'documento.md').slice(0,180);
     if(text.length<20) return res.status(400).json({error:'El documento es demasiado corto.'});
-    const chunkSize=clamp(Number(req.body.chunkSize)||90,30,512);
-    const overlap=clamp(Number(req.body.overlap)||18,0,chunkSize-1);
+    const totalTokens=wordPieceTokenize(sectionsFromMarkdown(text).map(s=>s.text).join(' ')).length;
+    const chunkSize=clamp(Number(req.body.chunkSize)||Math.min(90,totalTokens||1),1,Math.max(1,totalTokens));
+    const overlap=clamp(Number(req.body.overlap)||0,0,Math.max(0,chunkSize-1));
     const chunks=chunkDocument(text,chunkSize,overlap);
     const embeddings=await embed(chunks.map(c=>c.content));
     const client=await pool.connect();
@@ -163,7 +176,7 @@ app.post('/api/ingest', async (req,res)=>{
       for(let i=0;i<chunks.length;i++){
         const c=chunks[i];
         const chunkId='chunk_'+String(c.chunk_index+1).padStart(3,'0');
-        const metadata={source:title,section:c.section,chunk_id:chunkId,token_start:c.token_start,token_end:c.token_end,token_count:c.tokens.length,overlap_from_previous:c.overlap_from_previous,overlap_to_next:c.overlap_to_next};
+        const metadata={source:title,section:c.section,chunk_id:chunkId,token_start:c.token_start,token_end:c.token_end,token_count:c.tokens.length,overlap_from_previous:c.overlap_from_previous,overlap_to_next:c.overlap_to_next,sections:c.sections};
         const ir=await client.query('insert into rag_chunks(document_id,chunk_index,section,content,embedding,metadata) values($1,$2,$3,$4,$5::vector,$6::jsonb) returning id',[documentId,c.chunk_index,c.section,c.content,vec(embeddings[i]),JSON.stringify(metadata)]);
         dbEvents.push({type:'insert_chunk',label:'Chunk + embedding insertados en pgvector',chunkId,rowId:ir.rows[0].id,dimensions:embeddings[i].length,section:c.section});
       }
@@ -171,7 +184,7 @@ app.post('/api/ingest', async (req,res)=>{
       dbEvents.push({type:'transaction_commit',label:'COMMIT confirmado'});
     }catch(e){await client.query('rollback');dbEvents.push({type:'transaction_rollback',label:'ROLLBACK'});throw e;}finally{client.release();}
     const stored=await pool.query('select count(*)::int as rows from rag_chunks where document_id=$1',[documentId]);
-    res.json({ok:true,documentId,title,chunkSize,overlap,tokenEstimate:tokenizeApprox(text).length,tokenizer:'BERT WordPiece usado por el laboratorio' ,dbEvents,storedRows:stored.rows[0].rows,chunks:chunks.map((c,i)=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,tokens:c.tokens,tokenStart:c.token_start,tokenEnd:c.token_end,overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next,dimensions:embeddings[i].length,vectorSample:embeddings[i].slice(0,10),norm:norm(embeddings[i])}))});
+    res.json({ok:true,documentId,title,chunkSize,overlap,tokenEstimate:totalTokens,tokenizer:'BERT WordPiece usado por el laboratorio' ,dbEvents,storedRows:stored.rows[0].rows,chunks:chunks.map((c,i)=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,tokens:c.tokens,tokenStart:c.token_start,tokenEnd:c.token_end,overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next,dimensions:embeddings[i].length,vectorSample:embeddings[i].slice(0,10),norm:norm(embeddings[i])}))});
   }catch(e){res.status(500).json({error:e.message});}
 });
 

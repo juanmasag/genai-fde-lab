@@ -26,6 +26,22 @@ function parseSections(text){
   flush();return out;
 }
 let previewSeq=0;
+function syncChunkControlLimits(totalTokens=null){
+  const chunk=$('#chunkSize'),overlap=$('#overlap');
+  if(totalTokens!==null){
+    const max=Math.max(1,Number(totalTokens)||1);
+    chunk.max=String(max);chunk.min='1';
+    if(Number(chunk.value)>max)chunk.value=String(max);
+    $('#chunkMaxInfo').textContent='máx. '+max+' tokens del documento';
+  }
+  const chunkValue=Math.max(1,Number(chunk.value)||1);
+  const overlapMax=Math.max(0,chunkValue-1);
+  overlap.max=String(overlapMax);overlap.min='0';overlap.disabled=false;
+  if(Number(overlap.value)>overlapMax)overlap.value=String(overlapMax);
+  $('#chunkSizeOut').textContent=String(chunkValue);
+  $('#overlapOut').textContent=String(Number(overlap.value)||0);
+  $('#overlapMaxInfo').textContent='máx. '+overlapMax+' tokens';
+}
 async function previewChunking(){
   const seq=++previewSeq;
   const box=$('#chunkPreview');
@@ -34,6 +50,8 @@ async function previewChunking(){
     const data=await api('/api/chunk-preview',{text:$('#document').value,chunkSize:+$('#chunkSize').value,overlap:+$('#overlap').value});
     if(seq!==previewSeq)return [];
     const tokenStat=$('#tokenStat');if(tokenStat)tokenStat.textContent=data.tokenCount+' tokens WordPiece';
+    $('#chunkSize').value=String(data.chunkSize);$('#overlap').value=String(data.overlap);
+    syncChunkControlLimits(data.tokenCount);
     const chunks=data.chunks||[];
     const tokenHtml=(c,chunkIndex)=>(c.tokens||[]).map((tok,i)=>{
       const repeatsInNext=c.overlapToNext>0 && i>=Math.max(0,c.tokens.length-c.overlapToNext);
@@ -43,11 +61,13 @@ async function previewChunking(){
       return '<span class="chunk-token '+cls+'" title="'+esc(title)+'">'+esc(tok)+'</span>';
     }).join('');
     const hasRealOverlap=chunks.some(c=>c.overlapToNext>0);
-    const overlapStatus=hasRealOverlap?'':'<p class="no-overlap-note">Con esta configuración cada sección entra en un único chunk; no hay overlap real para resaltar.</p>';
+    let overlapStatus='';
+    if(chunks.length===1) overlapStatus='<p class="no-overlap-note"><b>1 solo chunk.</b> Overlap configurado: '+data.overlap+' tokens. El control sigue disponible, pero no tiene efecto hasta que el documento se divida en 2 o más chunks.</p>';
+    else if(data.overlap===0) overlapStatus='<p class="no-overlap-note">Overlap = 0: hay varios chunks, pero ningún token se repite entre ellos.</p>';
+    else if(!hasRealOverlap) overlapStatus='<p class="no-overlap-note">No hay un límite de chunk donde aplicar overlap con esta configuración.</p>';
     box.innerHTML=overlapStatus+chunks.map((c,idx)=>{
       const next=chunks[idx+1];
-      const sameSection=next&&next.section===c.section;
-      const overlapNote=c.overlapToNext>0&&sameSection?'<div class="chunk-overlap-note"><span></span>'+c.overlapToNext+' tokens en verde se repiten en '+esc(next.chunkId)+'</div>':'';
+      const overlapNote=c.overlapToNext>0&&next?'<div class="chunk-overlap-note"><span></span>'+c.overlapToNext+' tokens en verde se repiten en '+esc(next.chunkId)+'</div>':'';
       return '<div class="data-card preview-card"><strong>'+esc(c.chunkId)+' · '+esc(c.section)+'</strong><div class="chunk-token-stream">'+tokenHtml(c,idx)+'</div>'+overlapNote+'<small>tokens '+c.tokenStart+'–'+(Math.max(c.tokenStart,c.tokenEnd-1))+' · '+c.tokens.length+' tokens</small></div>';
     }).join('');
     return chunks;
@@ -64,7 +84,11 @@ function updateDocStats(){
 }
 
 function wireRanges(){
-  [['chunkSize','chunkSizeOut',0],['overlap','overlapOut',0],['topK','topKOut',0],['threshold','thresholdOut',2]].forEach(([id,out,d])=>{const e=$('#'+id),o=$('#'+out),f=()=>{o.textContent=Number(e.value).toFixed(d);if(id==='chunkSize'||id==='overlap')previewChunking();};e.addEventListener('input',f);f();});
+  const chunk=$('#chunkSize'),overlap=$('#overlap');
+  chunk.addEventListener('input',()=>{syncChunkControlLimits();previewChunking();});
+  overlap.addEventListener('input',()=>{$('#overlapOut').textContent=String(Number(overlap.value));previewChunking();});
+  [['topK','topKOut',0],['threshold','thresholdOut',2]].forEach(([id,out,d])=>{const e=$('#'+id),o=$('#'+out),f=()=>o.textContent=Number(e.value).toFixed(d);e.addEventListener('input',f);f();});
+  syncChunkControlLimits();
 }
 
 $('#file').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;$('#title').value=f.name;$('#document').value=await f.text();updateDocStats();});

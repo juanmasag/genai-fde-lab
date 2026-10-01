@@ -84,3 +84,10 @@ Ejecutar la auditoría de integración con:
 ```bash
 npm run check:integration
 ```
+
+## Límites adaptativos de chunking
+
+- El máximo de `chunk_size` se ajusta a la cantidad real de tokens del documento.
+- El máximo de `overlap` se ajusta siempre a `chunk_size - 1`.
+- `overlap` permanece habilitado aunque todo el documento entre en un único chunk. En ese caso el valor queda configurado, pero no tiene efecto hasta que haya al menos dos chunks.
+- El chunking se calcula sobre la secuencia completa de tokens del documento y conserva las secciones atravesadas como metadata. Esto permite que `chunk_size = tokens del documento` produzca realmente un único chunk.
