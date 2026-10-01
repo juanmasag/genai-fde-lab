@@ -64,3 +64,11 @@ tailscale serve --bg --https=8446 4173
 ```
 
 Abrir la URL HTTPS informada por Tailscale desde un teléfono conectado al mismo tailnet. Al servirse por HTTPS, puede instalarse como PWA.
+
+## Recorrido didáctico actual
+
+La PWA incluye un documento corto de laboratorio (`data/guia-soporte.md`) y un guía visual llamado **Vector**. El recorrido cubre documento, tokens, chunks, transformer, base vectorial, pregunta, retrieval, LLM y respuesta.
+
+El **Microscopio del transformer** ejecuta en el navegador un transformer mínimo de 4 dimensiones con matrices fijas para poder inspeccionar la matemática: vector inicial, codificación posicional, Q/K/V, producto punto escalado, softmax, atención, vector contextual, pooling y una proyección final. Este cálculo está rotulado como educativo y no pretende ser una extracción de los pesos internos de Ollama. Al lado se muestra el embedding real de 768 dimensiones producido por `nomic-embed-text`.
+
+La vista **Base vectorial en vivo** reproduce eventos que provienen de operaciones reales del backend: `BEGIN`, inserción del documento, inserciones de chunks+embeddings y `COMMIT`. La búsqueda posterior se limita al documento actualmente ingerido para que cambiar el documento cambie coherentemente todo el recorrido.

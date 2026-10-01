@@ -92,19 +92,27 @@ app.post('/api/ingest', async (req,res)=>{
     const embeddings=await embed(chunks.map(c=>c.content));
     const client=await pool.connect();
     let documentId;
+    const dbEvents=[];
     try{
       await client.query('begin');
-      await client.query('delete from rag_documents where title=$1',[title]);
+      dbEvents.push({type:'transaction_begin',label:'BEGIN transaction'});
+      const deleted=await client.query('delete from rag_documents where title=$1 returning id',[title]);
+      if(deleted.rowCount) dbEvents.push({type:'replace_document',label:'Documento anterior reemplazado',rows:deleted.rowCount});
       const dr=await client.query('insert into rag_documents(title) values($1) returning id',[title]);
       documentId=dr.rows[0].id;
+      dbEvents.push({type:'insert_document',label:'Documento insertado',documentId});
       for(let i=0;i<chunks.length;i++){
         const c=chunks[i];
-        const metadata={source:title,section:c.section,chunk_id:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),word_start:c.word_start,word_end:c.word_end};
-        await client.query('insert into rag_chunks(document_id,chunk_index,section,content,embedding,metadata) values($1,$2,$3,$4,$5::vector,$6::jsonb)',[documentId,c.chunk_index,c.section,c.content,vec(embeddings[i]),JSON.stringify(metadata)]);
+        const chunkId='chunk_'+String(c.chunk_index+1).padStart(3,'0');
+        const metadata={source:title,section:c.section,chunk_id:chunkId,word_start:c.word_start,word_end:c.word_end};
+        const ir=await client.query('insert into rag_chunks(document_id,chunk_index,section,content,embedding,metadata) values($1,$2,$3,$4,$5::vector,$6::jsonb) returning id',[documentId,c.chunk_index,c.section,c.content,vec(embeddings[i]),JSON.stringify(metadata)]);
+        dbEvents.push({type:'insert_chunk',label:'Chunk + embedding insertados en pgvector',chunkId,rowId:ir.rows[0].id,dimensions:embeddings[i].length,section:c.section});
       }
       await client.query('commit');
-    }catch(e){await client.query('rollback');throw e;}finally{client.release();}
-    res.json({ok:true,documentId,title,chunkSize,overlap,tokenEstimate:tokenizeApprox(text).length,chunks:chunks.map((c,i)=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,wordStart:c.word_start,wordEnd:c.word_end,dimensions:embeddings[i].length,vectorSample:embeddings[i].slice(0,10),norm:norm(embeddings[i])}))});
+      dbEvents.push({type:'transaction_commit',label:'COMMIT confirmado'});
+    }catch(e){await client.query('rollback');dbEvents.push({type:'transaction_rollback',label:'ROLLBACK'});throw e;}finally{client.release();}
+    const stored=await pool.query('select count(*)::int as rows from rag_chunks where document_id=$1',[documentId]);
+    res.json({ok:true,documentId,title,chunkSize,overlap,tokenEstimate:tokenizeApprox(text).length,dbEvents,storedRows:stored.rows[0].rows,chunks:chunks.map((c,i)=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,wordStart:c.word_start,wordEnd:c.word_end,dimensions:embeddings[i].length,vectorSample:embeddings[i].slice(0,10),norm:norm(embeddings[i])}))});
   }catch(e){res.status(500).json({error:e.message});}
 });
 
@@ -114,8 +122,11 @@ app.post('/api/analyze', async (req,res)=>{
     if(!question) return res.status(400).json({error:'Falta la pregunta.'});
     const topK=clamp(Number(req.body.topK)||5,1,12);
     const threshold=clamp(Number(req.body.threshold)||0.35,-1,1);
+    const documentId=req.body.documentId?Number(req.body.documentId):null;
     const [qv]=await embed(question);
-    const qr=await pool.query("select id,document_id,chunk_index,section,content,metadata,embedding::text as embedding_text,1-(embedding <=> $1::vector) as similarity from rag_chunks order by embedding <=> $1::vector limit $2",[vec(qv),topK]);
+    const qr=documentId
+      ? await pool.query("select id,document_id,chunk_index,section,content,metadata,embedding::text as embedding_text,1-(embedding <=> $1::vector) as similarity from rag_chunks where document_id=$3 order by embedding <=> $1::vector limit $2",[vec(qv),topK,documentId])
+      : await pool.query("select id,document_id,chunk_index,section,content,metadata,embedding::text as embedding_text,1-(embedding <=> $1::vector) as similarity from rag_chunks order by embedding <=> $1::vector limit $2",[vec(qv),topK]);
     const ranked=qr.rows.map((r,i)=>{const similarity=Number(r.similarity);const ev=String(r.embedding_text||'').replace(/[\[\]]/g,'').split(',').filter(Boolean).map(Number);delete r.embedding_text;return {...r,rank:i+1,similarity,angleDeg:Math.acos(clamp(similarity,-1,1))*180/Math.PI,accepted:similarity>=threshold,vectorSample:ev.slice(0,12),dimensions:ev.length};});
     const accepted=ranked.filter(r=>r.accepted);
     const context=accepted.map(r=>'['+(r.metadata?.chunk_id||r.id)+' | '+(r.metadata?.source||'documento')+' | '+r.section+']\n'+r.content).join('\n\n');
