@@ -25,19 +25,31 @@ function parseSections(text){
   for(const raw of text.split(/\r?\n/)){const line=raw.trim();if(!line)continue;if(/^#{1,6}\s+/.test(line)){flush();section=line.replace(/^#{1,6}\s+/,'');}else body.push(line);}
   flush();return out;
 }
-function previewChunking(){
-  const size=+$('#chunkSize').value,overlap=+$('#overlap').value,stride=Math.max(1,size-overlap),chunks=[];
-  let n=0;
-  for(const sec of parseSections($('#document').value)){
-    const words=sec.text.split(/\s+/).filter(Boolean);
-    for(let start=0;start<words.length;start+=stride){const part=words.slice(start,start+size);if(!part.length)break;chunks.push({id:'chunk_'+String(++n).padStart(3,'0'),section:sec.section,text:part.join(' '),start,end:start+part.length});if(start+size>=words.length)break;}
+let previewSeq=0;
+async function previewChunking(){
+  const seq=++previewSeq;
+  const box=$('#chunkPreview');
+  box.innerHTML='<div class="empty-state">Calculando tokens del modelo…</div>';
+  try{
+    const data=await api('/api/chunk-preview',{text:$('#document').value,chunkSize:+$('#chunkSize').value,overlap:+$('#overlap').value});
+    if(seq!==previewSeq)return [];
+    const tokenStat=$('#tokenStat');if(tokenStat)tokenStat.textContent=data.tokenCount+' tokens WordPiece';
+    const chunks=data.chunks||[];
+    const tokenHtml=c=>(c.tokens||[]).map((tok,i)=>{
+      const overlap=i<c.overlapFromPrevious || i>=Math.max(0,c.tokens.length-c.overlapToNext);
+      return '<span class="chunk-token '+(overlap?'overlap-token':'')+'">'+esc(tok)+'</span>';
+    }).join('');
+    box.innerHTML='<div class="overlap-legend"><span class="overlap-swatch"></span> overlap · '+data.overlap+' tokens repetidos entre chunks</div>'+
+      chunks.map(c=>'<div class="data-card preview-card"><strong>'+esc(c.chunkId)+' · '+esc(c.section)+'</strong><div class="chunk-token-stream">'+tokenHtml(c)+'</div><small>tokens '+c.tokenStart+'–'+(Math.max(c.tokenStart,c.tokenEnd-1))+' · '+c.tokens.length+' tokens</small></div>').join('');
+    return chunks;
+  }catch(e){
+    if(seq===previewSeq)box.innerHTML='<div class="empty-state">No se pudo calcular la previsualización: '+esc(e.message)+'</div>';
+    return [];
   }
-  $('#chunkPreview').innerHTML=chunks.map(c=>'<div class="data-card preview-card"><strong>'+esc(c.id)+' · '+esc(c.section)+'</strong><p>'+esc(c.text)+'</p><small>'+c.start+'–'+c.end+' palabras</small></div>').join('');
-  return chunks;
 }
 function updateDocStats(){
   const t=$('#document').value,sections=parseSections(t);
-  $('#docStats').innerHTML='<span>'+t.length+' caracteres</span><span>'+t.split(/\s+/).filter(Boolean).length+' palabras</span><span>≈ '+tokenize(t).length+' tokens</span><span>'+sections.length+' secciones</span>';
+  $('#docStats').innerHTML='<span>'+t.length+' caracteres</span><span>'+t.split(/\s+/).filter(Boolean).length+' palabras</span><span id="tokenStat">calculando tokens…</span><span>'+sections.length+' secciones</span>';
   populateTransformerSentences();
   previewChunking();
 }
