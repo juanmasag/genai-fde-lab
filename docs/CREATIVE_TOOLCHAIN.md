@@ -151,3 +151,9 @@ Para los laboratorios web, la ruta preferida será **SVG + Motion + XState**, po
 ## Persistencia obligatoria
 
 Todo artefacto generado durante el trabajo creativo debe almacenarse en el repositorio. Las referencias de ideación adoptadas se guardan en `assets/characters/one/references/`; los fuentes editables y exports se ubican en sus carpetas correspondientes. Ningún asset que exista sólo en el chat, `/tmp`, una aplicación local o un directorio temporal se considera terminado.
+
+### VTracer 0.6.15
+- Instalación: entorno virtual aislado en `~/.local/share/one-creative/vtracer/venv`.
+- Wrapper: `~/.local/bin/one-vtracer`.
+- Uso: vectorización local raster → SVG para assets de laboratorio.
+- Fuente: paquete oficial `vtracer` publicado en PyPI por el proyecto VTracer; se mantiene aislado para no alterar el Python del sistema.
