@@ -31,3 +31,9 @@ Todo recurso generado o creado para los laboratorios debe quedar físicamente gu
 6. Ante evidencia insuficiente o contradictoria, no inventar una conclusión: conservar el estado como pendiente y obtener evidencia adicional.
 
 Esta regla es obligatoria para agentes, automatizaciones y asistentes que trabajen en genai-fde-lab.
+
+## Regla obligatoria de lectura previa de reglas
+
+Antes de cualquier acción sobre este repositorio —incluyendo revisión, análisis, inspección, edición, ejecución de pruebas o comandos, creación de assets, commit o push— el primer paso obligatorio es leer las reglas vigentes de `AGENTS.md` y cualquier otra regla aplicable al alcance de la tarea.
+
+No se debe confiar únicamente en memoria, contexto de conversación ni conocimiento previo de las reglas. Las reglas presentes en el repositorio son la fuente de autoridad que debe consultarse antes de actuar. Si existen reglas contradictorias, ambiguas o insuficientes para la acción solicitada, detener la acción y solicitar aclaración antes de modificar el repositorio.
