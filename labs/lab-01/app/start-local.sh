@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 docker compose up -d
+"$HOME/.local/bin/npm" run build
 mkdir -p "$HOME/.local/state"
 if [[ -f "$HOME/.local/state/rag-engine-lab.pid" ]]; then
   old="$(cat "$HOME/.local/state/rag-engine-lab.pid")"

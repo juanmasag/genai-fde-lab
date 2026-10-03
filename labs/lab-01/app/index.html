@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1020"><title>RAG Engine Lab</title>
-<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><link rel="stylesheet" href="/styles.css?v=13">
+<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg">
 </head>
 <body data-mobile-step="0">
 <header class="topbar">
@@ -145,15 +145,15 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   <article class="panel pipeline-panel" data-mobile-screen-inner="4">
     <div class="section-head"><div><span class="step-tag">6</span><h2>Pipeline</h2></div><button id="play" class="secondary">Recorrer</button></div>
     <div id="pipeline" class="pipeline-board">
-      <button data-stage="0"><span class="pipe-icon">DOC</span><span>Documento</span></button>
-      <button data-stage="1"><span class="pipe-icon">CHK</span><span>Chunks</span></button>
-      <button data-stage="2"><span class="pipe-icon">TRF</span><span>Transformer</span></button>
-      <button data-stage="3"><span class="pipe-icon">VEC</span><span>Embeddings</span></button>
-      <button data-stage="4"><span class="pipe-icon">DB</span><span>Vector DB</span></button>
-      <button data-stage="5"><span class="pipe-icon">RET</span><span>Retrieval</span></button>
-      <button data-stage="6"><span class="pipe-icon">CTX</span><span>Contexto</span></button>
-      <button data-stage="7"><span class="pipe-icon">LLM</span><span>LLM</span></button>
-      <button data-stage="8"><span class="pipe-icon">SRC</span><span>Citas</span></button>
+      <button data-stage="0"><span class="pipe-icon"><i data-lucide="file-text"></i></span><span>Documento</span></button>
+      <button data-stage="1"><span class="pipe-icon"><i data-lucide="scissors"></i></span><span>Chunks</span></button>
+      <button data-stage="2"><span class="pipe-icon"><i data-lucide="brain-circuit"></i></span><span>Transformer</span></button>
+      <button data-stage="3"><span class="pipe-icon"><i data-lucide="binary"></i></span><span>Embeddings</span></button>
+      <button data-stage="4"><span class="pipe-icon"><i data-lucide="database"></i></span><span>Vector DB</span></button>
+      <button data-stage="5"><span class="pipe-icon"><i data-lucide="search"></i></span><span>Retrieval</span></button>
+      <button data-stage="6"><span class="pipe-icon"><i data-lucide="package-open"></i></span><span>Contexto</span></button>
+      <button data-stage="7"><span class="pipe-icon"><i data-lucide="bot"></i></span><span>LLM</span></button>
+      <button data-stage="8"><span class="pipe-icon"><i data-lucide="quote"></i></span><span>Citas</span></button>
     </div>
     <div class="pipeline-nav"><button id="pipelinePrev" class="secondary">Anterior</button><span id="pipelineProgress">1 / 9</span><button id="pipelineNext" class="primary compact">Siguiente</button></div>
     <div id="stageViewer" class="stage-viewer"><div class="empty-state">Ejecutá el recorrido para llenar el laboratorio.</div></div>
@@ -197,5 +197,5 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
 </div>
 
 <footer>RAG Engine Lab · El cálculo didáctico del transformer se separa explícitamente del embedding real.</footer>
-<script src="/app.js?v=13" defer></script>
+<script type="module" src="/src/main.js"></script>
 </body></html>

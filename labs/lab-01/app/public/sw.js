@@ -1,8 +1,8 @@
-const CACHE='rag-engine-lab-v13';
-const APP_SHELL=['/','/styles.css?v=13','/app.js?v=13','/manifest.webmanifest','/icon.svg','/icon-192.png','/icon-512.png'];
+const CACHE='rag-engine-lab-v14';
+const CORE=['/','/manifest.webmanifest','/icon.svg','/icon-192.png','/icon-512.png'];
 self.addEventListener('install',event=>{
   self.skipWaiting();
-  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_SHELL)));
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)));
 });
 self.addEventListener('activate',event=>{
   event.waitUntil((async()=>{
@@ -15,18 +15,18 @@ self.addEventListener('fetch',event=>{
   const req=event.request;
   const url=new URL(req.url);
   if(req.method!=='GET'||url.pathname.startsWith('/api/')) return;
-  if(req.mode==='navigate'||['/','/app.js','/styles.css'].includes(url.pathname)){
+  if(req.mode==='navigate'){
     event.respondWith((async()=>{
-      try{
-        const fresh=await fetch(req,{cache:'no-store'});
-        const cache=await caches.open(CACHE);
-        cache.put(req,fresh.clone());
-        return fresh;
-      }catch{
-        return (await caches.match(req)) || (await caches.match('/'));
-      }
+      try{return await fetch(req,{cache:'no-store'});}catch{return (await caches.match('/'));}
     })());
     return;
   }
-  event.respondWith(caches.match(req).then(cached=>cached||fetch(req)));
+  event.respondWith((async()=>{
+    const cached=await caches.match(req);
+    try{
+      const fresh=await fetch(req);
+      if(fresh.ok){const cache=await caches.open(CACHE);cache.put(req,fresh.clone());}
+      return fresh;
+    }catch{return cached;}
+  })());
 });

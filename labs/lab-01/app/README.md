@@ -30,8 +30,9 @@ La visualización interna del transformer es didáctica. El transformer real se 
 ## Ejecutar localmente
 
 ```bash
-docker compose up -d
 npm install
+docker compose up -d
+npm run build
 npm start
 ```
 
@@ -91,3 +92,25 @@ npm run check:integration
 - El máximo de `overlap` se ajusta siempre a `chunk_size - 1`.
 - `overlap` permanece habilitado aunque todo el documento entre en un único chunk. En ese caso el valor queda configurado, pero no tiene efecto hasta que haya al menos dos chunks.
 - El chunking se calcula sobre la secuencia completa de tokens del documento y conserva las secciones atravesadas como metadata. Esto permite que `chunk_size = tokens del documento` produzca realmente un único chunk.
+
+## Stack visual educativo
+
+La interfaz se construye con Vite y cuatro librerías de propósito específico:
+
+- **Motion 14.0.0 (MIT):** transiciones y movimiento entre etapas.
+- **D3 7.9.0 (ISC):** visualizaciones basadas en los datos reales del retrieval, especialmente geometría vectorial.
+- **XState 5.33.2 (MIT):** máquina de estados del recorrido educativo para evitar desincronización entre Anterior/Siguiente, pantalla activa y animaciones.
+- **Lucide 1.51.0 (ISC):** iconos SVG estables, sin depender de emojis o glifos del dispositivo.
+- **Vite 8.3.2 (MIT):** build, tree-shaking, assets versionados y modo de desarrollo.
+
+Las versiones están fijadas en `package.json`/`package-lock.json`. El build de producción se genera en `dist/` y Express sirve ese resultado.
+
+### Validación del stack
+
+```bash
+npm audit
+npm run build
+npm run check:integration
+```
+
+La migración inicial fue validada con `npm audit` sin vulnerabilidades conocidas, render móvil en Chromium, pruebas E2E de preview/ingesta/pgvector/retrieval y acceso HTTPS por Tailscale.

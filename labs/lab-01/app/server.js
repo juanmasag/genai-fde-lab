@@ -23,7 +23,8 @@ app.use((req,res,next)=>{
   next();
 });
 app.use(express.json({limit:'5mb'}));
-app.use(express.static(path.join(__dirname,'public'),{etag:false,maxAge:0}));
+const FRONTEND_DIR=path.join(__dirname,'dist');
+app.use(express.static(FRONTEND_DIR,{etag:false,maxAge:0}));
 
 function clamp(n,a,b){ return Math.max(a,Math.min(b,n)); }
 function vec(v){ return '[' + v.map(x=>Number(x).toFixed(8)).join(',') + ']'; }
@@ -265,6 +266,6 @@ app.get('/api/db-browser/chunk/:id', async (req,res)=>{
   }catch(e){res.status(500).json({error:e.message});}
 });
 
-app.use((req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
+app.use((req,res)=>res.sendFile(path.join(FRONTEND_DIR,'index.html')));
 
 initDb().then(()=>app.listen(PORT,'127.0.0.1',()=>console.log('RAG Engine Lab http://127.0.0.1:'+PORT))).catch(e=>{console.error(e);process.exit(1)});
