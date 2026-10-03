@@ -1,0 +1,847 @@
+[
+  {
+    "rank": 6,
+    "bbox": [
+      197,
+      881,
+      391,
+      1013
+    ],
+    "file": "component-06.png",
+    "retained_alpha_gt8": 21174,
+    "expected_component_pixels": 21174,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 7,
+    "bbox": [
+      28,
+      880,
+      193,
+      1020
+    ],
+    "file": "component-07.png",
+    "retained_alpha_gt8": 17394,
+    "expected_component_pixels": 17394,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 8,
+    "bbox": [
+      989,
+      999,
+      1155,
+      1145
+    ],
+    "file": "component-08.png",
+    "retained_alpha_gt8": 16485,
+    "expected_component_pixels": 16485,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 9,
+    "bbox": [
+      401,
+      883,
+      567,
+      1023
+    ],
+    "file": "component-09.png",
+    "retained_alpha_gt8": 16123,
+    "expected_component_pixels": 16123,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 10,
+    "bbox": [
+      703,
+      1169,
+      852,
+      1280
+    ],
+    "file": "component-10.png",
+    "retained_alpha_gt8": 16118,
+    "expected_component_pixels": 16118,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 11,
+    "bbox": [
+      567,
+      880,
+      690,
+      1027
+    ],
+    "file": "component-11.png",
+    "retained_alpha_gt8": 12681,
+    "expected_component_pixels": 12681,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 12,
+    "bbox": [
+      1024,
+      1164,
+      1154,
+      1277
+    ],
+    "file": "component-12.png",
+    "retained_alpha_gt8": 12627,
+    "expected_component_pixels": 12627,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 13,
+    "bbox": [
+      1027,
+      630,
+      1190,
+      731
+    ],
+    "file": "component-13.png",
+    "retained_alpha_gt8": 11703,
+    "expected_component_pixels": 11703,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 14,
+    "bbox": [
+      643,
+      640,
+      825,
+      732
+    ],
+    "file": "component-14.png",
+    "retained_alpha_gt8": 11385,
+    "expected_component_pixels": 11385,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 15,
+    "bbox": [
+      632,
+      731,
+      831,
+      833
+    ],
+    "file": "component-15.png",
+    "retained_alpha_gt8": 11176,
+    "expected_component_pixels": 11176,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 16,
+    "bbox": [
+      844,
+      701,
+      1012,
+      804
+    ],
+    "file": "component-16.png",
+    "retained_alpha_gt8": 10097,
+    "expected_component_pixels": 10097,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 17,
+    "bbox": [
+      1029,
+      728,
+      1193,
+      829
+    ],
+    "file": "component-17.png",
+    "retained_alpha_gt8": 9466,
+    "expected_component_pixels": 9466,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 18,
+    "bbox": [
+      900,
+      904,
+      1011,
+      1046
+    ],
+    "file": "component-18.png",
+    "retained_alpha_gt8": 8456,
+    "expected_component_pixels": 8456,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 19,
+    "bbox": [
+      858,
+      1169,
+      946,
+      1281
+    ],
+    "file": "component-19.png",
+    "retained_alpha_gt8": 8225,
+    "expected_component_pixels": 8225,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 20,
+    "bbox": [
+      834,
+      639,
+      1011,
+      731
+    ],
+    "file": "component-20.png",
+    "retained_alpha_gt8": 6859,
+    "expected_component_pixels": 6859,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 21,
+    "bbox": [
+      514,
+      1160,
+      604,
+      1273
+    ],
+    "file": "component-21.png",
+    "retained_alpha_gt8": 6753,
+    "expected_component_pixels": 6753,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 22,
+    "bbox": [
+      819,
+      896,
+      914,
+      1029
+    ],
+    "file": "component-22.png",
+    "retained_alpha_gt8": 6652,
+    "expected_component_pixels": 6652,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 23,
+    "bbox": [
+      466,
+      1028,
+      537,
+      1150
+    ],
+    "file": "component-23.png",
+    "retained_alpha_gt8": 6181,
+    "expected_component_pixels": 6181,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 24,
+    "bbox": [
+      758,
+      892,
+      831,
+      1020
+    ],
+    "file": "component-24.png",
+    "retained_alpha_gt8": 6062,
+    "expected_component_pixels": 6062,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 25,
+    "bbox": [
+      948,
+      1162,
+      1018,
+      1282
+    ],
+    "file": "component-25.png",
+    "retained_alpha_gt8": 5901,
+    "expected_component_pixels": 5901,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 26,
+    "bbox": [
+      687,
+      1040,
+      755,
+      1151
+    ],
+    "file": "component-26.png",
+    "retained_alpha_gt8": 5795,
+    "expected_component_pixels": 5795,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 27,
+    "bbox": [
+      693,
+      891,
+      755,
+      1021
+    ],
+    "file": "component-27.png",
+    "retained_alpha_gt8": 5603,
+    "expected_component_pixels": 5603,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 28,
+    "bbox": [
+      605,
+      1040,
+      665,
+      1149
+    ],
+    "file": "component-28.png",
+    "retained_alpha_gt8": 4937,
+    "expected_component_pixels": 4937,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 29,
+    "bbox": [
+      544,
+      1039,
+      602,
+      1145
+    ],
+    "file": "component-29.png",
+    "retained_alpha_gt8": 4601,
+    "expected_component_pixels": 4601,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 30,
+    "bbox": [
+      1007,
+      848,
+      1078,
+      981
+    ],
+    "file": "component-30.png",
+    "retained_alpha_gt8": 4418,
+    "expected_component_pixels": 4418,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 31,
+    "bbox": [
+      733,
+      808,
+      878,
+      869
+    ],
+    "file": "component-31.png",
+    "retained_alpha_gt8": 4199,
+    "expected_component_pixels": 4199,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 32,
+    "bbox": [
+      28,
+      1111,
+      107,
+      1191
+    ],
+    "file": "component-32.png",
+    "retained_alpha_gt8": 3773,
+    "expected_component_pixels": 3773,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 33,
+    "bbox": [
+      175,
+      1180,
+      244,
+      1250
+    ],
+    "file": "component-33.png",
+    "retained_alpha_gt8": 3477,
+    "expected_component_pixels": 3477,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 34,
+    "bbox": [
+      121,
+      1113,
+      178,
+      1193
+    ],
+    "file": "component-34.png",
+    "retained_alpha_gt8": 3373,
+    "expected_component_pixels": 3373,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 35,
+    "bbox": [
+      882,
+      1089,
+      952,
+      1149
+    ],
+    "file": "component-35.png",
+    "retained_alpha_gt8": 3351,
+    "expected_component_pixels": 3351,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 36,
+    "bbox": [
+      357,
+      1202,
+      420,
+      1270
+    ],
+    "file": "component-36.png",
+    "retained_alpha_gt8": 3271,
+    "expected_component_pixels": 3271,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 37,
+    "bbox": [
+      24,
+      1204,
+      92,
+      1270
+    ],
+    "file": "component-37.png",
+    "retained_alpha_gt8": 3198,
+    "expected_component_pixels": 3198,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 38,
+    "bbox": [
+      361,
+      1139,
+      441,
+      1190
+    ],
+    "file": "component-38.png",
+    "retained_alpha_gt8": 3168,
+    "expected_component_pixels": 3168,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 39,
+    "bbox": [
+      277,
+      1207,
+      342,
+      1272
+    ],
+    "file": "component-39.png",
+    "retained_alpha_gt8": 3085,
+    "expected_component_pixels": 3085,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 40,
+    "bbox": [
+      227,
+      1113,
+      290,
+      1177
+    ],
+    "file": "component-40.png",
+    "retained_alpha_gt8": 3064,
+    "expected_component_pixels": 3064,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 41,
+    "bbox": [
+      104,
+      1216,
+      171,
+      1272
+    ],
+    "file": "component-41.png",
+    "retained_alpha_gt8": 3037,
+    "expected_component_pixels": 3037,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 42,
+    "bbox": [
+      23,
+      1028,
+      93,
+      1099
+    ],
+    "file": "component-42.png",
+    "retained_alpha_gt8": 2970,
+    "expected_component_pixels": 2970,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 43,
+    "bbox": [
+      296,
+      1034,
+      356,
+      1098
+    ],
+    "file": "component-43.png",
+    "retained_alpha_gt8": 2944,
+    "expected_component_pixels": 2944,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 44,
+    "bbox": [
+      1113,
+      848,
+      1174,
+      909
+    ],
+    "file": "component-44.png",
+    "retained_alpha_gt8": 2935,
+    "expected_component_pixels": 2935,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 45,
+    "bbox": [
+      295,
+      1111,
+      348,
+      1191
+    ],
+    "file": "component-45.png",
+    "retained_alpha_gt8": 2796,
+    "expected_component_pixels": 2796,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 46,
+    "bbox": [
+      97,
+      1037,
+      156,
+      1109
+    ],
+    "file": "component-46.png",
+    "retained_alpha_gt8": 2781,
+    "expected_component_pixels": 2781,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 47,
+    "bbox": [
+      788,
+      1096,
+      853,
+      1148
+    ],
+    "file": "component-47.png",
+    "retained_alpha_gt8": 2687,
+    "expected_component_pixels": 2687,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 48,
+    "bbox": [
+      370,
+      1044,
+      434,
+      1094
+    ],
+    "file": "component-48.png",
+    "retained_alpha_gt8": 2617,
+    "expected_component_pixels": 2617,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 49,
+    "bbox": [
+      616,
+      1207,
+      665,
+      1274
+    ],
+    "file": "component-49.png",
+    "retained_alpha_gt8": 2603,
+    "expected_component_pixels": 2603,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 50,
+    "bbox": [
+      433,
+      1232,
+      495,
+      1286
+    ],
+    "file": "component-50.png",
+    "retained_alpha_gt8": 2586,
+    "expected_component_pixels": 2586,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 51,
+    "bbox": [
+      449,
+      1168,
+      507,
+      1226
+    ],
+    "file": "component-51.png",
+    "retained_alpha_gt8": 2550,
+    "expected_component_pixels": 2550,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 52,
+    "bbox": [
+      571,
+      685,
+      624,
+      746
+    ],
+    "file": "component-52.png",
+    "retained_alpha_gt8": 2479,
+    "expected_component_pixels": 2479,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 53,
+    "bbox": [
+      15,
+      683,
+      66,
+      743
+    ],
+    "file": "component-53.png",
+    "retained_alpha_gt8": 2474,
+    "expected_component_pixels": 2474,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 54,
+    "bbox": [
+      469,
+      686,
+      519,
+      747
+    ],
+    "file": "component-54.png",
+    "retained_alpha_gt8": 2440,
+    "expected_component_pixels": 2440,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 55,
+    "bbox": [
+      89,
+      684,
+      141,
+      744
+    ],
+    "file": "component-55.png",
+    "retained_alpha_gt8": 2406,
+    "expected_component_pixels": 2406,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 56,
+    "bbox": [
+      1152,
+      1000,
+      1179,
+      1124
+    ],
+    "file": "component-56.png",
+    "retained_alpha_gt8": 2374,
+    "expected_component_pixels": 2374,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 57,
+    "bbox": [
+      219,
+      692,
+      268,
+      751
+    ],
+    "file": "component-57.png",
+    "retained_alpha_gt8": 2306,
+    "expected_component_pixels": 2306,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 58,
+    "bbox": [
+      171,
+      1033,
+      218,
+      1104
+    ],
+    "file": "component-58.png",
+    "retained_alpha_gt8": 2252,
+    "expected_component_pixels": 2252,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 59,
+    "bbox": [
+      408,
+      685,
+      453,
+      745
+    ],
+    "file": "component-59.png",
+    "retained_alpha_gt8": 2137,
+    "expected_component_pixels": 2137,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 60,
+    "bbox": [
+      236,
+      1033,
+      281,
+      1102
+    ],
+    "file": "component-60.png",
+    "retained_alpha_gt8": 2134,
+    "expected_component_pixels": 2134,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 61,
+    "bbox": [
+      22,
+      769,
+      93,
+      809
+    ],
+    "file": "component-61.png",
+    "retained_alpha_gt8": 1981,
+    "expected_component_pixels": 1981,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 62,
+    "bbox": [
+      354,
+      690,
+      398,
+      746
+    ],
+    "file": "component-62.png",
+    "retained_alpha_gt8": 1925,
+    "expected_component_pixels": 1925,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 63,
+    "bbox": [
+      126,
+      775,
+      196,
+      813
+    ],
+    "file": "component-63.png",
+    "retained_alpha_gt8": 1729,
+    "expected_component_pixels": 1729,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 64,
+    "bbox": [
+      786,
+      1046,
+      844,
+      1084
+    ],
+    "file": "component-64.png",
+    "retained_alpha_gt8": 1700,
+    "expected_component_pixels": 1700,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 65,
+    "bbox": [
+      627,
+      1162,
+      680,
+      1204
+    ],
+    "file": "component-65.png",
+    "retained_alpha_gt8": 1488,
+    "expected_component_pixels": 1488,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 66,
+    "bbox": [
+      891,
+      1042,
+      949,
+      1073
+    ],
+    "file": "component-66.png",
+    "retained_alpha_gt8": 1350,
+    "expected_component_pixels": 1350,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 67,
+    "bbox": [
+      366,
+      770,
+      404,
+      812
+    ],
+    "file": "component-67.png",
+    "retained_alpha_gt8": 1265,
+    "expected_component_pixels": 1265,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 68,
+    "bbox": [
+      367,
+      824,
+      405,
+      866
+    ],
+    "file": "component-68.png",
+    "retained_alpha_gt8": 1265,
+    "expected_component_pixels": 1265,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 69,
+    "bbox": [
+      133,
+      833,
+      190,
+      865
+    ],
+    "file": "component-69.png",
+    "retained_alpha_gt8": 1182,
+    "expected_component_pixels": 1182,
+    "retained_rgb_changed": 0
+  },
+  {
+    "rank": 70,
+    "bbox": [
+      1166,
+      1185,
+      1184,
+      1265
+    ],
+    "file": "component-70.png",
+    "retained_alpha_gt8": 1163,
+    "expected_component_pixels": 1163,
+    "retained_rgb_changed": 0
+  }
+]

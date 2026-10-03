@@ -1,0 +1,977 @@
+[
+  {
+    "component_rank": 6,
+    "alpha_pixels_gt8": 21174,
+    "bbox": [
+      197,
+      881,
+      391,
+      1013
+    ],
+    "file": "candidate-06-197-881-391-1013.png",
+    "size": [
+      194,
+      132
+    ]
+  },
+  {
+    "component_rank": 7,
+    "alpha_pixels_gt8": 17394,
+    "bbox": [
+      28,
+      880,
+      193,
+      1020
+    ],
+    "file": "candidate-07-28-880-193-1020.png",
+    "size": [
+      165,
+      140
+    ]
+  },
+  {
+    "component_rank": 8,
+    "alpha_pixels_gt8": 16485,
+    "bbox": [
+      989,
+      999,
+      1155,
+      1145
+    ],
+    "file": "candidate-08-989-999-1155-1145.png",
+    "size": [
+      166,
+      146
+    ]
+  },
+  {
+    "component_rank": 9,
+    "alpha_pixels_gt8": 16123,
+    "bbox": [
+      401,
+      883,
+      567,
+      1023
+    ],
+    "file": "candidate-09-401-883-567-1023.png",
+    "size": [
+      166,
+      140
+    ]
+  },
+  {
+    "component_rank": 10,
+    "alpha_pixels_gt8": 16118,
+    "bbox": [
+      703,
+      1169,
+      852,
+      1280
+    ],
+    "file": "candidate-10-703-1169-852-1280.png",
+    "size": [
+      149,
+      111
+    ]
+  },
+  {
+    "component_rank": 11,
+    "alpha_pixels_gt8": 12681,
+    "bbox": [
+      567,
+      880,
+      690,
+      1027
+    ],
+    "file": "candidate-11-567-880-690-1027.png",
+    "size": [
+      123,
+      147
+    ]
+  },
+  {
+    "component_rank": 12,
+    "alpha_pixels_gt8": 12627,
+    "bbox": [
+      1024,
+      1164,
+      1154,
+      1277
+    ],
+    "file": "candidate-12-1024-1164-1154-1277.png",
+    "size": [
+      130,
+      113
+    ]
+  },
+  {
+    "component_rank": 13,
+    "alpha_pixels_gt8": 11703,
+    "bbox": [
+      1027,
+      630,
+      1190,
+      731
+    ],
+    "file": "candidate-13-1027-630-1190-731.png",
+    "size": [
+      163,
+      101
+    ]
+  },
+  {
+    "component_rank": 14,
+    "alpha_pixels_gt8": 11385,
+    "bbox": [
+      643,
+      640,
+      825,
+      732
+    ],
+    "file": "candidate-14-643-640-825-732.png",
+    "size": [
+      182,
+      92
+    ]
+  },
+  {
+    "component_rank": 15,
+    "alpha_pixels_gt8": 11176,
+    "bbox": [
+      632,
+      731,
+      831,
+      833
+    ],
+    "file": "candidate-15-632-731-831-833.png",
+    "size": [
+      199,
+      102
+    ]
+  },
+  {
+    "component_rank": 16,
+    "alpha_pixels_gt8": 10097,
+    "bbox": [
+      844,
+      701,
+      1012,
+      804
+    ],
+    "file": "candidate-16-844-701-1012-804.png",
+    "size": [
+      168,
+      103
+    ]
+  },
+  {
+    "component_rank": 17,
+    "alpha_pixels_gt8": 9466,
+    "bbox": [
+      1029,
+      728,
+      1193,
+      829
+    ],
+    "file": "candidate-17-1029-728-1193-829.png",
+    "size": [
+      164,
+      101
+    ]
+  },
+  {
+    "component_rank": 18,
+    "alpha_pixels_gt8": 8456,
+    "bbox": [
+      900,
+      904,
+      1011,
+      1046
+    ],
+    "file": "candidate-18-900-904-1011-1046.png",
+    "size": [
+      111,
+      142
+    ]
+  },
+  {
+    "component_rank": 19,
+    "alpha_pixels_gt8": 8225,
+    "bbox": [
+      858,
+      1169,
+      946,
+      1281
+    ],
+    "file": "candidate-19-858-1169-946-1281.png",
+    "size": [
+      88,
+      112
+    ]
+  },
+  {
+    "component_rank": 20,
+    "alpha_pixels_gt8": 6859,
+    "bbox": [
+      834,
+      639,
+      1011,
+      731
+    ],
+    "file": "candidate-20-834-639-1011-731.png",
+    "size": [
+      177,
+      92
+    ]
+  },
+  {
+    "component_rank": 21,
+    "alpha_pixels_gt8": 6753,
+    "bbox": [
+      514,
+      1160,
+      604,
+      1273
+    ],
+    "file": "candidate-21-514-1160-604-1273.png",
+    "size": [
+      90,
+      113
+    ]
+  },
+  {
+    "component_rank": 22,
+    "alpha_pixels_gt8": 6652,
+    "bbox": [
+      819,
+      896,
+      914,
+      1029
+    ],
+    "file": "candidate-22-819-896-914-1029.png",
+    "size": [
+      95,
+      133
+    ]
+  },
+  {
+    "component_rank": 23,
+    "alpha_pixels_gt8": 6181,
+    "bbox": [
+      466,
+      1028,
+      537,
+      1150
+    ],
+    "file": "candidate-23-466-1028-537-1150.png",
+    "size": [
+      71,
+      122
+    ]
+  },
+  {
+    "component_rank": 24,
+    "alpha_pixels_gt8": 6062,
+    "bbox": [
+      758,
+      892,
+      831,
+      1020
+    ],
+    "file": "candidate-24-758-892-831-1020.png",
+    "size": [
+      73,
+      128
+    ]
+  },
+  {
+    "component_rank": 25,
+    "alpha_pixels_gt8": 5901,
+    "bbox": [
+      948,
+      1162,
+      1018,
+      1282
+    ],
+    "file": "candidate-25-948-1162-1018-1282.png",
+    "size": [
+      70,
+      120
+    ]
+  },
+  {
+    "component_rank": 26,
+    "alpha_pixels_gt8": 5795,
+    "bbox": [
+      687,
+      1040,
+      755,
+      1151
+    ],
+    "file": "candidate-26-687-1040-755-1151.png",
+    "size": [
+      68,
+      111
+    ]
+  },
+  {
+    "component_rank": 27,
+    "alpha_pixels_gt8": 5603,
+    "bbox": [
+      693,
+      891,
+      755,
+      1021
+    ],
+    "file": "candidate-27-693-891-755-1021.png",
+    "size": [
+      62,
+      130
+    ]
+  },
+  {
+    "component_rank": 28,
+    "alpha_pixels_gt8": 4937,
+    "bbox": [
+      605,
+      1040,
+      665,
+      1149
+    ],
+    "file": "candidate-28-605-1040-665-1149.png",
+    "size": [
+      60,
+      109
+    ]
+  },
+  {
+    "component_rank": 29,
+    "alpha_pixels_gt8": 4601,
+    "bbox": [
+      544,
+      1039,
+      602,
+      1145
+    ],
+    "file": "candidate-29-544-1039-602-1145.png",
+    "size": [
+      58,
+      106
+    ]
+  },
+  {
+    "component_rank": 30,
+    "alpha_pixels_gt8": 4418,
+    "bbox": [
+      1007,
+      848,
+      1078,
+      981
+    ],
+    "file": "candidate-30-1007-848-1078-981.png",
+    "size": [
+      71,
+      133
+    ]
+  },
+  {
+    "component_rank": 31,
+    "alpha_pixels_gt8": 4199,
+    "bbox": [
+      733,
+      808,
+      878,
+      869
+    ],
+    "file": "candidate-31-733-808-878-869.png",
+    "size": [
+      145,
+      61
+    ]
+  },
+  {
+    "component_rank": 32,
+    "alpha_pixels_gt8": 3773,
+    "bbox": [
+      28,
+      1111,
+      107,
+      1191
+    ],
+    "file": "candidate-32-28-1111-107-1191.png",
+    "size": [
+      79,
+      80
+    ]
+  },
+  {
+    "component_rank": 33,
+    "alpha_pixels_gt8": 3477,
+    "bbox": [
+      175,
+      1180,
+      244,
+      1250
+    ],
+    "file": "candidate-33-175-1180-244-1250.png",
+    "size": [
+      69,
+      70
+    ]
+  },
+  {
+    "component_rank": 34,
+    "alpha_pixels_gt8": 3373,
+    "bbox": [
+      121,
+      1113,
+      178,
+      1193
+    ],
+    "file": "candidate-34-121-1113-178-1193.png",
+    "size": [
+      57,
+      80
+    ]
+  },
+  {
+    "component_rank": 35,
+    "alpha_pixels_gt8": 3351,
+    "bbox": [
+      882,
+      1089,
+      952,
+      1149
+    ],
+    "file": "candidate-35-882-1089-952-1149.png",
+    "size": [
+      70,
+      60
+    ]
+  },
+  {
+    "component_rank": 36,
+    "alpha_pixels_gt8": 3271,
+    "bbox": [
+      357,
+      1202,
+      420,
+      1270
+    ],
+    "file": "candidate-36-357-1202-420-1270.png",
+    "size": [
+      63,
+      68
+    ]
+  },
+  {
+    "component_rank": 37,
+    "alpha_pixels_gt8": 3198,
+    "bbox": [
+      24,
+      1204,
+      92,
+      1270
+    ],
+    "file": "candidate-37-24-1204-92-1270.png",
+    "size": [
+      68,
+      66
+    ]
+  },
+  {
+    "component_rank": 38,
+    "alpha_pixels_gt8": 3168,
+    "bbox": [
+      361,
+      1139,
+      441,
+      1190
+    ],
+    "file": "candidate-38-361-1139-441-1190.png",
+    "size": [
+      80,
+      51
+    ]
+  },
+  {
+    "component_rank": 39,
+    "alpha_pixels_gt8": 3085,
+    "bbox": [
+      277,
+      1207,
+      342,
+      1272
+    ],
+    "file": "candidate-39-277-1207-342-1272.png",
+    "size": [
+      65,
+      65
+    ]
+  },
+  {
+    "component_rank": 40,
+    "alpha_pixels_gt8": 3064,
+    "bbox": [
+      227,
+      1113,
+      290,
+      1177
+    ],
+    "file": "candidate-40-227-1113-290-1177.png",
+    "size": [
+      63,
+      64
+    ]
+  },
+  {
+    "component_rank": 41,
+    "alpha_pixels_gt8": 3037,
+    "bbox": [
+      104,
+      1216,
+      171,
+      1272
+    ],
+    "file": "candidate-41-104-1216-171-1272.png",
+    "size": [
+      67,
+      56
+    ]
+  },
+  {
+    "component_rank": 42,
+    "alpha_pixels_gt8": 2970,
+    "bbox": [
+      23,
+      1028,
+      93,
+      1099
+    ],
+    "file": "candidate-42-23-1028-93-1099.png",
+    "size": [
+      70,
+      71
+    ]
+  },
+  {
+    "component_rank": 43,
+    "alpha_pixels_gt8": 2944,
+    "bbox": [
+      296,
+      1034,
+      356,
+      1098
+    ],
+    "file": "candidate-43-296-1034-356-1098.png",
+    "size": [
+      60,
+      64
+    ]
+  },
+  {
+    "component_rank": 44,
+    "alpha_pixels_gt8": 2935,
+    "bbox": [
+      1113,
+      848,
+      1174,
+      909
+    ],
+    "file": "candidate-44-1113-848-1174-909.png",
+    "size": [
+      61,
+      61
+    ]
+  },
+  {
+    "component_rank": 45,
+    "alpha_pixels_gt8": 2796,
+    "bbox": [
+      295,
+      1111,
+      348,
+      1191
+    ],
+    "file": "candidate-45-295-1111-348-1191.png",
+    "size": [
+      53,
+      80
+    ]
+  },
+  {
+    "component_rank": 46,
+    "alpha_pixels_gt8": 2781,
+    "bbox": [
+      97,
+      1037,
+      156,
+      1109
+    ],
+    "file": "candidate-46-97-1037-156-1109.png",
+    "size": [
+      59,
+      72
+    ]
+  },
+  {
+    "component_rank": 47,
+    "alpha_pixels_gt8": 2687,
+    "bbox": [
+      788,
+      1096,
+      853,
+      1148
+    ],
+    "file": "candidate-47-788-1096-853-1148.png",
+    "size": [
+      65,
+      52
+    ]
+  },
+  {
+    "component_rank": 48,
+    "alpha_pixels_gt8": 2617,
+    "bbox": [
+      370,
+      1044,
+      434,
+      1094
+    ],
+    "file": "candidate-48-370-1044-434-1094.png",
+    "size": [
+      64,
+      50
+    ]
+  },
+  {
+    "component_rank": 49,
+    "alpha_pixels_gt8": 2603,
+    "bbox": [
+      616,
+      1207,
+      665,
+      1274
+    ],
+    "file": "candidate-49-616-1207-665-1274.png",
+    "size": [
+      49,
+      67
+    ]
+  },
+  {
+    "component_rank": 50,
+    "alpha_pixels_gt8": 2586,
+    "bbox": [
+      433,
+      1232,
+      495,
+      1286
+    ],
+    "file": "candidate-50-433-1232-495-1286.png",
+    "size": [
+      62,
+      54
+    ]
+  },
+  {
+    "component_rank": 51,
+    "alpha_pixels_gt8": 2550,
+    "bbox": [
+      449,
+      1168,
+      507,
+      1226
+    ],
+    "file": "candidate-51-449-1168-507-1226.png",
+    "size": [
+      58,
+      58
+    ]
+  },
+  {
+    "component_rank": 52,
+    "alpha_pixels_gt8": 2479,
+    "bbox": [
+      571,
+      685,
+      624,
+      746
+    ],
+    "file": "candidate-52-571-685-624-746.png",
+    "size": [
+      53,
+      61
+    ]
+  },
+  {
+    "component_rank": 53,
+    "alpha_pixels_gt8": 2474,
+    "bbox": [
+      15,
+      683,
+      66,
+      743
+    ],
+    "file": "candidate-53-15-683-66-743.png",
+    "size": [
+      51,
+      60
+    ]
+  },
+  {
+    "component_rank": 54,
+    "alpha_pixels_gt8": 2440,
+    "bbox": [
+      469,
+      686,
+      519,
+      747
+    ],
+    "file": "candidate-54-469-686-519-747.png",
+    "size": [
+      50,
+      61
+    ]
+  },
+  {
+    "component_rank": 55,
+    "alpha_pixels_gt8": 2406,
+    "bbox": [
+      89,
+      684,
+      141,
+      744
+    ],
+    "file": "candidate-55-89-684-141-744.png",
+    "size": [
+      52,
+      60
+    ]
+  },
+  {
+    "component_rank": 56,
+    "alpha_pixels_gt8": 2374,
+    "bbox": [
+      1152,
+      1000,
+      1179,
+      1124
+    ],
+    "file": "candidate-56-1152-1000-1179-1124.png",
+    "size": [
+      27,
+      124
+    ]
+  },
+  {
+    "component_rank": 57,
+    "alpha_pixels_gt8": 2306,
+    "bbox": [
+      219,
+      692,
+      268,
+      751
+    ],
+    "file": "candidate-57-219-692-268-751.png",
+    "size": [
+      49,
+      59
+    ]
+  },
+  {
+    "component_rank": 58,
+    "alpha_pixels_gt8": 2252,
+    "bbox": [
+      171,
+      1033,
+      218,
+      1104
+    ],
+    "file": "candidate-58-171-1033-218-1104.png",
+    "size": [
+      47,
+      71
+    ]
+  },
+  {
+    "component_rank": 59,
+    "alpha_pixels_gt8": 2137,
+    "bbox": [
+      408,
+      685,
+      453,
+      745
+    ],
+    "file": "candidate-59-408-685-453-745.png",
+    "size": [
+      45,
+      60
+    ]
+  },
+  {
+    "component_rank": 60,
+    "alpha_pixels_gt8": 2134,
+    "bbox": [
+      236,
+      1033,
+      281,
+      1102
+    ],
+    "file": "candidate-60-236-1033-281-1102.png",
+    "size": [
+      45,
+      69
+    ]
+  },
+  {
+    "component_rank": 61,
+    "alpha_pixels_gt8": 1981,
+    "bbox": [
+      22,
+      769,
+      93,
+      809
+    ],
+    "file": "candidate-61-22-769-93-809.png",
+    "size": [
+      71,
+      40
+    ]
+  },
+  {
+    "component_rank": 62,
+    "alpha_pixels_gt8": 1925,
+    "bbox": [
+      354,
+      690,
+      398,
+      746
+    ],
+    "file": "candidate-62-354-690-398-746.png",
+    "size": [
+      44,
+      56
+    ]
+  },
+  {
+    "component_rank": 63,
+    "alpha_pixels_gt8": 1729,
+    "bbox": [
+      126,
+      775,
+      196,
+      813
+    ],
+    "file": "candidate-63-126-775-196-813.png",
+    "size": [
+      70,
+      38
+    ]
+  },
+  {
+    "component_rank": 64,
+    "alpha_pixels_gt8": 1700,
+    "bbox": [
+      786,
+      1046,
+      844,
+      1084
+    ],
+    "file": "candidate-64-786-1046-844-1084.png",
+    "size": [
+      58,
+      38
+    ]
+  },
+  {
+    "component_rank": 65,
+    "alpha_pixels_gt8": 1488,
+    "bbox": [
+      627,
+      1162,
+      680,
+      1204
+    ],
+    "file": "candidate-65-627-1162-680-1204.png",
+    "size": [
+      53,
+      42
+    ]
+  },
+  {
+    "component_rank": 66,
+    "alpha_pixels_gt8": 1350,
+    "bbox": [
+      891,
+      1042,
+      949,
+      1073
+    ],
+    "file": "candidate-66-891-1042-949-1073.png",
+    "size": [
+      58,
+      31
+    ]
+  },
+  {
+    "component_rank": 67,
+    "alpha_pixels_gt8": 1265,
+    "bbox": [
+      367,
+      824,
+      405,
+      866
+    ],
+    "file": "candidate-67-367-824-405-866.png",
+    "size": [
+      38,
+      42
+    ]
+  },
+  {
+    "component_rank": 68,
+    "alpha_pixels_gt8": 1265,
+    "bbox": [
+      366,
+      770,
+      404,
+      812
+    ],
+    "file": "candidate-68-366-770-404-812.png",
+    "size": [
+      38,
+      42
+    ]
+  },
+  {
+    "component_rank": 69,
+    "alpha_pixels_gt8": 1182,
+    "bbox": [
+      133,
+      833,
+      190,
+      865
+    ],
+    "file": "candidate-69-133-833-190-865.png",
+    "size": [
+      57,
+      32
+    ]
+  },
+  {
+    "component_rank": 70,
+    "alpha_pixels_gt8": 1163,
+    "bbox": [
+      1166,
+      1185,
+      1184,
+      1265
+    ],
+    "file": "candidate-70-1166-1185-1184-1265.png",
+    "size": [
+      18,
+      80
+    ]
+  }
+]
