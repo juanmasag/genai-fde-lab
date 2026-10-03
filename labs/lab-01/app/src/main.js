@@ -233,6 +233,31 @@ function toyTransformer(text){
   return {toks,x,q,k,val,scores,att,ctx,pooled,scalar};
 }
 function vecStr(v){return '['+v.map(x=>x.toFixed(3)).join(', ')+']';}
+const transformerStages=[
+  {id:'tokens',label:'Tokens'},
+  {id:'vector',label:'Vector'},
+  {id:'position',label:'Posición'},
+  {id:'qkv',label:'Q / K / V'},
+  {id:'scores',label:'Scores'},
+  {id:'attention',label:'Atención'},
+  {id:'context',label:'Contexto'},
+  {id:'pooling',label:'Pooling'}
+];
+const transformerSceneMachine=createMachine({
+  id:'transformerLearningScene',initial:'tokens',
+  states:{
+    tokens:{on:{NEXT:'vector',GOTO_VECTOR:'vector',GOTO_POSITION:'position',GOTO_QKV:'qkv',GOTO_SCORES:'scores',GOTO_ATTENTION:'attention',GOTO_CONTEXT:'context',GOTO_POOLING:'pooling'}},
+    vector:{on:{PREV:'tokens',NEXT:'position',GOTO_TOKENS:'tokens',GOTO_POSITION:'position',GOTO_QKV:'qkv',GOTO_SCORES:'scores',GOTO_ATTENTION:'attention',GOTO_CONTEXT:'context',GOTO_POOLING:'pooling'}},
+    position:{on:{PREV:'vector',NEXT:'qkv',GOTO_TOKENS:'tokens',GOTO_VECTOR:'vector',GOTO_QKV:'qkv',GOTO_SCORES:'scores',GOTO_ATTENTION:'attention',GOTO_CONTEXT:'context',GOTO_POOLING:'pooling'}},
+    qkv:{on:{PREV:'position',NEXT:'scores',GOTO_TOKENS:'tokens',GOTO_VECTOR:'vector',GOTO_POSITION:'position',GOTO_SCORES:'scores',GOTO_ATTENTION:'attention',GOTO_CONTEXT:'context',GOTO_POOLING:'pooling'}},
+    scores:{on:{PREV:'qkv',NEXT:'attention',GOTO_TOKENS:'tokens',GOTO_VECTOR:'vector',GOTO_POSITION:'position',GOTO_QKV:'qkv',GOTO_ATTENTION:'attention',GOTO_CONTEXT:'context',GOTO_POOLING:'pooling'}},
+    attention:{on:{PREV:'scores',NEXT:'context',GOTO_TOKENS:'tokens',GOTO_VECTOR:'vector',GOTO_POSITION:'position',GOTO_QKV:'qkv',GOTO_SCORES:'scores',GOTO_CONTEXT:'context',GOTO_POOLING:'pooling'}},
+    context:{on:{PREV:'attention',NEXT:'pooling',GOTO_TOKENS:'tokens',GOTO_VECTOR:'vector',GOTO_POSITION:'position',GOTO_QKV:'qkv',GOTO_SCORES:'scores',GOTO_ATTENTION:'attention',GOTO_POOLING:'pooling'}},
+    pooling:{on:{PREV:'context',GOTO_TOKENS:'tokens',GOTO_VECTOR:'vector',GOTO_POSITION:'position',GOTO_QKV:'qkv',GOTO_SCORES:'scores',GOTO_ATTENTION:'attention',GOTO_CONTEXT:'context'}}
+  }
+});
+let transformerSceneActor=null;
+
 function populateTransformerSentences(){
   const sel=$('#transformerSentence'),old=sel.value;
   const options=parseSections($('#document').value).flatMap(s=>s.text.split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(Boolean)).slice(0,12);
@@ -240,30 +265,58 @@ function populateTransformerSentences(){
   if(options.includes(old))sel.value=old;
   renderTransformer();
 }
-function renderTransformer(){
+
+function transformerData(){
   const text=$('#transformerSentence').value||parseSections($('#document').value)[0]?.text||'';
-  const t=toyTransformer(text);if(!t.toks.length)return;
-  state.attentionToken=clamp(state.attentionToken,0,t.toks.length-1);
-  const f=state.attentionToken;
-  const steps=[
-    ['1. Tokens',t.toks.map((x,i)=>'<button class="token token-pick '+(i===f?'token-selected':'')+'" data-token="'+i+'">'+i+' · '+esc(x)+'</button>').join('')],
-    ['2. Vector inicial','Token elegido: <b>'+esc(t.toks[f])+'</b><br>'+vecStr(baseVector(t.toks[f]))],
-    ['3. Posición','Vector posición '+f+' = '+vecStr(positional(f))+'<br>Entrada al transformer = '+vecStr(t.x[f])],
-    ['4. Q, K y V','Q = '+vecStr(t.q[f])+'<br>K = '+vecStr(t.k[f])+'<br>V = '+vecStr(t.val[f])],
-    ['5. Scores','Cada Q se compara con cada K: score = (Q · K) / sqrt(d). Esos scores todavía no son probabilidades.'],
-    ['6. Softmax / atención','Softmax convierte los scores en pesos que suman 1. El heatmap muestra a qué tokens atiende más <b>'+esc(t.toks[f])+'</b>.'],
-    ['7. Vector contextual','Se mezclan los V usando esos pesos: Σ peso_j × V_j = '+vecStr(t.ctx[f])],
-    ['8. Pooling / salida','Se resumen los vectores contextualizados. Pooling = '+vecStr(t.pooled)+'<br>Proyección didáctica = <b>'+t.scalar.toFixed(4)+'</b>']
-  ];
-  state.transformerSubstep=clamp(state.transformerSubstep,0,steps.length-1);
-  $('#calcSteps').innerHTML='<div class="transformer-step-nav"><button id="tfPrev" class="secondary">Anterior</button><span>'+(state.transformerSubstep+1)+' / 8</span><button id="tfNext" class="primary compact">Siguiente</button></div>'+steps.map(([h,b],i)=>'<div class="calc-card transformer-card '+(i===state.transformerSubstep?'active':'')+'"><strong>'+h+'</strong><div>'+b+'</div></div>').join('');
+  const t=toyTransformer(text);
+  if(t.toks.length)state.attentionToken=clamp(state.attentionToken,0,t.toks.length-1);
+  return {text,t,focus:state.attentionToken};
+}
+function vectorBars(v,label){
+  const max=Math.max(.001,...v.map(x=>Math.abs(x)));
+  return '<div class="tf-vector-block"><strong>'+esc(label)+'</strong><div class="tf-vector-bars">'+v.map((x,i)=>'<span title="d'+i+' = '+x.toFixed(3)+'"><i style="height:'+Math.max(8,Math.abs(x)/max*100)+'%"></i><small>'+x.toFixed(2)+'</small></span>').join('')+'</div></div>';
+}
+function transformerVisualHtml(stage,t,f){
+  const tok=esc(t.toks[f]||'');
+  if(stage==='tokens')return '<div class="tf-story"><h3>1. Una frase entra como tokens</h3><p>Elegí el token que querés seguir. A partir de acá observamos cómo cambia su representación.</p><div class="tf-token-line">'+t.toks.map((x,i)=>'<button class="tf-token token-pick '+(i===f?'selected':'')+'" data-token="'+i+'"><small>'+i+'</small>'+esc(x)+'</button>').join('')+'</div></div>';
+  if(stage==='vector')return '<div class="tf-story"><h3>2. El token necesita una representación numérica</h3><p><b>'+tok+'</b> deja de ser sólo texto y pasa a un vector didáctico de 4 dimensiones.</p>'+vectorBars(baseVector(t.toks[f]),'vector inicial de '+t.toks[f])+'</div>';
+  if(stage==='position')return '<div class="tf-story"><h3>3. La posición también aporta información</h3><p>El mismo token en otra posición no debería verse exactamente igual. Sumamos una señal de posición al vector inicial.</p><div class="tf-equation-flow">'+vectorBars(baseVector(t.toks[f]),'token')+'<b>+</b>'+vectorBars(positional(f),'posición '+f)+'<b>=</b>'+vectorBars(t.x[f],'entrada contextualizable')+'</div></div>';
+  if(stage==='qkv')return '<div class="tf-story"><h3>4. De una representación salen Q, K y V</h3><p>En este modelo didáctico, tres transformaciones distintas preparan la información para decidir relaciones y mezclar contenido.</p><div class="tf-qkv">'+vectorBars(t.q[f],'Q · qué busca')+vectorBars(t.k[f],'K · qué ofrece')+vectorBars(t.val[f],'V · qué contenido aporta')+'</div></div>';
+  if(stage==='scores')return '<div class="tf-story"><h3>5. Q se compara con los K</h3><p>Para <b>'+tok+'</b>, cada score mide compatibilidad antes de normalizar. Más alto significa mayor afinidad en este ejemplo.</p><div class="tf-score-list">'+t.toks.map((x,i)=>'<div><span>'+esc(x)+'</span><i style="width:'+clamp((t.scores[f][i]+2)/4*100,4,100)+'%"></i><b>'+t.scores[f][i].toFixed(3)+'</b></div>').join('')+'</div></div>';
+  if(stage==='attention')return '<div class="tf-story"><h3>6. Softmax transforma scores en atención</h3><p>Los pesos ahora suman 1. Verde marca las relaciones de mayor peso para el token seleccionado.</p><div class="tf-attention-links">'+t.toks.map((x,i)=>'<div class="tf-attention-node '+(i===f?'focus':'')+'"><span>'+esc(x)+'</span><b>'+t.att[f][i].toFixed(3)+'</b><i style="opacity:'+clamp(.18+t.att[f][i]*3,.18,1)+'"></i></div>').join('')+'</div></div>';
+  if(stage==='context')return '<div class="tf-story"><h3>7. Los V se mezclan con esos pesos</h3><p>El token ya no queda representado de forma aislada: incorpora información de los demás tokens.</p><div class="tf-context-flow"><div class="tf-context-sources">'+t.toks.map((x,i)=>'<span style="opacity:'+clamp(.25+t.att[f][i]*3,.25,1)+'">'+esc(x)+' · '+t.att[f][i].toFixed(2)+'</span>').join('')+'</div><b>→</b>'+vectorBars(t.ctx[f],'vector contextual de '+t.toks[f])+'</div></div>';
+  return '<div class="tf-story"><h3>8. Pooling resume las representaciones contextualizadas</h3><p>Para cerrar el ejemplo didáctico, resumimos los vectores contextuales. Esto ayuda a entender la idea de obtener una representación de la secuencia; no reproduce el pipeline interno exacto de <code>nomic-embed-text</code>.</p><div class="tf-pooling"><div><span>'+t.ctx.length+' vectores contextuales</span><b>↓ promedio didáctico</b></div>'+vectorBars(t.pooled,'representación resumida')+'<div class="tf-scalar">proyección didáctica <strong>'+t.scalar.toFixed(4)+'</strong></div></div></div>';
+}
+function renderTransformer(){
+  if(!transformerSceneActor)return;
+  const {text,t,focus:f}=transformerData();if(!t.toks.length)return;
+  const stage=String(transformerSceneActor.getSnapshot().value);
+  const idx=transformerStages.findIndex(x=>x.id===stage);
+  state.transformerSubstep=Math.max(0,idx);
+  $('#transformerSceneCanvas').innerHTML=transformerVisualHtml(stage,t,f);
+  $('#tfStageTitle').textContent=transformerStages[idx]?.label||'Tokens';
+  $('#tfStageProgress').textContent=(idx+1)+' / '+transformerStages.length;
+  $('#tfPrev').disabled=idx===0;$('#tfNext').disabled=idx===transformerStages.length-1;
+  $('#transformerStoryProgress').innerHTML=transformerStages.map((x,i)=>'<button data-tf-stage="'+x.id+'" class="'+(i===idx?'active':i<idx?'done':'')+'"><b>'+(i+1)+'</b><span>'+x.label+'</span></button>').join('');
   $$('.token-pick').forEach(b=>b.addEventListener('click',()=>{state.attentionToken=Number(b.dataset.token);renderTransformer();}));
-  $('#tfPrev').disabled=state.transformerSubstep===0;$('#tfNext').disabled=state.transformerSubstep===7;
-  $('#tfPrev').addEventListener('click',()=>{state.transformerSubstep=Math.max(0,state.transformerSubstep-1);renderTransformer();});
-  $('#tfNext').addEventListener('click',()=>{state.transformerSubstep=Math.min(7,state.transformerSubstep+1);renderTransformer();});
+  $$('#transformerStoryProgress button').forEach(b=>b.addEventListener('click',()=>transformerSceneActor.send({type:'GOTO_'+String(b.dataset.tfStage).toUpperCase()})));
+  const calculation=[
+    ['Tokens',t.toks.map((x,i)=>i+' · '+esc(x)).join(' | ')],
+    ['Vector inicial',vecStr(baseVector(t.toks[f]))],
+    ['Posición','pos('+f+') = '+vecStr(positional(f))+' · entrada = '+vecStr(t.x[f])],
+    ['Q / K / V','Q = '+vecStr(t.q[f])+'<br>K = '+vecStr(t.k[f])+'<br>V = '+vecStr(t.val[f])],
+    ['Scores','['+t.scores[f].map(x=>x.toFixed(3)).join(', ')+']'],
+    ['Atención','['+t.att[f].map(x=>x.toFixed(3)).join(', ')+'] · suma = '+t.att[f].reduce((a,b)=>a+b,0).toFixed(3)],
+    ['Vector contextual',vecStr(t.ctx[f])],
+    ['Pooling',vecStr(t.pooled)+' · proyección = '+t.scalar.toFixed(4)]
+  ];
+  $('#calcSteps').innerHTML='<div class="tf-calc-inspector"><strong>Cálculo de la etapa actual · '+calculation[idx][0]+'</strong><p>'+calculation[idx][1]+'</p><small>Modelo educativo de 4 dimensiones con matrices fijas definidas en el frontend.</small></div>';
   renderHeatmap(t,f);
   const real=state.ingest?.chunks?.find(c=>c.content.includes(text.slice(0,18)))||state.ingest?.chunks?.[0];
-  $('#formulaBox').innerHTML='<strong>Qué es real y qué es didáctico</strong><p>Los pasos 1–8 usan un transformer mínimo de 4 dimensiones para que puedas seguir la matemática. No son los pesos internos de Ollama.</p>'+(real?'<p><b>Embedding real:</b> '+real.dimensions+' dimensiones. Primeros valores: '+real.vectorSample.slice(0,6).map(x=>Number(x).toFixed(4)).join(', ')+'…</p>':'<p>Ejecutá la ingesta para compararlo con el embedding real.</p>');
+  $('#formulaBox').innerHTML='<div class="truth-column didactic"><span>DIDÁCTICO</span><strong>Transformer visible 4D</strong><p>Vectores, Q/K/V, scores, softmax y pooling calculados por el laboratorio para estudiar la mecánica.</p></div><div class="truth-divider">≠</div><div class="truth-column real"><span>REAL</span><strong>nomic-embed-text</strong>'+(real?'<p>Embedding almacenado: <b>'+real.dimensions+'D</b><br>Primeros valores: '+real.vectorSample.slice(0,6).map(x=>Number(x).toFixed(4)).join(', ')+'…</p>':'<p>Ejecutá la ingesta para ver el embedding 768D realmente producido por Ollama.</p>')+'</div>';
+  createIcons({icons:{BrainCircuit,Binary}});
+  const target=$('#transformerSceneCanvas .tf-story');
+  if(target&&!matchMedia('(prefers-reduced-motion: reduce)').matches)animate(target,{opacity:[0,1],transform:['translateY(12px)','translateY(0px)']},{duration:.3});
 }
 function renderHeatmap(t,focus){
   const n=t.toks.length,wrap=$('#attentionHeatmap');
@@ -274,7 +327,15 @@ function renderHeatmap(t,focus){
   t.toks.forEach((tok,i)=>{html+='<span class="heat-label row-label '+(i===focus?'heat-label-focus':'')+'">'+esc(tok)+'</span>';t.att[i].forEach((w,j)=>{const a=.10+.78*w;const selected=i===focus&&chosen.has(j);const bg=selected?'rgba(52,211,153,'+Math.min(.95,.22+a).toFixed(2)+')':'rgba(96,165,250,'+a.toFixed(2)+')';html+='<span class="heat-cell '+(selected?'heat-selected':'')+'" style="background:'+bg+'" title="'+w.toFixed(4)+'">'+w.toFixed(2)+'</span>';});});
   wrap.innerHTML=html+'</div>';
 }
-$('#transformerSentence').addEventListener('change',renderTransformer);
+function initTransformerScene(){
+  transformerSceneActor=createActor(transformerSceneMachine);
+  transformerSceneActor.subscribe(()=>renderTransformer());
+  transformerSceneActor.start();
+  $('#tfPrev').addEventListener('click',()=>transformerSceneActor.send({type:'PREV'}));
+  $('#tfNext').addEventListener('click',()=>transformerSceneActor.send({type:'NEXT'}));
+  $('#transformerSentence').addEventListener('change',()=>{state.attentionToken=0;renderTransformer();});
+}
+
 $('#refreshDb').addEventListener('click',()=>loadDbBrowser($('#dbDocumentSelect').value).catch(()=>{}));
 $('#dbDocumentSelect').addEventListener('change',()=>{state.activeDocumentId=Number($('#dbDocumentSelect').value)||null;loadDbBrowser(state.activeDocumentId).catch(()=>{});});
 
@@ -441,6 +502,7 @@ $$('.tab').forEach(b=>b.addEventListener('click',()=>{$$('.tab').forEach(x=>x.cl
 
 createIcons({icons:{FileText,Scissors,BrainCircuit,Binary,Database,Search,PackageOpen,Bot,Quote}});
 initIngestionScene();
-wireRanges();updateDocStats();setGuide(0);installTaskAnimations();setMobileStep(0,false);health();renderAll();loadDbBrowser().catch(()=>{});
+initTransformerScene();
+wireRanges();updateDocStats();populateTransformerSentences();setGuide(0);installTaskAnimations();setMobileStep(0,false);health();renderAll();loadDbBrowser().catch(()=>{});
 window.addEventListener('resize',syncTaskAnimations);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});

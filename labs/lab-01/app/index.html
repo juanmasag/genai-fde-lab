@@ -100,20 +100,25 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   </article>
 </section>
 
-<section class="panel mobile-screen" id="step-transformer" data-mobile-screen="1">
-  <div class="section-head"><div><span class="step-tag">3</span><h2>Microscopio del transformer</h2></div><span class="hint">modelo didáctico + embedding real</span></div>
-  <p class="explain">Elegí una frase. El microscopio usa un transformer mínimo didáctico para mostrar las operaciones paso a paso. El embedding de 768 dimensiones mostrado al final sí proviene de <code>nomic-embed-text</code>.</p>
-  <div class="transformer-layout">
-    <div>
-      <label>Frase para observar<select id="transformerSentence"></select></label>
-      <div class="calc-steps" id="calcSteps"></div>
-    </div>
-    <div>
-      <div class="attention-title">Atención educativa entre tokens</div>
-      <div id="attentionHeatmap" class="attention-wrap"></div>
-      <div class="formula-box" id="formulaBox"></div>
-    </div>
+<section class="panel mobile-screen transformer-scene" id="step-transformer" data-mobile-screen="1">
+  <div class="section-head"><div><span class="step-tag">3</span><h2>Transformer · escena progresiva</h2></div><span class="hint">modelo didáctico 4D + embedding real 768D</span></div>
+  <p class="explain">Primero seguí visualmente cómo cambia un token. Después abrí <b>Ver cálculo</b> para inspeccionar la matemática. El modelo 4D es educativo y no representa los pesos internos de Ollama.</p>
+  <div class="transformer-truth-banner"><i data-lucide="brain-circuit"></i><div><strong>Dos capas separadas</strong><span><b>Didáctica:</b> operaciones 4D visibles. <b>Real:</b> embedding generado por <code>nomic-embed-text</code> después de la ingesta.</span></div></div>
+  <label class="transformer-sentence-label">Frase para observar<select id="transformerSentence"></select></label>
+  <div class="transformer-story-progress" id="transformerStoryProgress" aria-label="Etapas del transformer didáctico"></div>
+  <div id="transformerSceneCanvas" class="transformer-scene-canvas" aria-live="polite"></div>
+  <div class="transformer-story-nav">
+    <button id="tfPrev" class="secondary">Anterior</button>
+    <div><strong id="tfStageTitle">Tokens</strong><span id="tfStageProgress">1 / 8</span></div>
+    <button id="tfNext" class="primary compact">Siguiente</button>
   </div>
+  <details class="transformer-calculation" id="transformerCalculation">
+    <summary>Ver cálculo</summary>
+    <div id="calcSteps"></div>
+    <div class="attention-title">Atención educativa entre tokens</div>
+    <div id="attentionHeatmap" class="attention-wrap"></div>
+  </details>
+  <div class="formula-box real-vs-didactic" id="formulaBox"></div>
 </section>
 
 <section class="panel mobile-screen" id="step-db" data-mobile-screen="2">

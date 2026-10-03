@@ -162,3 +162,30 @@ npm run check:integration
 ```
 
 La aplicación de producción es servida por Express desde `dist/`; Vite dev server no forma parte de la exposición por Tailscale.
+
+## Fase 2: escena progresiva del transformer
+
+El antiguo microscopio mostraba correctamente la matemática educativa, pero exponía demasiada información simultáneamente. La Fase 2 separa **comprensión visual** de **inspección matemática**.
+
+La escena está gobernada por XState y tiene ocho estados explícitos:
+
+```text
+tokens → vector → posición → Q/K/V → scores → atención → contexto → pooling
+```
+
+Cada etapa responde una pregunta conceptual antes de mostrar fórmulas. El botón **Ver cálculo** abre los valores del modelo didáctico correspondientes al estado actual.
+
+### Separación de verdad
+
+La interfaz muestra permanentemente dos columnas conceptuales:
+
+- **DIDÁCTICO**: transformer mínimo de 4 dimensiones, matrices fijas y operaciones calculadas en el navegador para poder seguir la matemática.
+- **REAL**: embedding de 768 dimensiones generado por `nomic-embed-text` a través de Ollama y almacenado por la ingesta.
+
+No se afirma que Q, K, V, atención o pooling visibles correspondan a los estados internos de `nomic-embed-text`. Esa separación es parte del diseño pedagógico y no sólo una nota técnica.
+
+### Interacción
+
+El alumno elige un token en la primera etapa. El mismo token se mantiene como foco al avanzar por vector, posición, Q/K/V, scores, atención y contexto. Esto permite seguir causalmente una representación en lugar de observar tablas desconectadas.
+
+Motion anima el cambio de representación; el heatmap queda dentro del inspector para comprobar numéricamente los pesos educativos de atención.

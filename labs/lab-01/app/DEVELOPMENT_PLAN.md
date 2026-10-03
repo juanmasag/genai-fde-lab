@@ -54,13 +54,18 @@ Objetivo: establecer el patrón de interacción que luego reutilizarán las dem�
 
 Criterio de aceptación: la escena y el preview técnico deben derivar del mismo resultado del backend.
 
-### Fase 2 — Transformer / embedding
+### Fase 2 — Transformer / embedding [IMPLEMENTADA V1]
 
 - Separar claramente el transformer didáctico del embedding real de Ollama.
 - Recorrido progresivo: token → vector inicial → posición → Q/K/V → atención → vector contextual → pooling.
 - Ocultar fórmulas por defecto y exponerlas bajo “Ver cálculo”.
 - Animar relaciones de atención sólo para el token seleccionado.
 - Mantener el vector real de `nomic-embed-text` como salida verificable separada.
+- Máquina XState de 8 estados: tokens → vector → posición → Q/K/V → scores → atención → contexto → pooling.
+- Escena visual separada del inspector matemático “Ver cálculo”.
+- Selección interactiva del token seguido durante todo el recorrido.
+- Comparación visual explícita entre modelo educativo 4D y embedding real 768D.
+- Motion reservado a transiciones de representación, no a telemetría ficticia del modelo.
 
 ### Fase 3 — Ingesta y pgvector
 
