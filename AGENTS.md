@@ -50,3 +50,14 @@ Antes de dar instrucciones a una herramienta, agente, modelo de segmentación, a
 6. Después de ejecutar, comparar el resultado con la fuente y validar explícitamente los elementos críticos antes de promoverlo a asset, código o resultado definitivo.
 
 Esta regla es prioritaria para la calidad del trabajo y complementa las reglas de evidencia, persistencia y lectura previa. La ejecución no debe comenzar hasta que el agente pueda justificar sus instrucciones a partir de evidencia observada.
+
+## Regla prioritaria de fidelidad al master visual aprobado
+
+Cuando exista un master visual aprobado por el usuario, ese master es la fuente canónica de identidad y tiene prioridad sobre la comodidad técnica de segmentación, vectorización, animación o generación.
+
+1. Optimizar, separar, vectorizar, segmentar, completar o preparar un asset nunca autoriza a rediseñar el personaje ni reinterpretar su identidad visual.
+2. Se deben preservar silueta, proporciones, paleta, capas, antena, rostro, vestuario, props, volúmenes, luces y demás rasgos identificatorios del master, salvo cambio explícitamente solicitado por el usuario.
+3. No regenerar con IA una pieza que pueda recuperarse fielmente desde píxeles o geometría existentes del master.
+4. La IA generativa se reserva para completar información realmente inexistente u oculta y debe limitar su intervención a la región necesaria, usando el master como referencia visual.
+5. Todo resultado derivado debe compararse contra el master antes de ser promovido. La facilidad de extracción nunca compensa una pérdida de fidelidad.
+6. Si una transformación produce un personaje parecido pero no idéntico en identidad visual, se considera fallida y no debe incorporarse como asset definitivo.
