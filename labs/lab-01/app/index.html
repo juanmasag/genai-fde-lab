@@ -77,6 +77,27 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
     <div id="ingestStatus" class="status-line"></div>
     <div id="chunkPreview" class="cards compact-cards"></div>
   </article>
+
+  <article class="panel learning-scene" id="ingestionScene">
+    <div class="section-head">
+      <div><span class="step-tag">A</span><h2>Escena de aprendizaje · de documento a chunks</h2></div>
+      <span class="hint">datos reales del preview</span>
+    </div>
+    <p class="explain">Una misma transformación vista en tres capas: primero el documento, después los tokens que usa el laboratorio y finalmente cómo esos tokens se distribuyen en chunks con overlap.</p>
+    <div class="scene-progress" id="sceneProgress" aria-label="Progreso de la escena">
+      <button data-scene="document" class="active"><i data-lucide="file-text"></i><span>Documento</span></button>
+      <span class="scene-link"></span>
+      <button data-scene="tokens"><i data-lucide="binary"></i><span>Tokens</span></button>
+      <span class="scene-link"></span>
+      <button data-scene="chunks"><i data-lucide="scissors"></i><span>Chunks + overlap</span></button>
+    </div>
+    <div id="sceneCanvas" class="scene-canvas" aria-live="polite"></div>
+    <div class="scene-nav">
+      <button id="scenePrev" class="secondary">Anterior</button>
+      <div><strong id="sceneStepTitle">Documento</strong><span id="sceneStepInfo">1 / 3</span></div>
+      <button id="sceneNext" class="primary compact">Siguiente</button>
+    </div>
+  </article>
 </section>
 
 <section class="panel mobile-screen" id="step-transformer" data-mobile-screen="1">

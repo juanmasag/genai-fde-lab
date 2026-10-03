@@ -114,3 +114,12 @@ npm run check:integration
 ```
 
 La migración inicial fue validada con `npm audit` sin vulnerabilidades conocidas, render móvil en Chromium, pruebas E2E de preview/ingesta/pgvector/retrieval y acceso HTTPS por Tailscale.
+
+## Desarrollo de la experiencia educativa
+
+La evolución de GUI/UX está documentada separadamente para mantener claro qué problema resuelve cada herramienta y cómo se verifica cada representación:
+
+- [`DEVELOPMENT_PLAN.md`](./DEVELOPMENT_PLAN.md): fases, criterios de aceptación y definición de terminado.
+- [`GUI_UX_ARCHITECTURE.md`](./GUI_UX_ARCHITECTURE.md): arquitectura escena + inspector, responsabilidades de Vite/XState/Motion/D3/Lucide y distinción entre cálculos reales y modelos didácticos.
+
+La primera escena implementada recorre **Documento → Tokens → Chunks + overlap** usando exclusivamente el resultado real de `/api/chunk-preview`.

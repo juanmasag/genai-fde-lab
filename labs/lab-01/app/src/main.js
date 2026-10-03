@@ -6,7 +6,7 @@ import { createIcons, FileText, Scissors, BrainCircuit, Binary, Database, Search
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const EXAMPLE_DOC=$('#document').value;
-const state={ingest:null,analysis:null,activeDocumentId:null,tab:'chunks',stage:0,guide:0,playTimer:null,dbTimer:null,mobileStep:0,attentionToken:0,transformerSubstep:0};
+const state={ingest:null,analysis:null,activeDocumentId:null,preview:null,tab:'chunks',stage:0,guide:0,playTimer:null,dbTimer:null,mobileStep:0,attentionToken:0,transformerSubstep:0};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const fmt=n=>Number(n).toFixed(3);
@@ -59,6 +59,8 @@ async function previewChunking(){
     $('#chunkSize').value=String(data.chunkSize);$('#overlap').value=String(data.overlap);
     syncChunkControlLimits(data.tokenCount);
     const chunks=data.chunks||[];
+    state.preview=data;
+    renderIngestionScene(ingestionSceneActor?.getSnapshot()?.value||'document');
     const tokenHtml=(c,chunkIndex)=>(c.tokens||[]).map((tok,i)=>{
       const repeatsInNext=c.overlapToNext>0 && i>=Math.max(0,c.tokens.length-c.overlapToNext);
       const repeatedFromPrevious=c.overlapFromPrevious>0 && i<c.overlapFromPrevious;
@@ -128,6 +130,86 @@ $('#analyze').addEventListener('click',async()=>{
   finally{setBusy(btn,false);}
 });
 $$('.quick-tests button').forEach(b=>b.addEventListener('click',()=>{$('#question').value=b.dataset.q;}));
+
+
+const ingestionSceneMachine=createMachine({
+  id:'ingestionLearningScene',
+  initial:'document',
+  states:{
+    document:{on:{NEXT:'tokens',TOKENS:'tokens',CHUNKS:'chunks'}},
+    tokens:{on:{PREV:'document',NEXT:'chunks',DOCUMENT:'document',CHUNKS:'chunks'}},
+    chunks:{on:{PREV:'tokens',DOCUMENT:'document',TOKENS:'tokens'}}
+  }
+});
+let ingestionSceneActor=null;
+
+function previewGlobalTokens(){
+  const chunks=state.preview?.chunks||[];
+  const byIndex=new Map();
+  chunks.forEach(c=>(c.tokens||[]).forEach((token,i)=>{
+    const globalIndex=Number(c.tokenStart||0)+i;
+    if(!byIndex.has(globalIndex))byIndex.set(globalIndex,token);
+  }));
+  return [...byIndex.entries()].sort((a,b)=>a[0]-b[0]).map(([index,token])=>({index,token}));
+}
+
+function sceneDocumentHtml(){
+  const tokenCount=state.preview?.tokenCount??'…';
+  const chars=$('#document').value.length;
+  const lines=Array.from({length:8},()=>'<span></span>').join('');
+  return '<div class="scene-stage scene-stage-document"><div class="scene-stage-head"><h3>1. El documento es la entrada</h3><p>Todavía no hay chunks. Primero observamos la fuente que va a procesar el pipeline.</p></div><div class="scene-document-wrap"><div class="scene-document-card"><header><i data-lucide="file-text"></i><strong>'+esc($('#title').value||'documento')+'</strong></header><div class="scene-document-lines">'+lines+'</div></div></div><div class="scene-metrics"><span class="scene-metric">'+chars+' caracteres</span><span class="scene-metric">'+tokenCount+' tokens del tokenizer del laboratorio</span></div></div>';
+}
+
+function sceneTokensHtml(){
+  const tokens=previewGlobalTokens();
+  if(!tokens.length)return '<div class="scene-empty">Calculando tokens reales del documento…</div>';
+  const shown=tokens.slice(0,180),extra=tokens.length-shown.length;
+  const tokenHtml=shown.map(t=>'<span class="scene-token"><small class="scene-token-index">'+t.index+'</small>'+esc(t.token)+'</span>').join('');
+  return '<div class="scene-stage scene-stage-tokens"><div class="scene-stage-head"><h3>2. El texto se convierte en una secuencia de tokens</h3><p>Cada bloque representa un token devuelto por el mismo tokenizer que usa el preview de chunking. El número indica su posición global.</p></div><div class="scene-token-cloud">'+tokenHtml+'</div><div class="scene-metrics"><span class="scene-metric">'+tokens.length+' tokens totales</span>'+(extra>0?'<span class="scene-metric">se muestran 180 · '+extra+' adicionales</span>':'')+'</div></div>';
+}
+
+function sceneChunksHtml(){
+  const chunks=state.preview?.chunks||[];
+  if(!chunks.length)return '<div class="scene-empty">Calculando límites reales de los chunks…</div>';
+  const shown=chunks.slice(0,4);
+  const cards=shown.map((c,idx)=>{
+    const tokens=c.tokens||[],from=Number(c.overlapFromPrevious||0),to=Number(c.overlapToNext||0);
+    const tokenHtml=tokens.map((tok,i)=>{const inPrev=from>0&&i<from,outNext=to>0&&i>=tokens.length-to,cls=inPrev?'overlap-in':outNext?'overlap-out':'';return '<span class="scene-chunk-token '+cls+'">'+esc(tok)+'</span>';}).join('');
+    const flow=to>0&&chunks[idx+1]?'<div class="scene-overlap-flow"><span>'+to+' tokens se repiten</span><i></i></div>':'';
+    return '<div class="scene-chunk"><header><strong>'+esc(c.chunkId)+'</strong><small>'+tokens.length+' tokens · '+c.tokenStart+'–'+Math.max(c.tokenStart,c.tokenEnd-1)+'</small></header><div class="scene-chunk-tokens">'+tokenHtml+'</div>'+flow+'</div>';
+  }).join('');
+  const more=chunks.length>4?'<span class="scene-metric">primeros 4 visibles</span>':'';
+  return '<div class="scene-stage scene-stage-chunks"><div class="scene-stage-head"><h3>3. Los límites agrupan tokens y el overlap conserva contexto</h3><p>Verde sólido: sale hacia el siguiente chunk. Verde punteado: llegó repetido desde el chunk anterior. Cambiá chunk size u overlap y esta escena se recalcula.</p></div><div class="scene-chunks">'+cards+'</div><div class="scene-metrics"><span class="scene-metric">'+chunks.length+' chunks reales</span><span class="scene-metric">chunk_size '+state.preview.chunkSize+'</span><span class="scene-metric">overlap '+state.preview.overlap+'</span>'+more+'</div></div>';
+}
+
+function renderIngestionScene(step='document'){
+  const canvas=$('#sceneCanvas');
+  if(!canvas)return;
+  const order=['document','tokens','chunks'];
+  const i=Math.max(0,order.indexOf(String(step)));
+  const labels=['Documento','Tokens','Chunks + overlap'];
+  canvas.innerHTML=i===0?sceneDocumentHtml():i===1?sceneTokensHtml():sceneChunksHtml();
+  $('#sceneStepTitle').textContent=labels[i];
+  $('#sceneStepInfo').textContent=(i+1)+' / 3';
+  $('#scenePrev').disabled=i===0;$('#sceneNext').disabled=i===2;
+  $$('#sceneProgress button').forEach((b,j)=>{b.classList.toggle('active',j===i);b.classList.toggle('done',j<i);});
+  createIcons({icons:{FileText,Scissors,Binary}});
+  const target=canvas.querySelector('.scene-document-card,.scene-token-cloud,.scene-chunks');
+  if(target&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    animate(target,{opacity:[0,1],transform:['translateY(14px) scale(.985)','translateY(0px) scale(1)']},{duration:.32});
+    if(i===1){const toks=[...canvas.querySelectorAll('.scene-token')].slice(0,48);animate(toks,{opacity:[0,1],transform:['translateY(8px)','translateY(0px)']},{delay:(_,n)=>Math.min(n*.012,.45),duration:.2});}
+    if(i===2){animate([...canvas.querySelectorAll('.scene-chunk')],{opacity:[0,1],transform:['translateX(12px)','translateX(0px)']},{delay:(_,n)=>n*.08,duration:.28});}
+  }
+}
+
+function initIngestionScene(){
+  ingestionSceneActor=createActor(ingestionSceneMachine);
+  ingestionSceneActor.subscribe(snapshot=>renderIngestionScene(snapshot.value));
+  ingestionSceneActor.start();
+  $('#scenePrev').addEventListener('click',()=>ingestionSceneActor.send({type:'PREV'}));
+  $('#sceneNext').addEventListener('click',()=>ingestionSceneActor.send({type:'NEXT'}));
+  $$('#sceneProgress button').forEach(b=>b.addEventListener('click',()=>ingestionSceneActor.send({type:String(b.dataset.scene||'document').toUpperCase()})));
+}
 
 function hashToken(token){let h=2166136261;for(const ch of token){h^=ch.codePointAt(0);h=Math.imul(h,16777619);}return h>>>0;}
 function baseVector(token){let h=hashToken(token),v=[];for(let i=0;i<4;i++){h=(Math.imul(h^(h>>>13),1274126177))>>>0;v.push(((h%2001)-1000)/1000);}return v;}
@@ -358,6 +440,7 @@ $('#play').addEventListener('click',()=>{if(state.playTimer){clearInterval(state
 $$('.tab').forEach(b=>b.addEventListener('click',()=>{$$('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;renderTechnical();}));
 
 createIcons({icons:{FileText,Scissors,BrainCircuit,Binary,Database,Search,PackageOpen,Bot,Quote}});
+initIngestionScene();
 wireRanges();updateDocStats();setGuide(0);installTaskAnimations();setMobileStep(0,false);health();renderAll();loadDbBrowser().catch(()=>{});
 window.addEventListener('resize',syncTaskAnimations);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
