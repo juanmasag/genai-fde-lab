@@ -157,3 +157,9 @@ Todo artefacto generado durante el trabajo creativo debe almacenarse en el repos
 - Wrapper: `~/.local/bin/one-vtracer`.
 - Uso: vectorización local raster → SVG para assets de laboratorio.
 - Fuente: paquete oficial `vtracer` publicado en PyPI por el proyecto VTracer; se mantiene aislado para no alterar el Python del sistema.
+
+## Raster segmentation before vectorization
+
+For ONE character assets, preserve the approved raster rendering whenever vector tracing degrades gradients or volume. The validated path is: clean transparent PNG -> MobileSAM segmentation -> visual approval -> technical pixel/alpha validation -> segmented raster master. VTracer remains optional for geometry that genuinely benefits from vectors; it is not the default visual master for the mascot.
+
+The first validated master is `assets/characters/one/source/raster/segmented/one-fullbody-main.png`. It was segmented from the clean parts sheet using MobileSAM on CPU and retains the source RGB values for all selected pixels.
