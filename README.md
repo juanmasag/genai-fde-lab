@@ -86,3 +86,9 @@ Ver [docs/CREATIVE_TOOLCHAIN.md](docs/CREATIVE_TOOLCHAIN.md).
 ## Licencia
 
 MIT.
+
+## Alcance de cambios
+
+Este repositorio no autoriza modificaciones sobre ONE ni sobre ningún otro repositorio. Cualquier cambio fuera de genai-fde-lab requiere confirmación explícita del usuario. Las herramientas creativas y assets desarrollados aquí están destinados a los laboratorios de estudio.
+
+La regla completa está definida en AGENTS.md.
