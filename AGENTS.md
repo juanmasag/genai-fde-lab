@@ -37,3 +37,16 @@ Esta regla es obligatoria para agentes, automatizaciones y asistentes que trabaj
 Antes de cualquier acción sobre este repositorio —incluyendo revisión, análisis, inspección, edición, ejecución de pruebas o comandos, creación de assets, commit o push— el primer paso obligatorio es leer las reglas vigentes de `AGENTS.md` y cualquier otra regla aplicable al alcance de la tarea.
 
 No se debe confiar únicamente en memoria, contexto de conversación ni conocimiento previo de las reglas. Las reglas presentes en el repositorio son la fuente de autoridad que debe consultarse antes de actuar. Si existen reglas contradictorias, ambiguas o insuficientes para la acción solicitada, detener la acción y solicitar aclaración antes de modificar el repositorio.
+
+## Regla prioritaria de inspección antes de ejecutar
+
+Antes de dar instrucciones a una herramienta, agente, modelo de segmentación, automatización o proceso que transforme un recurso, se debe inspeccionar primero la fuente real y reunir evidencia suficiente para definir correctamente la operación.
+
+1. No ejecutar por aproximación cuando el archivo, imagen, código, estado o resultado pueda inspeccionarse directamente.
+2. Antes de definir cajas, puntos, máscaras, recortes, parámetros, coordenadas o transformaciones visuales, inspeccionar la fuente completa y los detalles relevantes, incluyendo elementos finos, extremos, transparencias, contornos y objetos vecinos que puedan interferir.
+3. Las instrucciones deben derivarse de esa inspección y no de coordenadas estimadas, memoria, una captura parcial o una ejecución anterior que no haya sido validada.
+4. Si la evidencia disponible no permite formular instrucciones suficientemente precisas, detener la ejecución y obtener mejor evidencia antes de transformar el recurso.
+5. Priorizar una inspección cuidadosa y una instrucción correcta sobre la velocidad de ejecución. Evitar el ciclo de prueba y error cuando un análisis previo puede prevenir el retrabajo.
+6. Después de ejecutar, comparar el resultado con la fuente y validar explícitamente los elementos críticos antes de promoverlo a asset, código o resultado definitivo.
+
+Esta regla es prioritaria para la calidad del trabajo y complementa las reglas de evidencia, persistencia y lectura previa. La ejecución no debe comenzar hasta que el agente pueda justificar sus instrucciones a partir de evidencia observada.
