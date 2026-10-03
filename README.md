@@ -77,6 +77,12 @@ Un lab sólo se considera terminado cuando:
 
 Python, FastAPI, PostgreSQL/pgvector, LangGraph, MCP, pytest, Docker, GitHub Actions, Google Cloud, Vertex AI y herramientas de observabilidad/evaluación de LLMs.
 
+### Stack creativo local
+
+Para los laboratorios educativos se incorporó un toolchain creativo local y open source: Krita, Inkscape, Blender, Synfig Studio, OpenToonz, Pencil2D, GIMP, Kdenlive, FFmpeg, SVGO, Pillow y CairoSVG. La IA queda reservada a ideación; los assets de producción se construyen y procesan con estas herramientas.
+
+Ver [docs/CREATIVE_TOOLCHAIN.md](docs/CREATIVE_TOOLCHAIN.md).
+
 ## Licencia
 
 MIT.
