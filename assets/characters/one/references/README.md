@@ -12,3 +12,8 @@ Estas referencias no son assets finales de producción. Desde la aprobación del
 Las copias WebP están normalizadas para mantener las referencias dentro del repositorio. Concepto B y Character Kit se conservan a mayor resolución relativa por ser las fuentes activas de reconstrucción.
 
 Ver `../CHARACTER_SPEC.md`.
+
+
+## Estado de integridad
+
+Las copias WebP persistidas desde la conversación no superaron la decodificación local con FFmpeg/Pillow el 2026-10-03. Se conservan únicamente como evidencia de trazabilidad, pero **no se consideran fuentes raster válidas de producción**. La dirección visual aprobada sigue siendo Concepto B y el Character Kit visibles en la conversación hasta disponer de copias decodificables.

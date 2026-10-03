@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-labelledby="title desc">
+  <title id="title">ONE mascot master character</title>
+  <desc id="desc">Animation-ready 2D master SVG for the ONE learning guide mascot.</desc>
+  <defs>
+    <linearGradient id="hoodBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#173F8A"/>
+      <stop offset="1" stop-color="#0B2E6B"/>
+    </linearGradient>
+    <linearGradient id="hoodSky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#65D2FF"/>
+      <stop offset="1" stop-color="#2B9FEA"/>
+    </linearGradient>
+    <linearGradient id="mint" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7BE7D8"/>
+      <stop offset="1" stop-color="#3FD6C3"/>
+    </linearGradient>
+    <radialGradient id="face" cx="50%" cy="42%" r="65%">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EEF5FB"/>
+    </radialGradient>
+    <radialGradient id="amberGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFF3B0"/>
+      <stop offset=".55" stop-color="#FFC241"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </radialGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#0B2E6B" flood-opacity=".18"/>
+    </filter>
+  </defs>
+
+  <g id="character" filter="url(#softShadow)">
+    <g id="cape_back">
+      <path id="cape_left" d="M219 426 C115 470 121 631 208 684 C222 626 260 581 317 544 Z" fill="url(#mint)"/>
+      <path id="cape_right" d="M581 426 C685 470 679 631 592 684 C578 626 540 581 483 544 Z" fill="url(#hoodSky)"/>
+    </g>
+
+    <g id="head" transform="translate(0 0)">
+      <path id="hood_back" d="M400 109 C245 109 152 214 169 360 C181 464 268 520 400 520 C532 520 619 464 631 360 C648 214 555 109 400 109Z" fill="url(#hoodBlue)"/>
+      <path id="hood_mid" d="M209 277 C251 153 365 121 471 151 C532 169 580 212 601 269 C539 230 477 218 405 222 C326 225 264 246 209 277Z" fill="url(#hoodSky)"/>
+      <path id="hood_mint" d="M199 304 C245 212 337 175 435 186 C506 194 558 224 600 274 C522 254 462 256 399 264 C319 274 258 289 199 304Z" fill="url(#mint)" opacity=".96"/>
+
+      <g id="antenna" transform="translate(0 0)">
+        <path id="antenna_stem" d="M510 172 C528 126 546 102 576 79" fill="none" stroke="#173F8A" stroke-width="16" stroke-linecap="round"/>
+        <circle id="antenna_glow_outer" cx="586" cy="70" r="31" fill="#FFC241" opacity=".24"/>
+        <circle id="antenna_node" cx="586" cy="70" r="20" fill="url(#amberGlow)" stroke="#FFFFFF" stroke-width="5"/>
+      </g>
+
+      <ellipse id="face_plate" cx="400" cy="340" rx="204" ry="169" fill="url(#face)" stroke="#D6E6F5" stroke-width="10"/>
+
+      <g id="eyebrows" fill="none" stroke="#173F8A" stroke-width="13" stroke-linecap="round">
+        <path id="eyebrow_left" d="M289 278 Q330 251 365 272"/>
+        <path id="eyebrow_right" d="M435 272 Q470 251 511 278"/>
+      </g>
+
+      <g id="eyes">
+        <g id="eye_left">
+          <ellipse cx="325" cy="335" rx="48" ry="67" fill="#0B2E6B"/>
+          <ellipse cx="331" cy="348" rx="31" ry="44" fill="#2B9FEA"/>
+          <ellipse cx="313" cy="312" rx="13" ry="18" fill="#FFFFFF"/>
+          <ellipse cx="339" cy="365" rx="10" ry="14" fill="#7BE7D8" opacity=".8"/>
+        </g>
+        <g id="eye_right">
+          <ellipse cx="475" cy="335" rx="48" ry="67" fill="#0B2E6B"/>
+          <ellipse cx="469" cy="348" rx="31" ry="44" fill="#2B9FEA"/>
+          <ellipse cx="457" cy="312" rx="13" ry="18" fill="#FFFFFF"/>
+          <ellipse cx="485" cy="365" rx="10" ry="14" fill="#7BE7D8" opacity=".8"/>
+        </g>
+      </g>
+
+      <g id="mouth">
+        <path id="mouth_smile" d="M359 407 Q400 445 441 407 Q436 467 400 472 Q364 467 359 407Z" fill="#541D34"/>
+        <path id="tongue" d="M380 449 Q400 438 420 449 Q412 462 400 464 Q388 462 380 449Z" fill="#FF7A7A"/>
+      </g>
+    </g>
+
+    <g id="body">
+      <path id="torso" d="M298 520 Q400 478 502 520 L544 703 Q400 772 256 703Z" fill="#F8FBFE" stroke="#D9E8F5" stroke-width="9"/>
+      <path id="torso_mint" d="M302 535 Q400 502 498 535 L476 620 Q400 650 324 620Z" fill="url(#mint)"/>
+      <path id="hip" d="M276 692 Q400 750 524 692 L502 790 Q400 846 298 790Z" fill="url(#hoodSky)"/>
+      <g id="chest_mark">
+        <path d="M364 609 A47 47 0 1 1 419 647" fill="none" stroke="#173F8A" stroke-width="22" stroke-linecap="round"/>
+        <path d="M416 630 L462 653 L418 679Z" fill="#3FD6C3"/>
+      </g>
+    </g>
+
+    <g id="arm_left" transform="rotate(14 272 592)">
+      <rect id="upper_arm_left" x="204" y="535" width="104" height="74" rx="37" fill="url(#hoodBlue)"/>
+      <rect id="forearm_left" x="154" y="560" width="100" height="70" rx="35" fill="url(#hoodSky)"/>
+      <g id="hand_left">
+        <ellipse cx="146" cy="598" rx="41" ry="36" fill="#FFFFFF" stroke="#D9E8F5" stroke-width="7"/>
+      </g>
+    </g>
+
+    <g id="arm_right" transform="rotate(-24 530 590)">
+      <rect id="upper_arm_right" x="495" y="535" width="104" height="74" rx="37" fill="url(#hoodBlue)"/>
+      <rect id="forearm_right" x="548" y="548" width="102" height="70" rx="35" fill="url(#hoodSky)"/>
+      <g id="hand_right">
+        <path d="M648 566 C673 545 705 547 721 566 C737 584 726 604 708 608 C724 618 723 637 706 648 C685 661 659 648 650 628 C638 606 633 582 648 566Z" fill="#FFFFFF" stroke="#D9E8F5" stroke-width="7"/>
+      </g>
+    </g>
+
+    <g id="legs">
+      <g id="leg_left">
+        <path d="M322 775 C286 813 279 885 307 927 L372 927 C386 870 378 814 358 782Z" fill="#F8FBFE" stroke="#D9E8F5" stroke-width="8"/>
+        <path id="foot_left" d="M292 916 Q333 896 377 918 L367 954 L286 954 Q277 936 292 916Z" fill="#173F8A"/>
+      </g>
+      <g id="leg_right">
+        <path d="M478 775 C514 813 521 885 493 927 L428 927 C414 870 422 814 442 782Z" fill="#F8FBFE" stroke="#D9E8F5" stroke-width="8"/>
+        <path id="foot_right" d="M508 916 Q467 896 423 918 L433 954 L514 954 Q523 936 508 916Z" fill="#173F8A"/>
+      </g>
+    </g>
+
+    <g id="tablet" transform="translate(86 604) rotate(-7)">
+      <rect id="tablet_body" x="0" y="0" width="150" height="195" rx="19" fill="#102B57" stroke="#284E85" stroke-width="8"/>
+      <rect id="tablet_screen" x="14" y="18" width="122" height="155" rx="10" fill="#173F8A"/>
+      <path id="tablet_play" d="M58 71 L102 96 L58 121Z" fill="#3FD6C3"/>
+    </g>
+  </g>
+</svg>

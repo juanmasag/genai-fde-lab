@@ -1,6 +1,6 @@
 # ONE — Character Specification
 
-Estado: SVG maestro V1 creado a partir de la dirección visual Concepto B aprobada.
+Estado: SVG maestro V2 refinado a partir de la dirección visual Concepto B aprobada.
 
 ## Identidad
 
@@ -69,3 +69,10 @@ Alegre, atento, tranquilizador, pensando, explicando, celebrando, esperando y al
 
 - SVG web: `exports/svg/one-master.min.svg`
 - preview: `exports/png/one-master-preview.png`
+
+
+## Refinamiento V2
+
+La V2 conserva la identidad definida en V1 pero acerca el asset a la dirección Concepto B: silueta de cabeza más suave y ancha, placa facial más amable, ojos menos mecánicos, torso/cadera más orgánicos y mejillas como componente expresivo. También normaliza los IDs del contrato de animación a nombres semánticos con guiones.
+
+Se conserva `source/vector/one-master-v1.svg` como baseline. `source/vector/one-master.svg` es la fuente canónica V2. La comparación renderizada está en `exports/png/one-v1-v2-review.png`.
