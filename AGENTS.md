@@ -20,3 +20,14 @@ Los agentes pueden implementar, probar, documentar y crear assets dentro de gena
 ## Regla obligatoria de persistencia de recursos
 
 Todo recurso generado o creado para los laboratorios debe quedar físicamente guardado y versionado dentro de genai-fde-lab. Esto incluye imágenes de referencia, SVG, fuentes editables, componentes, animaciones, documentación y exports. Un recurso que sólo exista en una conversación, directorio temporal o herramienta externa no se considera incorporado al proyecto.
+
+## Regla obligatoria de evidencia y no invención
+
+1. Nunca afirmar como realizado, existente, visible, verificado, funcional o correcto algo que no haya sido comprobado mediante evidencia directa.
+2. Si una acción no pudo ejecutarse, un archivo no pudo abrirse, una imagen no pudo inspeccionarse, un resultado no pudo validarse o una herramienta fue bloqueada, indicarlo explícitamente. Está prohibido completar esos vacíos con suposiciones, resultados simulados o afirmaciones no verificadas.
+3. Distinguir siempre entre lo **comprobado**, lo **inferido a partir de evidencia** y lo **pendiente de comprobar**.
+4. Una tarea sólo puede declararse terminada cuando exista evidencia verificable de su resultado.
+5. Cuando el resultado requiera juicio visual del usuario, la validación técnica del agente no sustituye esa revisión: debe presentarse el material de comparación y solicitar la validación visual correspondiente.
+6. Ante evidencia insuficiente o contradictoria, no inventar una conclusión: conservar el estado como pendiente y obtener evidencia adicional.
+
+Esta regla es obligatoria para agentes, automatizaciones y asistentes que trabajen en genai-fde-lab.
