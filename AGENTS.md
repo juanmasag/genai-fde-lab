@@ -16,3 +16,7 @@ Esta regla tiene prioridad sobre cualquier conveniencia técnica, automatizació
 ## Propósito
 
 Los agentes pueden implementar, probar, documentar y crear assets dentro de genai-fde-lab, manteniendo siempre el alcance del repositorio y la comprensión humana como objetivo principal.
+
+## Regla obligatoria de persistencia de recursos
+
+Todo recurso generado o creado para los laboratorios debe quedar físicamente guardado y versionado dentro de genai-fde-lab. Esto incluye imágenes de referencia, SVG, fuentes editables, componentes, animaciones, documentación y exports. Un recurso que sólo exista en una conversación, directorio temporal o herramienta externa no se considera incorporado al proyecto.

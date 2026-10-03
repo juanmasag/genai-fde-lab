@@ -147,3 +147,7 @@ No se incorpora una herramienta al flujo sólo porque esté instalada. Se elige 
 - Export audiovisual → FFmpeg/Kdenlive.
 
 Para los laboratorios web, la ruta preferida será **SVG + Motion + XState**, porque permite reutilizar el personaje como componentes interactivos y mantener bajo el peso de la PWA.
+
+## Persistencia obligatoria
+
+Todo artefacto generado durante el trabajo creativo debe almacenarse en el repositorio. Las referencias de ideación adoptadas se guardan en `assets/characters/one/references/`; los fuentes editables y exports se ubican en sus carpetas correspondientes. Ningún asset que exista sólo en el chat, `/tmp`, una aplicación local o un directorio temporal se considera terminado.
