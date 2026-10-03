@@ -284,3 +284,12 @@ footer{padding:4px 0 28px;color:var(--muted);font-size:.72rem;text-align:center}
  .transformer-story-progress{display:flex;overflow-x:auto;gap:5px;padding-bottom:6px;scroll-snap-type:x mandatory}.transformer-story-progress button{min-width:78px;scroll-snap-align:center}.transformer-scene-canvas{min-height:430px;padding:13px}.tf-story{gap:14px}.tf-equation-flow,.tf-qkv,.tf-context-flow{gap:10px}.tf-vector-block{min-width:125px}.tf-vector-bars{height:90px}.tf-score-list>div{grid-template-columns:82px 1fr 52px}.real-vs-didactic{grid-template-columns:1fr}.truth-divider{min-height:24px}.transformer-calculation>.attention-wrap{overflow:auto}.transformer-story-nav button{min-width:0;width:100%;padding-inline:8px}
 }
 @media(prefers-reduced-motion:reduce){.transformer-story-progress button,.tf-token,.tf-attention-node{transition:none!important}}
+
+/* Mobile form containment: native selects must never size from their longest option */
+select{font:inherit;box-sizing:border-box;display:block;width:100%;max-width:100%;min-width:0;border:1px solid var(--border);background:#090f1c;color:var(--text);border-radius:11px;padding:11px 36px 11px 12px;font-size:16px}
+label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
+.transformer-sentence-label select{width:100%;max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:759px){
+  .transformer-sentence-label{width:100%;overflow:hidden}
+  .transformer-sentence-label select{display:block;width:100%;max-width:100%;min-width:0}
+}
