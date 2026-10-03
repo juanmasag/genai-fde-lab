@@ -1,542 +1,821 @@
 [
   {
-    "category": "props",
-    "name": "tablet-front-play",
-    "source_component": 10,
+    "path": "antenna/antenna-curved-long.png",
     "size": [
-      149,
-      111
-    ]
-  },
-  {
-    "category": "props",
-    "name": "tablet-back",
-    "source_component": 12,
-    "size": [
-      130,
-      113
-    ]
-  },
-  {
-    "category": "props",
-    "name": "tablet-side-a",
-    "source_component": 19,
-    "size": [
-      88,
-      112
-    ]
-  },
-  {
-    "category": "props",
-    "name": "tablet-side-b",
-    "source_component": 25,
-    "size": [
-      70,
-      120
-    ]
-  },
-  {
-    "category": "antenna",
-    "name": "antenna-curved-short",
-    "source_component": 30,
-    "size": [
-      71,
-      133
-    ]
-  },
-  {
-    "category": "antenna",
-    "name": "antenna-curved-long",
-    "source_component": 31,
-    "size": [
+      145,
+      61
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       145,
       61
     ]
   },
   {
-    "category": "antenna",
-    "name": "antenna-lamp",
-    "source_component": 44,
+    "path": "antenna/antenna-curved-short.png",
     "size": [
+      71,
+      133
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      71,
+      133
+    ]
+  },
+  {
+    "path": "antenna/antenna-lamp.png",
+    "size": [
+      61,
+      61
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       61,
       61
     ]
   },
   {
-    "category": "antenna",
-    "name": "antenna-stem-a",
-    "source_component": 56,
+    "path": "antenna/antenna-stem-a.png",
     "size": [
+      27,
+      124
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       27,
       124
     ]
   },
   {
-    "category": "antenna",
-    "name": "antenna-stem-b",
-    "source_component": 70,
+    "path": "antenna/antenna-stem-b.png",
     "size": [
+      18,
+      80
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       18,
       80
     ]
   },
   {
-    "category": "hands",
-    "name": "hand-point-a",
-    "source_component": 32,
+    "path": "arms/arm-module-a.png",
     "size": [
-      79,
-      80
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-fist-a",
-    "source_component": 33,
-    "size": [
-      69,
-      70
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-two-finger",
-    "source_component": 34,
-    "size": [
-      57,
-      80
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-fist-b",
-    "source_component": 36,
-    "size": [
-      63,
-      68
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-fist-c",
-    "source_component": 37,
-    "size": [
-      68,
-      66
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-fist-horizontal",
-    "source_component": 38,
-    "size": [
-      80,
-      51
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-fist-d",
-    "source_component": 39,
-    "size": [
-      65,
-      65
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-fist-e",
-    "source_component": 40,
-    "size": [
-      63,
-      64
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-fist-f",
-    "source_component": 41,
-    "size": [
-      67,
-      56
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-open-thumb",
-    "source_component": 42,
-    "size": [
-      70,
-      71
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-fist-g",
-    "source_component": 43,
-    "size": [
-      60,
-      64
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-point-b",
-    "source_component": 45,
-    "size": [
-      53,
-      80
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-fist-compact",
-    "source_component": 48,
-    "size": [
-      64,
-      50
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-thumb-up-a",
-    "source_component": 54,
-    "size": [
-      50,
-      61
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-thumb-up-b",
-    "source_component": 58,
-    "size": [
-      47,
-      71
-    ]
-  },
-  {
-    "category": "hands",
-    "name": "hand-thumb-up-c",
-    "source_component": 60,
-    "size": [
-      45,
-      69
-    ]
-  },
-  {
-    "category": "eyes",
-    "name": "eye-open-a",
-    "source_component": 52,
-    "size": [
-      53,
-      61
-    ]
-  },
-  {
-    "category": "eyes",
-    "name": "eye-open-b",
-    "source_component": 53,
-    "size": [
-      51,
-      60
-    ]
-  },
-  {
-    "category": "eyes",
-    "name": "eye-open-c",
-    "source_component": 55,
-    "size": [
-      52,
-      60
-    ]
-  },
-  {
-    "category": "eyes",
-    "name": "eye-open-d",
-    "source_component": 57,
-    "size": [
-      49,
-      59
-    ]
-  },
-  {
-    "category": "eyes",
-    "name": "eye-open-e",
-    "source_component": 59,
-    "size": [
-      45,
-      60
-    ]
-  },
-  {
-    "category": "mouths",
-    "name": "mouth-open-smile",
-    "source_component": 61,
-    "size": [
-      71,
-      40
-    ]
-  },
-  {
-    "category": "mouths",
-    "name": "mouth-open-a",
-    "source_component": 63,
-    "size": [
-      70,
-      38
-    ]
-  },
-  {
-    "category": "mouths",
-    "name": "mouth-open-b",
-    "source_component": 64,
-    "size": [
-      58,
-      38
-    ]
-  },
-  {
-    "category": "mouths",
-    "name": "mouth-open-small-a",
-    "source_component": 67,
-    "size": [
-      38,
-      42
-    ]
-  },
-  {
-    "category": "mouths",
-    "name": "mouth-open-small-b",
-    "source_component": 68,
-    "size": [
-      38,
-      42
-    ]
-  },
-  {
-    "category": "mouths",
-    "name": "mouth-smile",
-    "source_component": 69,
-    "size": [
-      57,
-      32
-    ]
-  },
-  {
-    "category": "hood",
-    "name": "hood-layer-a",
-    "source_component": 13,
-    "size": [
-      163,
-      101
-    ]
-  },
-  {
-    "category": "hood",
-    "name": "hood-layer-b",
-    "source_component": 14,
-    "size": [
-      182,
-      92
-    ]
-  },
-  {
-    "category": "hood",
-    "name": "hood-layer-c",
-    "source_component": 15,
-    "size": [
-      199,
-      102
-    ]
-  },
-  {
-    "category": "hood",
-    "name": "hood-layer-d",
-    "source_component": 16,
-    "size": [
-      168,
-      103
-    ]
-  },
-  {
-    "category": "hood",
-    "name": "hood-layer-e",
-    "source_component": 17,
-    "size": [
-      164,
-      101
-    ]
-  },
-  {
-    "category": "hood",
-    "name": "hood-layer-f",
-    "source_component": 20,
-    "size": [
-      177,
-      92
-    ]
-  },
-  {
-    "category": "torso",
-    "name": "body-module-a",
-    "source_component": 6,
-    "size": [
-      194,
-      132
-    ]
-  },
-  {
-    "category": "torso",
-    "name": "body-module-b",
-    "source_component": 7,
-    "size": [
-      165,
-      140
-    ]
-  },
-  {
-    "category": "torso",
-    "name": "torso-module-a",
-    "source_component": 9,
-    "size": [
-      166,
-      140
-    ]
-  },
-  {
-    "category": "arms",
-    "name": "arm-module-a",
-    "source_component": 11,
-    "size": [
+      123,
+      147
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       123,
       147
     ]
   },
   {
-    "category": "arms",
-    "name": "arm-module-b",
-    "source_component": 18,
+    "path": "arms/arm-module-b.png",
     "size": [
+      111,
+      142
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       111,
       142
     ]
   },
   {
-    "category": "arms",
-    "name": "arm-module-c",
-    "source_component": 21,
+    "path": "arms/arm-module-c.png",
     "size": [
+      90,
+      113
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       90,
       113
     ]
   },
   {
-    "category": "arms",
-    "name": "arm-module-d",
-    "source_component": 22,
+    "path": "arms/arm-module-d.png",
     "size": [
+      95,
+      133
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       95,
       133
     ]
   },
   {
-    "category": "arms",
-    "name": "limb-module-a",
-    "source_component": 23,
+    "path": "arms/limb-module-a.png",
     "size": [
+      71,
+      122
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       71,
       122
     ]
   },
   {
-    "category": "arms",
-    "name": "limb-module-b",
-    "source_component": 28,
+    "path": "arms/limb-module-b.png",
     "size": [
+      60,
+      109
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       60,
       109
     ]
   },
   {
-    "category": "arms",
-    "name": "limb-module-c",
-    "source_component": 29,
+    "path": "arms/limb-module-c.png",
     "size": [
+      58,
+      106
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       58,
       106
     ]
   },
   {
-    "category": "legs",
-    "name": "legs-pair",
-    "source_component": 8,
+    "path": "eyes/eye-open-a.png",
     "size": [
-      166,
-      146
+      53,
+      61
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      53,
+      61
     ]
   },
   {
-    "category": "legs",
-    "name": "leg-module-a",
-    "source_component": 24,
+    "path": "eyes/eye-open-b.png",
     "size": [
-      73,
-      128
+      51,
+      60
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      51,
+      60
     ]
   },
   {
-    "category": "legs",
-    "name": "leg-module-b",
-    "source_component": 27,
+    "path": "eyes/eye-open-c.png",
     "size": [
-      62,
-      130
+      52,
+      60
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      52,
+      60
     ]
   },
   {
-    "category": "legs",
-    "name": "foot-module-a",
-    "source_component": 35,
+    "path": "eyes/eye-open-d.png",
     "size": [
+      49,
+      59
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      49,
+      59
+    ]
+  },
+  {
+    "path": "eyes/eye-open-e.png",
+    "size": [
+      45,
+      60
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      45,
+      60
+    ]
+  },
+  {
+    "path": "hands/hand-fist-a.png",
+    "size": [
+      69,
+      70
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      69,
+      70
+    ]
+  },
+  {
+    "path": "hands/hand-fist-b.png",
+    "size": [
+      63,
+      68
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      63,
+      68
+    ]
+  },
+  {
+    "path": "hands/hand-fist-c.png",
+    "size": [
+      68,
+      66
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      68,
+      66
+    ]
+  },
+  {
+    "path": "hands/hand-fist-compact.png",
+    "size": [
+      64,
+      50
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      64,
+      50
+    ]
+  },
+  {
+    "path": "hands/hand-fist-d.png",
+    "size": [
+      65,
+      65
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      65,
+      65
+    ]
+  },
+  {
+    "path": "hands/hand-fist-e.png",
+    "size": [
+      63,
+      64
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      63,
+      64
+    ]
+  },
+  {
+    "path": "hands/hand-fist-f.png",
+    "size": [
+      67,
+      56
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      67,
+      56
+    ]
+  },
+  {
+    "path": "hands/hand-fist-g.png",
+    "size": [
+      60,
+      64
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      60,
+      64
+    ]
+  },
+  {
+    "path": "hands/hand-fist-horizontal.png",
+    "size": [
+      80,
+      51
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      80,
+      51
+    ]
+  },
+  {
+    "path": "hands/hand-open-thumb.png",
+    "size": [
+      70,
+      71
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      70,
+      71
+    ]
+  },
+  {
+    "path": "hands/hand-point-a.png",
+    "size": [
+      79,
+      80
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      79,
+      80
+    ]
+  },
+  {
+    "path": "hands/hand-point-b.png",
+    "size": [
+      53,
+      80
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      53,
+      80
+    ]
+  },
+  {
+    "path": "hands/hand-thumb-up-a.png",
+    "size": [
+      50,
+      61
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      50,
+      61
+    ]
+  },
+  {
+    "path": "hands/hand-thumb-up-b.png",
+    "size": [
+      47,
+      71
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      47,
+      71
+    ]
+  },
+  {
+    "path": "hands/hand-thumb-up-c.png",
+    "size": [
+      45,
+      69
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      45,
+      69
+    ]
+  },
+  {
+    "path": "hands/hand-two-finger.png",
+    "size": [
+      57,
+      80
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      57,
+      80
+    ]
+  },
+  {
+    "path": "head/head-happy.png",
+    "size": [
+      210,
+      230
+    ],
+    "alpha_bbox": [
+      16,
+      0,
+      210,
+      211
+    ]
+  },
+  {
+    "path": "head/head-neutral.png",
+    "size": [
+      211,
+      235
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      211,
+      235
+    ]
+  },
+  {
+    "path": "head/head-smile-closed.png",
+    "size": [
+      210,
+      230
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      210,
+      211
+    ]
+  },
+  {
+    "path": "head/head-surprised.png",
+    "size": [
+      210,
+      230
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      210,
+      213
+    ]
+  },
+  {
+    "path": "head/head-thinking.png",
+    "size": [
+      210,
+      235
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      210,
+      235
+    ]
+  },
+  {
+    "path": "head/head-wink.png",
+    "size": [
+      210,
+      230
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      210,
+      213
+    ]
+  },
+  {
+    "path": "hood/hood-layer-a.png",
+    "size": [
+      163,
+      101
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      163,
+      101
+    ]
+  },
+  {
+    "path": "hood/hood-layer-b.png",
+    "size": [
+      182,
+      92
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      182,
+      92
+    ]
+  },
+  {
+    "path": "hood/hood-layer-c.png",
+    "size": [
+      199,
+      102
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      199,
+      102
+    ]
+  },
+  {
+    "path": "hood/hood-layer-d.png",
+    "size": [
+      168,
+      103
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      168,
+      103
+    ]
+  },
+  {
+    "path": "hood/hood-layer-e.png",
+    "size": [
+      164,
+      101
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      164,
+      101
+    ]
+  },
+  {
+    "path": "hood/hood-layer-f.png",
+    "size": [
+      177,
+      92
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      177,
+      92
+    ]
+  },
+  {
+    "path": "legs/foot-a.png",
+    "size": [
+      70,
+      60
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       70,
       60
     ]
   },
   {
-    "category": "legs",
-    "name": "foot-module-b",
-    "source_component": 46,
+    "path": "legs/foot-b.png",
     "size": [
-      59,
-      72
-    ]
-  },
-  {
-    "category": "legs",
-    "name": "foot-module-c",
-    "source_component": 47,
-    "size": [
+      65,
+      52
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       65,
       52
     ]
   },
   {
-    "category": "legs",
-    "name": "foot-module-d",
-    "source_component": 50,
+    "path": "legs/foot-c.png",
     "size": [
+      62,
+      54
+    ],
+    "alpha_bbox": [
+      0,
+      0,
       62,
       54
     ]
   },
   {
-    "category": "legs",
-    "name": "foot-module-e",
-    "source_component": 51,
+    "path": "legs/foot-d.png",
     "size": [
       58,
       58
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      58,
+      58
+    ]
+  },
+  {
+    "path": "legs/leg-module-a.png",
+    "size": [
+      73,
+      128
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      73,
+      128
+    ]
+  },
+  {
+    "path": "legs/leg-module-b.png",
+    "size": [
+      62,
+      130
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      62,
+      130
+    ]
+  },
+  {
+    "path": "legs/legs-pair.png",
+    "size": [
+      166,
+      146
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      166,
+      146
+    ]
+  },
+  {
+    "path": "mouths/mouth-open-a.png",
+    "size": [
+      70,
+      38
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      70,
+      38
+    ]
+  },
+  {
+    "path": "mouths/mouth-open-b.png",
+    "size": [
+      58,
+      38
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      58,
+      38
+    ]
+  },
+  {
+    "path": "mouths/mouth-open-small-a.png",
+    "size": [
+      38,
+      42
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      38,
+      42
+    ]
+  },
+  {
+    "path": "mouths/mouth-open-small-b.png",
+    "size": [
+      38,
+      42
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      38,
+      42
+    ]
+  },
+  {
+    "path": "mouths/mouth-open-smile.png",
+    "size": [
+      71,
+      40
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      71,
+      40
+    ]
+  },
+  {
+    "path": "mouths/mouth-smile.png",
+    "size": [
+      57,
+      32
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      57,
+      32
+    ]
+  },
+  {
+    "path": "props/tablet-back.png",
+    "size": [
+      130,
+      113
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      130,
+      113
+    ]
+  },
+  {
+    "path": "props/tablet-front-play.png",
+    "size": [
+      149,
+      111
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      149,
+      111
+    ]
+  },
+  {
+    "path": "props/tablet-side-a.png",
+    "size": [
+      88,
+      112
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      88,
+      112
+    ]
+  },
+  {
+    "path": "props/tablet-side-b.png",
+    "size": [
+      70,
+      120
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      70,
+      120
+    ]
+  },
+  {
+    "path": "torso/body-module-b.png",
+    "size": [
+      165,
+      140
+    ],
+    "alpha_bbox": [
+      0,
+      0,
+      165,
+      140
     ]
   }
 ]
