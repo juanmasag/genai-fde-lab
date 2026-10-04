@@ -1,1 +1,36 @@
-{"groups":{"hood":["hood-layer-a","hood-layer-b","hood-layer-c","hood-layer-d","hood-layer-e","hood-layer-f"],"antenna":["antenna-curved-long","antenna-curved-short","antenna-lamp","antenna-stem-a","antenna-stem-b"],"eyes":["eye-open-a","eye-open-b","eye-open-c","eye-open-d","eye-open-e"],"mouths":["mouth-open-a","mouth-open-b","mouth-open-small-a","mouth-open-small-b","mouth-open-smile","mouth-smile"]}}
+{
+  "groups": {
+    "hood": [
+      "hood-layer-a",
+      "hood-layer-b",
+      "hood-layer-c",
+      "hood-layer-d",
+      "hood-layer-e",
+      "hood-layer-f"
+    ],
+    "antenna": [
+      "antenna-curved-long",
+      "antenna-curved-short",
+      "antenna-lamp",
+      "antenna-stem-a",
+      "antenna-stem-b"
+    ],
+    "eyes": [
+      "eye-open-a",
+      "eye-open-b",
+      "eye-open-c",
+      "eye-open-d",
+      "eye-open-e"
+    ],
+    "mouths": [
+      "mouth-open-a",
+      "mouth-open-small-a",
+      "mouth-open-small-b",
+      "mouth-open-smile",
+      "mouth-smile"
+    ],
+    "unclassified": [
+      "blue-piece-a"
+    ]
+  }
+}
