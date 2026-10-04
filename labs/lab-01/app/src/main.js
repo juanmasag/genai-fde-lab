@@ -424,9 +424,9 @@ const guides=[
 ];
 function startOneMascotIdle(){
   const mascot=$('#oneMascot'),glow=$('.one-mascot-glow');
-  if(!mascot||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  animate(mascot,{transform:['translateY(0px) rotate(0deg) scale(1)','translateY(-5px) rotate(-.6deg) scale(1.012)','translateY(0px) rotate(0deg) scale(1)']},{duration:3.4,easing:'ease-in-out',repeat:Infinity});
-  if(glow)animate(glow,{opacity:[.48,.82,.48],transform:['scale(.94)','scale(1.08)','scale(.94)']},{duration:3.4,easing:'ease-in-out',repeat:Infinity});
+  if(!mascot)return;
+  mascot.classList.add('one-idle-active');
+  if(glow)glow.classList.add('one-idle-active');
 }
 
 function setGuide(i,scroll=false){state.guide=clamp(i,0,guides.length-1);const [t,p,target]=guides[state.guide];$('#guideTitle').textContent=t;$('#guideText').textContent=p;$$('#journeyTrack button').forEach((b,j)=>b.classList.toggle('active',j===state.guide));$('#guidePrev').disabled=state.guide===0;$('#guideNext').textContent=state.guide===guides.length-1?'Volver al inicio':'Siguiente paso →';if(scroll)document.querySelector(target)?.scrollIntoView({behavior:'smooth',block:'start'});}

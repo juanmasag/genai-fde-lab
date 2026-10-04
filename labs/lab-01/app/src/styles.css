@@ -307,3 +307,10 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 .guide{grid-template-columns:clamp(118px,14vw,168px) minmax(0,1fr)}
 @media(max-width:760px){.guide{grid-template-columns:108px minmax(0,1fr);gap:10px}.guide .one-mascot{width:108px;height:108px}.guide .one-mascot img{width:108px;height:108px}}
 @media(max-width:430px){.guide{grid-template-columns:96px minmax(0,1fr)}.guide .one-mascot{width:96px;height:96px}.guide .one-mascot img{width:96px;height:96px}}
+
+/* ONE idle v2: CSS keyframes provide a visible, browser-independent loop. */
+@keyframes oneIdleFloat{0%,100%{transform:translateY(0) rotate(-1deg) scale(1)}45%{transform:translateY(-16px) rotate(1.8deg) scale(1.035)}55%{transform:translateY(-16px) rotate(1.8deg) scale(1.035)}}
+@keyframes oneIdleGlow{0%,100%{opacity:.35;transform:scale(.86)}50%{opacity:.95;transform:scale(1.18)}}
+.one-mascot img.one-idle-active{animation:oneIdleFloat 2.4s ease-in-out infinite;will-change:transform}
+.one-mascot-glow.one-idle-active{animation:oneIdleGlow 2.4s ease-in-out infinite;will-change:transform,opacity}
+@media(prefers-reduced-motion:reduce){.one-mascot img.one-idle-active,.one-mascot-glow.one-idle-active{animation:none!important}}
