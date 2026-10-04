@@ -345,3 +345,11 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 @keyframes oneRest{0%,100%{transform:translateY(0) rotate(-.6deg)}45%{transform:translateY(-5px) rotate(.7deg)}55%{transform:translateY(-5px) rotate(.7deg)}}
 @media(min-width:760px){.one-floating-guide{width:154px;height:142px}.one-floating-handle{width:154px;height:142px}.one-floating-handle img{width:154px;height:142px}.one-speech-bubble{right:135px;width:300px}}
 @media(prefers-reduced-motion:reduce){.one-floating-guide:not(.speaking):not(.dragging) .one-floating-handle img{animation:none}}
+
+/* ONE behavior v4: canonical visual size across every face/state. */
+:root{--one-guide-w:132px;--one-guide-h:122px}
+.one-floating-guide,.one-floating-handle{width:var(--one-guide-w)!important;height:var(--one-guide-h)!important}
+.one-floating-handle img{width:var(--one-guide-w)!important;height:var(--one-guide-h)!important;object-fit:contain!important;object-position:center!important;scale:1!important}
+.one-floating-guide:not(.speaking):not(.dragging) .one-floating-handle img{animation:oneAttentiveRest 5.6s ease-in-out infinite}
+@keyframes oneAttentiveRest{0%,100%{transform:translate3d(0,0,0) rotate(-.35deg)}48%{transform:translate3d(0,-3px,0) rotate(.35deg)}52%{transform:translate3d(0,-3px,0) rotate(.35deg)}}
+@media(min-width:760px){:root{--one-guide-w:154px;--one-guide-h:142px}}

@@ -471,31 +471,40 @@ function syncTaskAnimations(){
 }
 
 const oneStepLines=['Primero vemos el documento','Ahora tokenizamos el texto','Guardamos vectores y metadata','Formulamos la pregunta','Seguimos el pipeline RAG','Comparamos los vectores','Construimos la respuesta','Miremos dentro de pgvector'];
-const ONE_TALK='/characters/one/one-head-explain-v2.webp',ONE_IDLE='/characters/one/front-head.png';
-let oneDragged=false,oneSpeechTimer=null,onePointerMoved=false;
+const ONE_ASSETS={talk:'/characters/one/one-head-explain-v2.webp',idle:'/characters/one/front-head.png',wink:'/characters/one/head-wink.png',smile:'/characters/one/head-smile-closed.png',surprised:'/characters/one/head-surprised.png'};
+let oneDragged=false,oneSpeechTimer=null,onePointerMoved=false,oneIdleTimers=[],oneActivityEpoch=0;
+const clearOneIdle=()=>{oneIdleTimers.forEach(clearTimeout);oneIdleTimers=[];};
+function setOneFace(face='idle',ms=0){const img=$('#oneFloatingImage');if(!img)return;img.src=ONE_ASSETS[face]||ONE_ASSETS.idle;if(ms)oneIdleTimers.push(setTimeout(()=>{if(!$('#oneFloatingGuide')?.classList.contains('speaking'))img.src=ONE_ASSETS.idle;},ms));}
+function scheduleOneIdle(){
+  clearOneIdle();const epoch=++oneActivityEpoch;setOneFace('idle');
+  const later=(delay,fn)=>oneIdleTimers.push(setTimeout(()=>{if(epoch===oneActivityEpoch&&!$('#oneFloatingGuide')?.classList.contains('speaking'))fn();},delay));
+  later(6500,()=>setOneFace('wink',190));
+  later(12500,()=>setOneFace('smile',520));
+  later(20500,()=>setOneFace('wink',220));
+  later(30000,()=>setOneFace('surprised',700));
+  later(42000,()=>setOneFace('smile',900));
+}
 function clampFloatingOne(){
-  const el=$('#oneFloatingGuide'); if(!el)return;
-  const r=el.getBoundingClientRect(),pad=8,maxX=Math.max(pad,innerWidth-r.width-pad),maxY=Math.max(pad,innerHeight-r.height-86);
-  const x=clamp(parseFloat(el.style.left)||r.left,pad,maxX),y=clamp(parseFloat(el.style.top)||r.top,pad,maxY);
-  el.style.left=x+'px';el.style.top=y+'px';el.style.right='auto';el.style.bottom='auto';
+  const el=$('#oneFloatingGuide');if(!el)return;const r=el.getBoundingClientRect(),pad=8,maxX=Math.max(pad,innerWidth-r.width-pad),maxY=Math.max(pad,innerHeight-r.height-86);
+  el.style.left=clamp(parseFloat(el.style.left)||r.left,pad,maxX)+'px';el.style.top=clamp(parseFloat(el.style.top)||r.top,pad,maxY)+'px';el.style.right='auto';el.style.bottom='auto';
 }
 function speakFloatingOne(step=state.mobileStep){
   const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble'),img=$('#oneFloatingImage'),txt=$('#oneFloatingText');if(!el||!bubble||!img)return;
-  clearTimeout(oneSpeechTimer); if(txt)txt.textContent=oneStepLines[step]||'Seguimos';
-  img.src=ONE_TALK+'?step='+step+'&t='+Date.now(); el.classList.add('speaking');bubble.classList.add('visible');
-  oneSpeechTimer=setTimeout(()=>{bubble.classList.remove('visible');el.classList.remove('speaking');img.src=ONE_IDLE;},3200);
+  clearTimeout(oneSpeechTimer);clearOneIdle();oneActivityEpoch++;if(txt)txt.textContent=oneStepLines[step]||'Seguimos';
+  img.src=ONE_ASSETS.talk+'?step='+step+'&t='+Date.now();el.classList.add('speaking');bubble.classList.add('visible');
+  oneSpeechTimer=setTimeout(()=>{bubble.classList.remove('visible');el.classList.remove('speaking');scheduleOneIdle();},3200);
 }
 function parkFloatingOne(step){
-  const el=$('#oneFloatingGuide');if(!el)return;
-  const x=Math.max(8,innerWidth-el.offsetWidth-16),y=118+(step%2)*38;
-  el.style.left=x+'px';el.style.top=y+'px';el.style.right='auto';clampFloatingOne();
-  el.animate([{transform:'translate3d(24px,-8px,0)',opacity:.45},{transform:'translate3d(0,0,0)',opacity:1}],{duration:520,easing:'cubic-bezier(.2,.8,.2,1)'});
+  const el=$('#oneFloatingGuide');if(!el)return;const r=el.getBoundingClientRect();
+  const targetX=Math.max(8,innerWidth-r.width-16),targetY=118+(step%2)*38,dx=targetX-r.left,dy=targetY-r.top;
+  const travel=el.animate([{transform:'translate3d(0,0,0)'},{transform:`translate3d(${dx}px,${dy}px,0)`}],{duration:720,easing:'cubic-bezier(.22,.8,.25,1)',fill:'forwards'});
+  travel.onfinish=()=>{el.style.left=targetX+'px';el.style.top=targetY+'px';el.style.right='auto';el.style.transform='none';travel.cancel();clampFloatingOne();};
 }
 function initFloatingOne(){
   const el=$('#oneFloatingGuide'),handle=$('#oneDragHandle');if(!el||!handle)return;let drag=null;
-  handle.addEventListener('pointerdown',e=>{const r=el.getBoundingClientRect();drag={id:e.pointerId,dx:e.clientX-r.left,dy:e.clientY-r.top,sx:e.clientX,sy:e.clientY};onePointerMoved=false;oneDragged=true;el.classList.add('dragging');handle.setPointerCapture(e.pointerId);e.preventDefault();});
+  handle.addEventListener('pointerdown',e=>{clearOneIdle();oneActivityEpoch++;const r=el.getBoundingClientRect();drag={id:e.pointerId,dx:e.clientX-r.left,dy:e.clientY-r.top,sx:e.clientX,sy:e.clientY};onePointerMoved=false;oneDragged=true;el.classList.add('dragging');handle.setPointerCapture(e.pointerId);e.preventDefault();});
   handle.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>7)onePointerMoved=true;el.style.left=(e.clientX-drag.dx)+'px';el.style.top=(e.clientY-drag.dy)+'px';el.style.right='auto';clampFloatingOne();});
-  const stop=e=>{if(!drag||drag.id!==e.pointerId)return;drag=null;el.classList.remove('dragging');clampFloatingOne();if(!onePointerMoved)speakFloatingOne();};
+  const stop=e=>{if(!drag||drag.id!==e.pointerId)return;drag=null;el.classList.remove('dragging');clampFloatingOne();if(!onePointerMoved)speakFloatingOne();else scheduleOneIdle();};
   handle.addEventListener('pointerup',stop);handle.addEventListener('pointercancel',stop);
 }
 
@@ -519,7 +528,7 @@ function applyMobileStep(i,scroll=true){
   $('#mobileStepProgress').textContent=(state.mobileStep+1)+' / '+mobileScreens.length;
   $('#mobilePrev').disabled=state.mobileStep===0;$('#mobileNext').disabled=state.mobileStep===mobileScreens.length-1;
   syncTaskAnimations();
-  if(scroll){oneDragged=false;parkFloatingOne(state.mobileStep);speakFloatingOne(state.mobileStep);}
+  if(scroll){oneDragged=false;parkFloatingOne(state.mobileStep);setTimeout(()=>speakFloatingOne(state.mobileStep),520);}
   const target=document.querySelector(mobileScreens[state.mobileStep][1]);
   if(target){animate(target,{opacity:[.65,1],transform:['translateY(12px)','translateY(0px)']},{duration:.28});}
   if(scroll&&window.innerWidth<760)target?.scrollIntoView({behavior:'smooth',block:'start'});
