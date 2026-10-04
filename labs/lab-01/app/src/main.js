@@ -100,9 +100,9 @@ function updateDocStats(){
 
 function wireRanges(){
   const chunk=$('#chunkSize'),overlap=$('#overlap');
-  chunk.addEventListener('input',()=>{syncChunkControlLimits();previewChunking();});
-  overlap.addEventListener('input',()=>{$('#overlapOut').textContent=String(Number(overlap.value));previewChunking();});
-  [['topK','topKOut',0],['threshold','thresholdOut',2]].forEach(([id,out,d])=>{const e=$('#'+id),o=$('#'+out),f=()=>o.textContent=Number(e.value).toFixed(d);e.addEventListener('input',f);f();});
+  chunk.addEventListener('input',()=>{syncChunkControlLimits();previewChunking();oneEmit('PARAMETER_CHANGED',{type:'chunkSize',value:Number(chunk.value)});});
+  overlap.addEventListener('input',()=>{$('#overlapOut').textContent=String(Number(overlap.value));previewChunking();oneEmit('PARAMETER_CHANGED',{type:'overlap',value:Number(overlap.value)});});
+  [['topK','topKOut',0],['threshold','thresholdOut',2]].forEach(([id,out,d])=>{const e=$('#'+id),o=$('#'+out),f=()=>{o.textContent=Number(e.value).toFixed(d);oneEmit('PARAMETER_CHANGED',{type:id,value:Number(e.value)});};e.addEventListener('input',f);f();});
   syncChunkControlLimits();
 }
 
@@ -131,7 +131,7 @@ $('#ingestHere').addEventListener('click',()=>runIngest($('#ingestHere'),$('#ing
 
 $('#analyze').addEventListener('click',async()=>{
   const btn=$('#analyze'),status=$('#analysisStatus');
-  oneEmit('INGEST_STARTED');
+  oneEmit('ANALYSIS_STARTED');
   try{
     setBusy(btn,true,'Embedding → búsqueda → LLM…');status.className='status-line';status.textContent='Calculando embedding de pregunta y comparando contra pgvector…';
     state.analysis=await api('/api/analyze',{question:$('#question').value,topK:+$('#topK').value,threshold:+$('#threshold').value,documentId:state.ingest?.documentId||state.activeDocumentId||null});
@@ -140,7 +140,7 @@ $('#analyze').addEventListener('click',async()=>{
   }catch(e){status.className='status-line bad';status.textContent='Error: '+e.message;oneEmit('ANALYSIS_FAILED',{message:e.message});}
   finally{setBusy(btn,false);}
 });
-$('.quick-tests button').forEach(b=>b.addEventListener('click',()=>{$('#question').value=b.dataset.q;oneActivity('listening');oneEmit('PARAMETER_CHANGED',{type:'question'});}));
+$$('.quick-tests button').forEach(b=>b.addEventListener('click',()=>{$('#question').value=b.dataset.q;oneActivity('listening');oneEmit('PARAMETER_CHANGED',{type:'question'});}));
 $('#question').addEventListener('focus',()=>oneActivity('listening'));
 $('#question').addEventListener('input',()=>{oneActivity('listening');oneEmit('PARAMETER_CHANGED',{type:'question'});});
 $('#question').addEventListener('blur',()=>oneActivity('attentive'));
@@ -347,7 +347,8 @@ function initTransformerScene(){
   transformerSceneActor.start();
   $('#tfPrev').addEventListener('click',()=>transformerSceneActor.send({type:'PREV'}));
   $('#tfNext').addEventListener('click',()=>transformerSceneActor.send({type:'NEXT'}));
-  $('#transformerSentence').addEventListener('change',()=>{state.attentionToken=0;renderTransformer();});
+  $('#transformerSentence').addEventListener('change',()=>{state.attentionToken=0;renderTransformer();oneEmit('PARAMETER_CHANGED',{type:'transformerSentence'});});
+  $('#transformerCalculation').addEventListener('toggle',()=>{if($('#transformerCalculation').open)oneEmit('CALC_OPENED');});
 }
 
 $('#refreshDb').addEventListener('click',()=>loadDbBrowser($('#dbDocumentSelect').value).catch(()=>{}));
@@ -520,9 +521,55 @@ $('#pipelineNext').addEventListener('click',()=>{state.stage=Math.min(8,state.st
 $('#play').addEventListener('click',()=>{if(state.playTimer){clearInterval(state.playTimer);state.playTimer=null;$('#play').textContent='Recorrer';return;}state.stage=0;renderStage();$('#play').textContent='Pausar';state.playTimer=setInterval(()=>{state.stage++;if(state.stage>8){clearInterval(state.playTimer);state.playTimer=null;state.stage=8;$('#play').textContent='Recorrer';}renderStage();},1100);});
 $$('.tab').forEach(b=>b.addEventListener('click',()=>{$$('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;renderTechnical();}));
 
+function setOneIngestionScene(id){
+  const event={document:'DOCUMENT',tokens:'TOKENS',chunks:'CHUNKS'}[id];
+  if(event)ingestionSceneActor?.send({type:event});
+}
+function setOneTransformerStage(id){
+  if(id)transformerSceneActor?.send({type:'GOTO_'+String(id).toUpperCase()});
+}
+function setOnePipelineStage(index){
+  state.stage=clamp(Number(index)||0,0,8);
+  renderStage();
+}
+function playOnePipelineTour(){
+  if(state.playTimer){clearInterval(state.playTimer);state.playTimer=null;}
+  state.stage=0;renderStage();
+  let stage=0;
+  const timer=setInterval(()=>{
+    stage+=1;
+    state.stage=Math.min(stage,8);
+    renderStage();
+    if(stage>=8)clearInterval(timer);
+  },1450);
+  return ()=>clearInterval(timer);
+}
+function oneLabContext(){
+  const tf=transformerData();
+  return {
+    preview:state.preview,
+    ingest:state.ingest,
+    analysis:state.analysis,
+    sections:parseSections($('#document').value).length,
+    tokenCount:Number(state.preview?.tokenCount||tokenize($('#document').value).length),
+    transformerToken:tf.t?.toks?.[state.attentionToken]||'',
+    embeddingDimensions:Number(state.ingest?.chunks?.[0]?.dimensions||768),
+    llmModel:state.analysis?.models?.llm||'qwen3:8b'
+  };
+}
+
 createIcons({icons:{FileText,Scissors,BrainCircuit,Binary,Database,Search,PackageOpen,Bot,Quote}});
 initIngestionScene();
 initTransformerScene();
-wireRanges();updateDocStats();populateTransformerSentences();setGuide(0);startOneMascotIdle();installTaskAnimations();initFloatingOne();setMobileStep(0,false);parkFloatingOne(0);speakFloatingOne(0);health();renderAll();loadDbBrowser().catch(()=>{});
+wireRanges();updateDocStats();populateTransformerSentences();setGuide(0);startOneMascotIdle();installTaskAnimations();setMobileStep(0,false);health();renderAll();loadDbBrowser().catch(()=>{});
+oneGuide=createOneGuidedLab({
+  getContext:oneLabContext,
+  navigateScreen:(step,scroll=false)=>setMobileStep(step,scroll),
+  setIngestionScene:setOneIngestionScene,
+  setTransformerStage:setOneTransformerStage,
+  setPipelineStage:setOnePipelineStage,
+  playPipelineTour:playOnePipelineTour
+});
+oneGuide.start();
 window.addEventListener('resize',()=>syncTaskAnimations());
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
