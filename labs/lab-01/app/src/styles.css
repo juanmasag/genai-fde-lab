@@ -333,3 +333,15 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
   .one-floating-handle img{display:block;width:94px;height:86px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
   .one-floating-copy{display:grid;gap:2px;pointer-events:none}.one-floating-copy span{font-size:.55rem;letter-spacing:.12em;color:var(--accent2);font-weight:900}.one-floating-copy strong{font-size:.72rem;line-height:1.15}
 }
+
+/* ONE guide v3: silhouette only. Speech is temporary and contextual. */
+.one-floating-guide{display:block;position:fixed;left:16px;top:118px;z-index:60;width:132px;height:122px;touch-action:none;user-select:none;overflow:visible;background:none;border:0;box-shadow:none;backdrop-filter:none}
+.one-floating-handle{position:absolute;left:0;top:0;width:132px;height:122px;padding:0;border:0;background:transparent;cursor:grab;touch-action:none;overflow:visible}.one-floating-handle:active{cursor:grabbing}
+.one-floating-handle img{display:block;width:132px;height:122px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 8px 12px rgba(0,0,0,.34));transform-origin:50% 72%}
+.one-floating-guide:not(.speaking):not(.dragging) .one-floating-handle img{animation:oneRest 4.8s ease-in-out infinite}
+.one-speech-bubble{position:absolute;right:112px;top:-14px;width:min(270px,calc(100vw - 155px));padding:11px 13px;border:2px solid #39a7ff;border-radius:18px;background:#f7fbff;color:#0b1424;box-shadow:0 8px 24px rgba(0,0,0,.3);opacity:0;transform:translateY(7px) scale(.96);pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+.one-speech-bubble:after{content:'';position:absolute;right:-11px;bottom:18px;width:19px;height:19px;background:#f7fbff;border-right:2px solid #39a7ff;border-top:2px solid #39a7ff;transform:rotate(45deg)}
+.one-speech-bubble.visible{opacity:1;transform:translateY(0) scale(1)}.one-speech-bubble span{display:block;margin-bottom:3px;font-size:.58rem;letter-spacing:.12em;color:#087a70;font-weight:900}.one-speech-bubble strong{display:block;font-size:.78rem;line-height:1.28}
+@keyframes oneRest{0%,100%{transform:translateY(0) rotate(-.6deg)}45%{transform:translateY(-5px) rotate(.7deg)}55%{transform:translateY(-5px) rotate(.7deg)}}
+@media(min-width:760px){.one-floating-guide{width:154px;height:142px}.one-floating-handle{width:154px;height:142px}.one-floating-handle img{width:154px;height:142px}.one-speech-bubble{right:135px;width:300px}}
+@media(prefers-reduced-motion:reduce){.one-floating-guide:not(.speaking):not(.dragging) .one-floating-handle img{animation:none}}
