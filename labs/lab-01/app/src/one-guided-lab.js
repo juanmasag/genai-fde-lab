@@ -712,7 +712,7 @@ export function createOneGuidedLab({
       completed.add(event);
     }
 
-    if(event==='INGEST_STARTED'||event==='ANALYSIS_STARTED'){
+    if(event==='PREVIEW_REQUESTED'||event==='INGEST_STARTED'||event==='ANALYSIS_STARTED'){
       stopSpeech();
       clearIdle();
       hideControls();
