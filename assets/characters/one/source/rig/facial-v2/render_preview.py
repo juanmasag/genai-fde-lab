@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render a short enthusiastic explaining preview from ONE facial rig v2."""
+"""Render transparent WebP and mobile-friendly MP4 previews from ONE facial rig v2."""
 from __future__ import annotations
 
 import argparse
@@ -23,9 +23,10 @@ def shift_layer(im: Image.Image, dx=0, dy=0) -> Image.Image:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--generated", type=Path, default=RIG_DIR / "generated")
-    ap.add_argument("--out", type=Path, default=RIG_DIR / "generated" / "one-head-explain-rig-v1.webp")
+    ap.add_argument("--webp-out", type=Path, default=RIG_DIR / "generated" / "one-head-explain-rig-v1.webp")
+    ap.add_argument("--mp4-out", type=Path, default=RIG_DIR / "generated" / "one-head-explain-rig-v1-review.mp4")
     ap.add_argument("--seconds", type=float, default=6.0)
-    ap.add_argument("--fps", type=int, default=12)
+    ap.add_argument("--fps", type=int, default=24)
     args = ap.parse_args()
 
     layers_dir = args.generated / "layers"
@@ -58,21 +59,35 @@ def main() -> None:
 
     ffmpeg = shutil.which("ffmpeg")
     if not ffmpeg:
-        raise SystemExit("ffmpeg is required to export animated WebP")
-    args.out.parent.mkdir(parents=True, exist_ok=True)
+        raise SystemExit("ffmpeg is required to export animation previews")
+    args.webp_out.parent.mkdir(parents=True, exist_ok=True)
+    args.mp4_out.parent.mkdir(parents=True, exist_ok=True)
+
     with tempfile.TemporaryDirectory(prefix="one-rig-v2-") as tmp:
         td = Path(tmp)
         count = round(args.seconds * args.fps)
         for i in range(count):
-            frame(i / args.fps).save(td / f"frame-{i:04d}.png")
-        cmd = [
+            rgba = frame(i / args.fps)
+            rgba.save(td / f"frame-{i:04d}.png")
+            review = Image.new("RGBA", (size, size), (248, 249, 250, 255))
+            review.alpha_composite(rgba)
+            review.convert("RGB").save(td / f"review-{i:04d}.png")
+
+        subprocess.run([
             ffmpeg, "-hide_banner", "-loglevel", "error", "-y",
             "-framerate", str(args.fps), "-i", str(td / "frame-%04d.png"),
             "-loop", "0", "-c:v", "libwebp_anim", "-lossless", "0",
-            "-q:v", "88", "-compression_level", "4", str(args.out),
-        ]
-        subprocess.run(cmd, check=True)
-    print(args.out)
+            "-q:v", "88", "-compression_level", "4", str(args.webp_out),
+        ], check=True)
+        subprocess.run([
+            ffmpeg, "-hide_banner", "-loglevel", "error", "-y",
+            "-framerate", str(args.fps), "-i", str(td / "review-%04d.png"),
+            "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart", str(args.mp4_out),
+        ], check=True)
+
+    print(args.webp_out)
+    print(args.mp4_out)
 
 
 if __name__ == "__main__":
