@@ -1,0 +1,264 @@
+{
+  "status": "inspection-only",
+  "source_region": [
+    0,
+    640,
+    764,
+    830
+  ],
+  "candidates": [
+    {
+      "id": "candidate-00",
+      "file": "candidate-00.png",
+      "source_bbox": [
+        150,
+        651,
+        192,
+        674
+      ],
+      "area": 471
+    },
+    {
+      "id": "candidate-01",
+      "file": "candidate-01.png",
+      "source_bbox": [
+        223,
+        650,
+        257,
+        676
+      ],
+      "area": 540
+    },
+    {
+      "id": "candidate-02",
+      "file": "candidate-02.png",
+      "source_bbox": [
+        291,
+        650,
+        325,
+        675
+      ],
+      "area": 518
+    },
+    {
+      "id": "candidate-03",
+      "file": "candidate-03.png",
+      "source_bbox": [
+        356,
+        652,
+        390,
+        678
+      ],
+      "area": 584
+    },
+    {
+      "id": "candidate-04",
+      "file": "candidate-04.png",
+      "source_bbox": [
+        577,
+        655,
+        611,
+        677
+      ],
+      "area": 530
+    },
+    {
+      "id": "candidate-05",
+      "file": "candidate-05.png",
+      "source_bbox": [
+        402,
+        658,
+        444,
+        676
+      ],
+      "area": 422
+    },
+    {
+      "id": "candidate-06",
+      "file": "candidate-06.png",
+      "source_bbox": [
+        479,
+        659,
+        515,
+        676
+      ],
+      "area": 457
+    },
+    {
+      "id": "candidate-07",
+      "file": "candidate-07.png",
+      "source_bbox": [
+        283,
+        690,
+        336,
+        741
+      ],
+      "area": 1546
+    },
+    {
+      "id": "candidate-08",
+      "file": "candidate-08.png",
+      "source_bbox": [
+        432,
+        764,
+        472,
+        801
+      ],
+      "area": 1036
+    },
+    {
+      "id": "candidate-09",
+      "file": "candidate-09.png",
+      "source_bbox": [
+        578,
+        765,
+        608,
+        804
+      ],
+      "area": 687
+    },
+    {
+      "id": "candidate-10",
+      "file": "candidate-10.png",
+      "source_bbox": [
+        18,
+        767,
+        97,
+        814
+      ],
+      "area": 2333
+    },
+    {
+      "id": "candidate-11",
+      "file": "candidate-11.png",
+      "source_bbox": [
+        476,
+        766,
+        519,
+        799
+      ],
+      "area": 988
+    },
+    {
+      "id": "candidate-12",
+      "file": "candidate-12.png",
+      "source_bbox": [
+        532,
+        767,
+        563,
+        805
+      ],
+      "area": 618
+    },
+    {
+      "id": "candidate-13",
+      "file": "candidate-13.png",
+      "source_bbox": [
+        222,
+        768,
+        263,
+        809
+      ],
+      "area": 1179
+    },
+    {
+      "id": "candidate-14",
+      "file": "candidate-14.png",
+      "source_bbox": [
+        364,
+        768,
+        406,
+        830
+      ],
+      "area": 1675
+    },
+    {
+      "id": "candidate-15",
+      "file": "candidate-15.png",
+      "source_bbox": [
+        123,
+        773,
+        199,
+        819
+      ],
+      "area": 2254
+    },
+    {
+      "id": "candidate-16",
+      "file": "candidate-16.png",
+      "source_bbox": [
+        294,
+        778,
+        336,
+        801
+      ],
+      "area": 395
+    },
+    {
+      "id": "candidate-17",
+      "file": "candidate-17.png",
+      "source_bbox": [
+        433,
+        817,
+        468,
+        830
+      ],
+      "area": 316
+    },
+    {
+      "id": "candidate-18",
+      "file": "candidate-18.png",
+      "source_bbox": [
+        586,
+        816,
+        615,
+        830
+      ],
+      "area": 292
+    },
+    {
+      "id": "candidate-19",
+      "file": "candidate-19.png",
+      "source_bbox": [
+        741,
+        817,
+        764,
+        830
+      ],
+      "area": 179
+    },
+    {
+      "id": "candidate-20",
+      "file": "candidate-20.png",
+      "source_bbox": [
+        484,
+        818,
+        518,
+        830
+      ],
+      "area": 303
+    },
+    {
+      "id": "candidate-21",
+      "file": "candidate-21.png",
+      "source_bbox": [
+        535,
+        818,
+        564,
+        830
+      ],
+      "area": 244
+    },
+    {
+      "id": "candidate-22",
+      "file": "candidate-22.png",
+      "source_bbox": [
+        231,
+        822,
+        257,
+        830
+      ],
+      "area": 141
+    }
+  ]
+}
