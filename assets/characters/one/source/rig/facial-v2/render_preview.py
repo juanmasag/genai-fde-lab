@@ -68,8 +68,8 @@ def main() -> None:
         cmd = [
             ffmpeg, "-hide_banner", "-loglevel", "error", "-y",
             "-framerate", str(args.fps), "-i", str(td / "frame-%04d.png"),
-            "-loop", "0", "-c:v", "libwebp_anim", "-lossless", "1",
-            "-compression_level", "4", str(args.out),
+            "-loop", "0", "-c:v", "libwebp_anim", "-lossless", "0",
+            "-q:v", "88", "-compression_level", "4", str(args.out),
         ]
         subprocess.run(cmd, check=True)
     print(args.out)
