@@ -76,7 +76,7 @@ const SCENES=[
     screen:0,
     focus:'#step-document article:first-of-type',
     side:'right',
-    narration:ctx=>'Este es el documento fuente. Ahora tiene '+ctx.sections+' '+plural(ctx.sections,'sección')+' y '+ctx.tokenCount+' tokens según el tokenizer del laboratorio. Podés trabajar con este ejemplo o abrir tu propio archivo. Durante todo el recorrido, este contenido será la fuente de verdad que vamos a transformar y consultar.'
+    narration:ctx=>'Este es el documento fuente. Ahora tiene '+ctx.sections+' '+(ctx.sections===1?'sección':'secciones')+' y '+ctx.tokenCount+' tokens según el tokenizer del laboratorio. Podés trabajar con este ejemplo o abrir tu propio archivo. Durante todo el recorrido, este contenido será la fuente de verdad que vamos a transformar y consultar.'
   },
   {
     id:'chunk-controls',
@@ -555,7 +555,7 @@ export function createOneGuidedLab({
   async function moveToScene(sceneDef=scene()){
     const target=resolveTarget(sceneDef);
     if(target){
-      target.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});
+      target.scrollIntoView({behavior:'smooth',block:innerWidth<760?'start':'center',inline:'nearest'});
       await sleep(innerWidth<760?430:250);
     }
 
@@ -575,7 +575,9 @@ export function createOneGuidedLab({
       :pad;
 
     let y=clamp(parseFloat(guide.style.top)||118,topPad,Math.max(topPad,innerHeight-current.height-bottomPad));
-    if(targetRect){
+    if(innerWidth<760){
+      y=Math.max(topPad,innerHeight-current.height-bottomPad);
+    }else if(targetRect){
       const centered=targetRect.top+Math.min(targetRect.height*.35,150)-current.height/2;
       y=clamp(centered,topPad,Math.max(topPad,innerHeight-current.height-bottomPad));
     }
