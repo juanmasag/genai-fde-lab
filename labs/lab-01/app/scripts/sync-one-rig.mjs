@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const here=dirname(fileURLToPath(import.meta.url));
 const appRoot=resolve(here,'..');
-const repoRoot=resolve(appRoot,'../../../..');
+const repoRoot=resolve(appRoot,'../../..');
 const source=resolve(repoRoot,'assets/characters/one/source/rig/facial-v2/generated');
 const target=resolve(appRoot,'public/characters/one/rig-v2');
 const layers=resolve(source,'layers');
