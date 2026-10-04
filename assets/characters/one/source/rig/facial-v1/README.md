@@ -15,3 +15,8 @@ A valid rig requires a source-faithful facial plate with the baked interchangeab
 - next required production step: obtain/derive and visually validate the clean facial plate before generating same-canvas facial layers.
 
 No asset in this directory is authorized as a runtime facial overlay until that gate passes.
+
+## Clean plate intake (2026-10-04)
+User-supplied `references/one-facial-plate-clean.png` was pulled from GitHub and visually inspected. It is 1254×1254 RGB with a near-black background. A connected-border dark-background removal produced `layers/01-clean-plate-420.png`, normalized onto the common 420×420 rig canvas. QA: `qa/clean-plate-normalization.jpg`.
+
+The clean plate preserves the intended ONE identity and removes baked eyes/brows/mouth. However, its source geometry is not pixel-identical to the previous canonical facial rendering, so facial coordinates must be registered against this plate rather than copied/guessed from the old head. Facial animation remains gated until that registration/recomposition QA passes.
