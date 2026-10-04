@@ -422,6 +422,13 @@ const guides=[
 ['LLM','Sólo los chunks aceptados forman el contexto. Qwen3 recibe ese contexto con instrucciones de grounding y debe citar los chunk_id.','#step-answer'],
 ['Respuesta','La respuesta final muestra evidencia, citas y validación. Probá “¿Cuál es el salario del equipo?” para observar abstención.','#step-answer']
 ];
+function startOneMascotIdle(){
+  const mascot=$('#oneMascot'),glow=$('.one-mascot-glow');
+  if(!mascot||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  animate(mascot,{transform:['translateY(0px) rotate(0deg) scale(1)','translateY(-5px) rotate(-.6deg) scale(1.012)','translateY(0px) rotate(0deg) scale(1)']},{duration:3.4,easing:'ease-in-out',repeat:Infinity});
+  if(glow)animate(glow,{opacity:[.48,.82,.48],transform:['scale(.94)','scale(1.08)','scale(.94)']},{duration:3.4,easing:'ease-in-out',repeat:Infinity});
+}
+
 function setGuide(i,scroll=false){state.guide=clamp(i,0,guides.length-1);const [t,p,target]=guides[state.guide];$('#guideTitle').textContent=t;$('#guideText').textContent=p;$$('#journeyTrack button').forEach((b,j)=>b.classList.toggle('active',j===state.guide));$('#guidePrev').disabled=state.guide===0;$('#guideNext').textContent=state.guide===guides.length-1?'Volver al inicio':'Siguiente paso →';if(scroll)document.querySelector(target)?.scrollIntoView({behavior:'smooth',block:'start'});}
 $('#guidePrev').addEventListener('click',()=>setGuide(state.guide-1,true));
 $('#guideNext').addEventListener('click',()=>setGuide(state.guide===guides.length-1?0:state.guide+1,true));
@@ -503,6 +510,6 @@ $$('.tab').forEach(b=>b.addEventListener('click',()=>{$$('.tab').forEach(x=>x.cl
 createIcons({icons:{FileText,Scissors,BrainCircuit,Binary,Database,Search,PackageOpen,Bot,Quote}});
 initIngestionScene();
 initTransformerScene();
-wireRanges();updateDocStats();populateTransformerSentences();setGuide(0);installTaskAnimations();setMobileStep(0,false);health();renderAll();loadDbBrowser().catch(()=>{});
+wireRanges();updateDocStats();populateTransformerSentences();setGuide(0);startOneMascotIdle();installTaskAnimations();setMobileStep(0,false);health();renderAll();loadDbBrowser().catch(()=>{});
 window.addEventListener('resize',syncTaskAnimations);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});

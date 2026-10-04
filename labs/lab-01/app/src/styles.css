@@ -293,3 +293,10 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
   .transformer-sentence-label{width:100%;overflow:hidden}
   .transformer-sentence-label select{display:block;width:100%;max-width:100%;min-width:0}
 }
+
+/* ONE mascot v1 — first approved-source animation: idle */
+.one-mascot{position:relative;width:112px;height:112px;display:grid;place-items:center;overflow:visible;isolation:isolate}
+.one-mascot img{display:block;width:108px;height:108px;object-fit:contain;object-position:center;filter:drop-shadow(0 10px 18px rgba(0,0,0,.28));transform-origin:50% 72%;z-index:2}
+.one-mascot-glow{position:absolute;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle,rgba(96,165,250,.22),rgba(52,211,153,.08) 48%,transparent 72%);filter:blur(3px);z-index:1;pointer-events:none}
+@media(max-width:760px){.guide{grid-template-columns:82px 1fr}.one-mascot{width:80px;height:80px}.one-mascot img{width:78px;height:78px}.one-mascot-glow{width:58px;height:58px}}
+@media(prefers-reduced-motion:reduce){.one-mascot img{transform:none!important}.one-mascot-glow{transform:none!important;opacity:.55!important}}
