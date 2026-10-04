@@ -471,28 +471,37 @@ function syncTaskAnimations(){
 }
 
 const oneStepLines=['Primero vemos el documento','Ahora tokenizamos el texto','Guardamos vectores y metadata','Formulamos la pregunta','Seguimos el pipeline RAG','Comparamos los vectores','Construimos la respuesta','Miremos dentro de pgvector'];
-const ONE_ASSETS={talk:'/characters/one/one-head-explain-v2.webp',idle:'/characters/one/front-head.png',wink:'/characters/one/head-wink.png',smile:'/characters/one/head-smile-closed.png',surprised:'/characters/one/head-surprised.png'};
-let oneDragged=false,oneSpeechTimer=null,onePointerMoved=false,oneIdleTimers=[],oneActivityEpoch=0;
+const ONE_ASSETS={idle:'/characters/one/normalized/idle.png',happy:'/characters/one/normalized/happy.png',neutral:'/characters/one/normalized/neutral.png',wink:'/characters/one/normalized/wink.png',smile:'/characters/one/normalized/smile.png',surprised:'/characters/one/normalized/surprised.png'};
+let oneDragged=false,oneSpeechTimer=null,onePointerMoved=false,oneIdleTimers=[],oneTalkTimer=null,oneActivityEpoch=0;
 const clearOneIdle=()=>{oneIdleTimers.forEach(clearTimeout);oneIdleTimers=[];};
-function setOneFace(face='idle',ms=0){const img=$('#oneFloatingImage');if(!img)return;img.src=ONE_ASSETS[face]||ONE_ASSETS.idle;if(ms)oneIdleTimers.push(setTimeout(()=>{if(!$('#oneFloatingGuide')?.classList.contains('speaking'))img.src=ONE_ASSETS.idle;},ms));}
-function scheduleOneIdle(){
-  clearOneIdle();const epoch=++oneActivityEpoch;setOneFace('idle');
-  const later=(delay,fn)=>oneIdleTimers.push(setTimeout(()=>{if(epoch===oneActivityEpoch&&!$('#oneFloatingGuide')?.classList.contains('speaking'))fn();},delay));
-  later(6500,()=>setOneFace('wink',190));
-  later(12500,()=>setOneFace('smile',520));
-  later(20500,()=>setOneFace('wink',220));
-  later(30000,()=>setOneFace('surprised',700));
-  later(42000,()=>setOneFace('smile',900));
+const stopOneTalk=()=>{clearInterval(oneTalkTimer);oneTalkTimer=null;};
+function setOneFace(face='idle',ms=0){const img=$('#oneFloatingImage');if(!img)return;img.src=ONE_ASSETS[face]||ONE_ASSETS.idle;if(ms)oneIdleTimers.push(setTimeout(()=>{if(!$('#oneFloatingGuide')?.classList.contains('speaking'))img.src=ONE_ASSETS.happy;},ms));}
+function startOneTalk(){
+  stopOneTalk();const seq=['happy','happy','neutral','happy','happy','neutral','happy','surprised','happy','neutral'];let i=0;setOneFace('happy');
+  oneTalkTimer=setInterval(()=>{setOneFace(seq[i++%seq.length]);},260);
 }
+function scheduleOneIdle(){
+  stopOneTalk();clearOneIdle();const epoch=++oneActivityEpoch;setOneFace('happy');
+  const later=(delay,fn)=>oneIdleTimers.push(setTimeout(()=>{if(epoch===oneActivityEpoch&&!$('#oneFloatingGuide')?.classList.contains('speaking'))fn();},delay));
+  // attentive smile first; brief natural blinks, then playful, neutral, and only much later bored/waiting.
+  later(7200,()=>setOneFace('wink',170));
+  later(15400,()=>setOneFace('wink',160));
+  later(26000,()=>setOneFace('surprised',520));
+  later(39000,()=>setOneFace('wink',210));
+  later(52000,()=>setOneFace('neutral'));
+  later(68000,()=>setOneFace('smile',900));
+  later(82000,()=>setOneFace('neutral'));
+}
+
 function clampFloatingOne(){
   const el=$('#oneFloatingGuide');if(!el)return;const r=el.getBoundingClientRect(),pad=8,maxX=Math.max(pad,innerWidth-r.width-pad),maxY=Math.max(pad,innerHeight-r.height-86);
   el.style.left=clamp(parseFloat(el.style.left)||r.left,pad,maxX)+'px';el.style.top=clamp(parseFloat(el.style.top)||r.top,pad,maxY)+'px';el.style.right='auto';el.style.bottom='auto';
 }
 function speakFloatingOne(step=state.mobileStep){
   const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble'),img=$('#oneFloatingImage'),txt=$('#oneFloatingText');if(!el||!bubble||!img)return;
-  clearTimeout(oneSpeechTimer);clearOneIdle();oneActivityEpoch++;if(txt)txt.textContent=oneStepLines[step]||'Seguimos';
-  img.src=ONE_ASSETS.talk+'?step='+step+'&t='+Date.now();el.classList.add('speaking');bubble.classList.add('visible');
-  oneSpeechTimer=setTimeout(()=>{bubble.classList.remove('visible');el.classList.remove('speaking');scheduleOneIdle();},3200);
+  clearTimeout(oneSpeechTimer);clearOneIdle();stopOneTalk();oneActivityEpoch++;if(txt)txt.textContent=oneStepLines[step]||'Seguimos';
+  el.classList.add('speaking');bubble.classList.add('visible');startOneTalk();
+  oneSpeechTimer=setTimeout(()=>{bubble.classList.remove('visible');el.classList.remove('speaking');stopOneTalk();scheduleOneIdle();},3200);
 }
 function parkFloatingOne(step){
   const el=$('#oneFloatingGuide');if(!el)return;const r=el.getBoundingClientRect();

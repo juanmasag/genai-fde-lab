@@ -353,3 +353,11 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 .one-floating-guide:not(.speaking):not(.dragging) .one-floating-handle img{animation:oneAttentiveRest 5.6s ease-in-out infinite}
 @keyframes oneAttentiveRest{0%,100%{transform:translate3d(0,0,0) rotate(-.35deg)}48%{transform:translate3d(0,-3px,0) rotate(.35deg)}52%{transform:translate3d(0,-3px,0) rotate(.35deg)}}
 @media(min-width:760px){:root{--one-guide-w:154px;--one-guide-h:142px}}
+
+/* ONE behavior v5: generous transparent animation canvas; visible scale stays constant. */
+:root{--one-stage:168px;--one-visible:132px}
+.one-floating-guide{width:var(--one-stage)!important;height:var(--one-stage)!important;overflow:visible!important}
+.one-floating-handle{left:0!important;top:0!important;width:var(--one-stage)!important;height:var(--one-stage)!important;overflow:visible!important}
+.one-floating-handle img{width:var(--one-stage)!important;height:var(--one-stage)!important;object-fit:contain!important;object-position:center!important;overflow:visible!important;transform-origin:50% 50%!important}
+.one-speech-bubble{right:calc(var(--one-stage) - 18px)!important;top:4px!important}
+@media(min-width:760px){:root{--one-stage:196px;--one-visible:154px}}
