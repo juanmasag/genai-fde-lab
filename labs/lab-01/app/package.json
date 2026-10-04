@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run sync:one && vite",
+    "build": "npm run sync:one && vite build",
     "start": "node server.js",
     "check:integration": "node scripts/integration-check.mjs",
-    "check": "npm run build && npm run check:integration"
+    "check": "npm run build && npm run check:integration",
+    "sync:one": "node scripts/sync-one-rig.mjs"
   },
   "dependencies": {
     "d3": "7.9.0",
