@@ -1,0 +1,38 @@
+{
+  "status": "qa-split",
+  "method": "threshold alpha>=8 identifies two visual lobes; original RGBA pixels partitioned at the gap, no recoloring/interpolation",
+  "items": [
+    {
+      "source": "recovered-00.png",
+      "file": "recovered-00-top.png",
+      "variant": "top",
+      "axis": "y",
+      "cut_local": 57,
+      "retained_pixels": 1458
+    },
+    {
+      "source": "recovered-00.png",
+      "file": "recovered-00-bottom.png",
+      "variant": "bottom",
+      "axis": "y",
+      "cut_local": 57,
+      "retained_pixels": 1749
+    },
+    {
+      "source": "recovered-01.png",
+      "file": "recovered-01-left.png",
+      "variant": "left",
+      "axis": "x",
+      "cut_local": 53,
+      "retained_pixels": 1275
+    },
+    {
+      "source": "recovered-01.png",
+      "file": "recovered-01-right.png",
+      "variant": "right",
+      "axis": "x",
+      "cut_local": 53,
+      "retained_pixels": 1121
+    }
+  ]
+}
