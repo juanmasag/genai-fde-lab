@@ -1,0 +1,13 @@
+{
+  "eyebrow_regions": [
+    "parts-04",
+    "parts-05"
+  ],
+  "face_plate_regions": [
+    "parts-04",
+    "parts-05",
+    "parts-06",
+    "parts-07"
+  ],
+  "note": "Regions identified visually by user. 2x views use nearest-neighbor; no source pixels or production assets modified."
+}
