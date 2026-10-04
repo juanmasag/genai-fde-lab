@@ -16,7 +16,7 @@
 <section class="guide panel">
   <div class="guide-avatar one-mascot" aria-label="ONE, guía del laboratorio">
     <div class="one-mascot-glow" aria-hidden="true"></div>
-    <img id="oneMascot" src="/characters/one/one-head-talk-v1.webp" alt="ONE, guía del laboratorio" width="1209" height="1004">
+    <img id="oneMascot" src="/characters/one/one-head-explain-v2.webp" alt="ONE, guía del laboratorio" width="1209" height="1004">
   </div>
   <div class="guide-copy">
     <div class="eyebrow">TE ACOMPAÑA VECTOR</div>
@@ -41,11 +41,6 @@
 </section>
 
 <section class="hero-grid mobile-screen" id="step-document" data-mobile-screen="0">
-  <div class="one-mobile-guide" aria-label="ONE, guía animada del laboratorio">
-    <div class="one-mascot-glow one-idle-active" aria-hidden="true"></div>
-    <img src="/characters/one/one-head-talk-v1.webp" alt="ONE, guía animada del laboratorio" width="1209" height="1004">
-    <div><span>ONE · GUÍA</span><strong>Empecemos por el documento</strong></div>
-  </div>
   <article class="panel">
     <div class="section-head"><div><span class="step-tag">1</span><h2>Documento de laboratorio</h2></div><span class="hint">editable</span></div>
     <label>Nombre<input id="title" value="guia-soporte.md"></label>
@@ -218,6 +213,10 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
   <div id="technical" class="technical"><div class="empty-state">Sin datos todavía.</div></div>
 </section>
 </main>
+<aside id="oneFloatingGuide" class="one-floating-guide" aria-label="ONE, guía interactiva" role="complementary">
+  <button id="oneDragHandle" class="one-floating-handle" type="button" aria-label="Mover a ONE"><img src="/characters/one/one-head-explain-v2.webp" alt="ONE explicando" draggable="false"></button>
+  <div class="one-floating-copy"><span>ONE · GUÍA</span><strong id="oneFloatingText">Primero vemos el documento</strong></div>
+</aside>
 <div id="mobileWizardNav" class="mobile-wizard-nav">
   <button id="mobilePrev" class="secondary">Anterior</button>
   <div class="mobile-step-info"><strong id="mobileStepTitle">Documento</strong><span id="mobileStepProgress">1 / 8</span></div>

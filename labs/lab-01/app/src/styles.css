@@ -323,3 +323,13 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
   .one-mobile-guide .one-mascot-glow{left:24px;top:28px;width:72px;height:72px}
   .one-mobile-guide>div:last-child{display:grid;gap:4px;z-index:2}.one-mobile-guide span{font-size:.62rem;letter-spacing:.14em;color:var(--accent2);font-weight:900}.one-mobile-guide strong{font-size:.9rem;line-height:1.25}
 }
+
+/* Persistent ONE guide: draggable on touch/mouse and independent from wizard panels. */
+.one-floating-guide{display:none}
+@media(max-width:759px){
+  .one-floating-guide{display:grid;grid-template-columns:94px minmax(0,150px);align-items:center;gap:5px;position:fixed;left:14px;top:112px;z-index:60;padding:5px 9px 5px 3px;border:1px solid rgba(83,124,177,.75);border-radius:18px;background:rgba(8,18,34,.82);box-shadow:0 10px 30px rgba(0,0,0,.32);backdrop-filter:blur(8px);touch-action:none;user-select:none;transition:box-shadow .2s ease}
+  .one-floating-guide.dragging{box-shadow:0 15px 38px rgba(0,0,0,.5)}
+  .one-floating-handle{width:94px;height:86px;padding:0;border:0;background:transparent;cursor:grab;touch-action:none}.one-floating-handle:active{cursor:grabbing}
+  .one-floating-handle img{display:block;width:94px;height:86px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
+  .one-floating-copy{display:grid;gap:2px;pointer-events:none}.one-floating-copy span{font-size:.55rem;letter-spacing:.12em;color:var(--accent2);font-weight:900}.one-floating-copy strong{font-size:.72rem;line-height:1.15}
+}

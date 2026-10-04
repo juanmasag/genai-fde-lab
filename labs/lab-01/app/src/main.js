@@ -470,6 +470,29 @@ function syncTaskAnimations(){
   }else all.forEach(x=>x.classList.add('animation-active'));
 }
 
+const oneStepLines=['Primero vemos el documento','Ahora tokenizamos el texto','Guardamos vectores y metadata','Formulamos la pregunta','Seguimos el pipeline RAG','Comparamos los vectores','Construimos la respuesta','Miremos dentro de pgvector'];
+let oneDragged=false;
+function clampFloatingOne(){
+  const el=$('#oneFloatingGuide'); if(!el||window.innerWidth>=760)return;
+  const r=el.getBoundingClientRect(),pad=8,maxX=Math.max(pad,innerWidth-r.width-pad),maxY=Math.max(pad,innerHeight-r.height-86);
+  const x=clamp(parseFloat(el.style.left)||r.left,pad,maxX),y=clamp(parseFloat(el.style.top)||r.top,pad,maxY);
+  el.style.left=x+'px';el.style.top=y+'px';el.style.right='auto';el.style.bottom='auto';
+}
+function parkFloatingOne(step){
+  const el=$('#oneFloatingGuide');if(!el||innerWidth>=760||oneDragged)return;
+  const x=Math.max(8,innerWidth-el.offsetWidth-12), y=step%2===0?112:154;
+  el.animate([{transform:'translateY(-8px)',opacity:.65},{transform:'translateY(0)',opacity:1}],{duration:320,easing:'ease-out'});
+  el.style.left=x+'px';el.style.top=y+'px';clampFloatingOne();
+}
+function initFloatingOne(){
+  const el=$('#oneFloatingGuide'),handle=$('#oneDragHandle');if(!el||!handle)return;
+  let drag=null;
+  handle.addEventListener('pointerdown',e=>{if(innerWidth>=760)return;const r=el.getBoundingClientRect();drag={id:e.pointerId,dx:e.clientX-r.left,dy:e.clientY-r.top};oneDragged=true;el.classList.add('dragging');handle.setPointerCapture(e.pointerId);e.preventDefault();});
+  handle.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;el.style.left=(e.clientX-drag.dx)+'px';el.style.top=(e.clientY-drag.dy)+'px';el.style.right='auto';clampFloatingOne();});
+  const stop=e=>{if(!drag||drag.id!==e.pointerId)return;drag=null;el.classList.remove('dragging');clampFloatingOne();};
+  handle.addEventListener('pointerup',stop);handle.addEventListener('pointercancel',stop);
+}
+
 const mobileScreens=[
   ['Documento','#step-document'],['Transformer','#step-transformer'],['Base vectorial','#step-db'],['Pregunta','#step-query'],['Pipeline','#step-query'],['Vectores','#step-vectors'],['Respuesta','#step-answer'],['Dentro de pgvector','#step-db-browser']
 ];
@@ -490,6 +513,8 @@ function applyMobileStep(i,scroll=true){
   $('#mobileStepProgress').textContent=(state.mobileStep+1)+' / '+mobileScreens.length;
   $('#mobilePrev').disabled=state.mobileStep===0;$('#mobileNext').disabled=state.mobileStep===mobileScreens.length-1;
   syncTaskAnimations();
+  const oneText=$('#oneFloatingText');if(oneText)oneText.textContent=oneStepLines[state.mobileStep]||'Seguimos';
+  if(scroll){oneDragged=false;parkFloatingOne(state.mobileStep);}
   const target=document.querySelector(mobileScreens[state.mobileStep][1]);
   if(target){animate(target,{opacity:[.65,1],transform:['translateY(12px)','translateY(0px)']},{duration:.28});}
   if(scroll&&window.innerWidth<760)target?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -509,6 +534,6 @@ $$('.tab').forEach(b=>b.addEventListener('click',()=>{$$('.tab').forEach(x=>x.cl
 createIcons({icons:{FileText,Scissors,BrainCircuit,Binary,Database,Search,PackageOpen,Bot,Quote}});
 initIngestionScene();
 initTransformerScene();
-wireRanges();updateDocStats();populateTransformerSentences();setGuide(0);startOneMascotIdle();installTaskAnimations();setMobileStep(0,false);health();renderAll();loadDbBrowser().catch(()=>{});
-window.addEventListener('resize',syncTaskAnimations);
+wireRanges();updateDocStats();populateTransformerSentences();setGuide(0);startOneMascotIdle();installTaskAnimations();initFloatingOne();setMobileStep(0,false);parkFloatingOne(0);health();renderAll();loadDbBrowser().catch(()=>{});
+window.addEventListener('resize',()=>{syncTaskAnimations();clampFloatingOne();});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
