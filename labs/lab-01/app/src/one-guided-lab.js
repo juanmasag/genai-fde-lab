@@ -307,6 +307,11 @@ export function createOneGuidedLab({
   let processPhase='';
   let processActive=false;
   let scrollTick=false;
+  let narrationBusy=false;
+  let currentNarrationPromise=Promise.resolve();
+  let idleCycleActive=false;
+  let awaitingTabletTap=false;
+  let clarityReturnTimer=null;
   const completed=new Set();
 
   const context=()=>{
@@ -369,7 +374,9 @@ export function createOneGuidedLab({
   function clearIdle({keepTablet=false}={}){
     idleTimers.forEach(clearTimeout);
     idleTimers=[];
+    clearTimeout(clarityReturnTimer);clarityReturnTimer=null;
     clearBlink();
+    idleCycleActive=false;
     if(!keepTablet)exitTablet();
   }
 
@@ -390,8 +397,9 @@ export function createOneGuidedLab({
       else if(lang==='es-419')n+=125;
       else if(['es-uy','es-mx','es-cl','es-us'].includes(lang))n+=110;
       else if(lang.startsWith('es-'))n+=85;
+      if(/argentin|latino|latin american|latinoam/.test(name))n+=38;
       if(/natural|neural|online|premium|enhanced/.test(name))n+=35;
-      if(/google|microsoft|siri/.test(name))n+=24;
+      if(/google|microsoft|siri|samsung/.test(name))n+=24;
       if(v.localService===false)n+=12;
       if(/espeak|pico|festival|compact|classic/.test(name))n-=70;
       return n;
@@ -453,6 +461,7 @@ export function createOneGuidedLab({
       activeSpeechResolve=null;
       resolve();
     }
+    narrationBusy=false;
     guide.classList.remove('speaking');
     setMouth(processActive?'rest':'smile');
   }
@@ -460,82 +469,174 @@ export function createOneGuidedLab({
   function cancelNarration(){
     speechToken++;
     stopSpeech({cancel:true});
+    currentNarrationPromise=Promise.resolve();
   }
 
-  function revealThroughChar(sentence,index){
-    const safe=clamp(Number(index)||0,0,sentence.length);
-    let end=safe;
-    while(end<sentence.length&&!/\s/.test(sentence[end]))end++;
-    const visible=sentence.slice(0,end).trim();
-    if(visible)textNode.textContent=visible;
-    placeBubble();
-  }
-
-  function startProgressiveFallback(sentence,token){
-    const words=[...sentence.matchAll(/\S+/g)];
-    let i=0;
-    clearInterval(revealTimer);
-    const step=()=>{
-      if(token!==speechToken||i>=words.length)return;
-      const m=words[i++];
-      textNode.textContent=sentence.slice(0,m.index+m[0].length);
-      placeBubble();
-    };
-    step();
-    const pace=clamp(sentence.length/Math.max(1,words.length)*24,135,235);
-    revealTimer=setInterval(step,pace);
-  }
-
-  function startMouth(sentence,token){
-    clearInterval(mouthTimer);
+  function speechUnits(text,segments=null){
+    const source=segments?.length
+      ?segments.map(item=>typeof item==='string'?{text:item}:item)
+      :[{text:String(text||'')}];
+    const units=[];
+    for(const sourcePart of source){
+      const sentences=splitSentences(sourcePart.text);
+      if(!sentences.length&&String(sourcePart.text||'').trim())sentences.push(String(sourcePart.text).trim());
+      sentences.forEach((sentence,index)=>{
+        units.push({
+          text:sentence,
+          before:index===0?sourcePart.before:null,
+          source:sourcePart
+        });
+      });
+    }
     let cursor=0;
+    for(const unit of units){
+      unit.start=cursor;
+      unit.end=cursor+unit.text.length;
+      cursor=unit.end+1;
+    }
+    return {units,fullText:units.map(unit=>unit.text).join(' ')};
+  }
+
+  function unitForIndex(units,index){
+    let current=units[0]||null;
+    for(const unit of units){
+      if(index>=unit.start)current=unit;
+      if(index<=unit.end)break;
+    }
+    return current;
+  }
+
+  function visibleSpeechPrefix(fullText,wordMatches,absoluteIndex){
+    if(!wordMatches.length)return'';
+    const index=clamp(Number(absoluteIndex)||0,0,fullText.length);
+    let current=0;
+    for(let i=0;i<wordMatches.length;i++){
+      if(wordMatches[i].index<=index)current=i;
+      else break;
+    }
+    const end=wordMatches[current].index+wordMatches[current][0].length;
+    return fullText.slice(0,end).trim();
+  }
+
+  function animateWordMouth(word,token){
+    clearInterval(mouthTimer);
+    const clean=String(word||'').replace(/[^a-záéíóúüñ]/gi,'');
+    if(!clean){setMouth('rest');return;}
+    let cursor=0;
+    setMouth(visemeAt(clean,0));
     mouthTimer=setInterval(()=>{
       if(token!==speechToken)return;
-      while(cursor<sentence.length&&/\s/.test(sentence[cursor]))cursor++;
-      if(cursor>=sentence.length)cursor=0;
-      setMouth(visemeAt(sentence,cursor));
-      cursor+=1+Math.floor(Math.random()*2);
-    },92);
+      cursor=(cursor+1)%clean.length;
+      setMouth(visemeAt(clean,cursor));
+    },72);
   }
 
-  function speakSentence(sentence,token){
-    return new Promise(resolve=>{
-      if(token!==speechToken)return resolve();
-      activeSpeechResolve=resolve;
-      textNode.textContent='';
-      bubble.classList.add('visible');
-      placeBubble();
-      startProgressiveFallback(sentence,token);
-      startMouth(sentence,token);
+  function runNarration(text,{kind='intro',controlsAfter=true,stateAfter='attentive',segments=null,onSegment=null}={}){
+    const clean=String(text||'').trim();
+    const plan=speechUnits(clean,segments);
+    if(!plan.fullText)return Promise.resolve();
 
+    const token=++speechToken;
+    currentNarrationKind=kind;
+    if(clean)lastNarration=clean;
+    narrationBusy=true;
+    setState('talking');
+    guide.classList.add('speaking');
+    bubble.classList.add('visible');
+    placeBubble();
+
+    return new Promise(async resolveOuter=>{
       let finished=false;
+      let started=false;
+      let boundarySeen=false;
+      let lastBoundaryAt=0;
+      let currentUnitIndex=-1;
+      let fallbackWordIndex=0;
+      let fallbackStart=performance.now();
       let speechProbe=null;
-      const done=()=>{
+      const words=[...plan.fullText.matchAll(/\S+/g)];
+
+      const activateUnit=async(index)=>{
+        if(index<0||index>=plan.units.length||index===currentUnitIndex)return;
+        currentUnitIndex=index;
+        const unit=plan.units[index];
+        if(unit.before)await unit.before();
+        onSegment?.(unit,index);
+      };
+
+      const renderAt=async(charIndex)=>{
+        if(token!==speechToken)return;
+        const unit=unitForIndex(plan.units,charIndex);
+        const idx=unit?plan.units.indexOf(unit):0;
+        await activateUnit(idx);
+        textNode.textContent=visibleSpeechPrefix(plan.fullText,words,charIndex);
+        textNode.scrollTop=textNode.scrollHeight;
+        const tail=plan.fullText.slice(charIndex);
+        const word=(tail.match(/^\S+/)||tail.match(/\S+/)||[''])[0];
+        animateWordMouth(word,token);
+        placeBubble();
+      };
+
+      const finish=()=>{
         if(finished)return;
         finished=true;
         clearTimeout(speechProbe);speechProbe=null;
-        if(activeSpeechResolve===resolve)activeSpeechResolve=null;
-        clearInterval(mouthTimer);mouthTimer=null;
         clearInterval(revealTimer);revealTimer=null;
+        clearInterval(mouthTimer);mouthTimer=null;
         clearTimeout(safetyTimer);safetyTimer=null;
-        textNode.textContent=sentence;
-        setMouth('rest');
-        resolve();
+        if(activeSpeechResolve===finish)activeSpeechResolve=null;
+        narrationBusy=false;
+        utterance=null;
+        const last=plan.units.at(-1);
+        if(last)textNode.textContent=last.text;
+        setMouth(processActive?'rest':'smile');
+        guide.classList.remove('speaking','blink');
+        setState(processActive?'thinking':stateAfter);
+        setGazeToFocus();
+
+        bubbleTimer=setTimeout(()=>{
+          if(token!==speechToken)return;
+          bubble.classList.remove('visible');
+          if(processActive){
+            setState('thinking');
+            scheduleBlink();
+            return;
+          }
+          if(controlsAfter){
+            showControls('normal');
+            scheduleIdle();
+          }else if(stateAfter==='thinking'){
+            scheduleBlink();
+          }
+        },520);
+        resolveOuter();
       };
 
-      const fallbackDuration=()=>{
-        const words=(sentence.match(/\S+/g)||[]).length;
-        return clamp(words*105,520,3200);
-      };
+      activeSpeechResolve=finish;
+      await activateUnit(0);
+      textNode.textContent=plan.units[0]?.text.split(/\s+/)[0]||'';
+      placeBubble();
+
+      const estimatedWordMs=300;
+      revealTimer=setInterval(()=>{
+        if(finished||token!==speechToken)return;
+        const now=performance.now();
+        if(boundarySeen&&now-lastBoundaryAt<520)return;
+        const expected=Math.min(words.length-1,Math.floor((now-fallbackStart)/estimatedWordMs));
+        if(expected<=fallbackWordIndex)return;
+        fallbackWordIndex=expected;
+        const match=words[fallbackWordIndex];
+        if(match)renderAt(match.index);
+      },90);
 
       const canSpeak='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;
       if(!canSpeak){
-        safetyTimer=setTimeout(done,fallbackDuration());
+        const total=clamp(words.length*estimatedWordMs,900,24000);
+        safetyTimer=setTimeout(finish,total);
         return;
       }
 
-      try{window.speechSynthesis.cancel();}catch{}
-      const u=new SpeechSynthesisUtterance(sentence);
+      const u=new SpeechSynthesisUtterance(plan.fullText);
       utterance=u;
       const voice=bestVoice();
       let assignedVoice=null;
@@ -543,84 +644,59 @@ export function createOneGuidedLab({
         try{u.voice=voice;assignedVoice=voice;}catch{}
       }
       u.lang=assignedVoice?.lang||voice?.lang||'es-AR';
-      u.rate=.94;
-      u.pitch=.98;
+      u.rate=1;
+      u.pitch=1;
       u.volume=1;
       guide.dataset.oneVoice=assignedVoice?.name||voice?.name||u.lang;
+      u.onstart=()=>{started=true;fallbackStart=performance.now();};
       u.onboundary=event=>{
         if(token!==speechToken)return;
-        const idx=Number(event.charIndex)||0;
-        revealThroughChar(sentence,idx);
-        setMouth(visemeAt(sentence,idx));
+        boundarySeen=true;
+        lastBoundaryAt=performance.now();
+        fallbackWordIndex=Math.max(fallbackWordIndex,words.findIndex(m=>m.index>=Number(event.charIndex||0)));
+        renderAt(Number(event.charIndex)||0);
       };
-      u.onend=done;
-      u.onerror=done;
+      u.onend=finish;
+      u.onerror=finish;
 
-      try{
-        window.speechSynthesis.speak(u);
-      }catch{
-        safetyTimer=setTimeout(done,fallbackDuration());
+      try{window.speechSynthesis.speak(u);}
+      catch{
+        const total=clamp(words.length*estimatedWordMs,900,24000);
+        safetyTimer=setTimeout(finish,total);
         return;
       }
 
       speechProbe=setTimeout(()=>{
-        if(finished||token!==speechToken)return;
+        if(finished||token!==speechToken||started)return;
         let active=false;
         try{active=Boolean(window.speechSynthesis.speaking||window.speechSynthesis.pending);}catch{}
         if(!active){
-          clearTimeout(safetyTimer);
-          safetyTimer=setTimeout(done,fallbackDuration());
+          try{window.speechSynthesis.cancel();}catch{}
+          const remaining=clamp(words.length*estimatedWordMs,900,24000);
+          safetyTimer=setTimeout(finish,remaining);
         }
-      },420);
+      },700);
 
-      safetyTimer=setTimeout(done,Math.max(4500,Math.min(18000,sentence.length*105)));
+      safetyTimer=setTimeout(finish,Math.max(12000,Math.min(90000,words.length*900+10000)));
     });
   }
 
-  async function narrate(text,{kind='intro',controlsAfter=true,stateAfter='attentive',segments=null,onSegment=null}={}){
+  function narrate(text,{interrupt=true,...options}={}){
     const clean=String(text||'').trim();
-    if(!clean&&!segments?.length)return;
-    cancelNarration();
+    if(!clean&&!options.segments?.length)return Promise.resolve();
     clearIdle();
     clearControlsTimer();
     hideControls();
-    currentNarrationKind=kind;
-    if(clean)lastNarration=clean;
-    const token=++speechToken;
-    const parts=segments?.length
-      ?segments.map(x=>typeof x==='string'?{text:x}:x)
-      :splitSentences(clean).map(x=>({text:x}));
 
-    setState('talking');
-    guide.classList.add('speaking');
-    bubble.classList.add('visible');
-
-    for(let i=0;i<parts.length;i++){
-      if(token!==speechToken)return;
-      const part=parts[i];
-      onSegment?.(part,i);
-      if(part.before)await part.before();
-      await speakSentence(String(part.text||''),token);
-      if(token!==speechToken)return;
-      await sleep(105);
+    if(interrupt){
+      cancelNarration();
+      currentNarrationPromise=runNarration(clean,options);
+    }else{
+      currentNarrationPromise=currentNarrationPromise
+        .catch(()=>{})
+        .then(()=>runNarration(clean,options));
     }
-
-    if(token!==speechToken)return;
-    guide.classList.remove('speaking','blink');
-    setMouth('smile');
-    setState(stateAfter);
-    setGazeToFocus();
-
-    bubbleTimer=setTimeout(()=>{
-      if(token!==speechToken)return;
-      bubble.classList.remove('visible');
-      if(controlsAfter){
-        showControls('normal');
-        scheduleIdle();
-      }else if(stateAfter==='thinking'){
-        scheduleBlink();
-      }
-    },540);
+    return currentNarrationPromise;
   }
 
   function resolveTarget(sceneDef=scene()){
@@ -733,18 +809,14 @@ export function createOneGuidedLab({
   async function moveToScene(sceneDef=scene()){
     const target=resolveTarget(sceneDef);
     const current=guide.getBoundingClientRect();
-    const topPad=76;
-    const bottomPad=96;
     const pad=8;
+    const top=innerWidth<760?64:76;
     const targetRect=target?.getBoundingClientRect();
     const side=intendedSide(sceneDef,targetRect);
     const x=side==='right'?Math.max(pad,innerWidth-current.width-10):pad;
-    const y=innerWidth<760
-      ?Math.max(topPad,innerHeight-current.height-bottomPad)
-      :clamp(targetRect?targetRect.top+Math.min(targetRect.height*.35,150)-current.height/2:(parseFloat(guide.style.top)||118),topPad,Math.max(topPad,innerHeight-current.height-bottomPad));
 
-    applyReserveEdge(y+current.height/2<innerHeight/2?'top':'bottom',target,{scroll:true});
-    if(target)await sleep(innerWidth<760?560:360);
+    applyReserveEdge('top',target,{scroll:true});
+    if(target)await sleep(innerWidth<760?520:330);
 
     hideControls();
     guide.classList.add('moving');
@@ -752,19 +824,18 @@ export function createOneGuidedLab({
 
     const afterScroll=guide.getBoundingClientRect();
     const dx=x-afterScroll.left;
-    const dy=y-afterScroll.top;
+    const dy=top-afterScroll.top;
     const motion=guide.animate(
       [
         {transform:'translate3d(0,0,0) scale(1)'},
-        {transform:'translate3d('+(dx*.08)+'px,'+(dy*.03)+'px,0) scale(.99)',offset:.13},
-        {transform:'translate3d('+(dx*.90)+'px,'+(dy*.90)+'px,0) scale(.985)',offset:.80},
+        {transform:'translate3d('+(dx*.90)+'px,'+(dy*.90)+'px,0) scale(.985)',offset:.82},
         {transform:'translate3d('+dx+'px,'+dy+'px,0) scale(1)'}
       ],
-      {duration:690,easing:'cubic-bezier(.22,.8,.25,1)',fill:'forwards'}
+      {duration:560,easing:'cubic-bezier(.22,.8,.25,1)',fill:'forwards'}
     );
     await motion.finished.catch(()=>{});
     guide.style.left=x+'px';
-    guide.style.top=y+'px';
+    guide.style.top=top+'px';
     guide.style.right='auto';
     guide.style.bottom='auto';
     guide.style.transform='none';
@@ -782,7 +853,7 @@ export function createOneGuidedLab({
   function placeBubble(){
     const r=guide.getBoundingClientRect();
     const pad=8;
-    const gap=8;
+    const gap=7;
     const width=innerWidth<760?184:260;
     bubble.style.setProperty('width',width+'px','important');
     bubble.style.setProperty('max-width',width+'px','important');
@@ -794,23 +865,12 @@ export function createOneGuidedLab({
     const side=guide.dataset.oneSide||'right';
     let left=side==='right'?r.left-width-gap:r.right+gap;
     left=clamp(left,pad,Math.max(pad,innerWidth-width-pad));
-    let top=clamp(r.top+18,pad,Math.max(pad,innerHeight-height-pad));
-
-    const target=resolveTarget();
-    const tr=target?.getBoundingClientRect();
-    let br={left,top,right:left+width,bottom:top+height};
-    if(tr&&rectsOverlap(br,tr,8)){
-      const above=tr.top-height-12;
-      const below=tr.bottom+12;
-      if(above>=pad)top=above;
-      else if(below+height<=innerHeight-pad)top=below;
-      else top=clamp(top+(top<tr.top?-36:36),pad,Math.max(pad,innerHeight-height-pad));
-      br={left,top,right:left+width,bottom:top+height};
-    }
+    const anchorY=clamp(r.top+r.height*.30-height*.50,pad,Math.max(pad,innerHeight-height-pad));
 
     bubble.style.setProperty('left',left+'px','important');
-    bubble.style.setProperty('top',top+'px','important');
+    bubble.style.setProperty('top',anchorY+'px','important');
     bubble.dataset.pointer=side==='right'?'right':'left';
+    bubble.style.setProperty('--one-bubble-tail-y',clamp(r.top+r.height*.35-anchorY,18,height-18)+'px');
   }
 
   function gateSatisfied(sceneDef=scene()){
@@ -873,6 +933,7 @@ export function createOneGuidedLab({
   function enterTablet(){
     if(processActive||guide.classList.contains('speaking')||guide.classList.contains('dragging'))return;
     hideControls();
+    awaitingTabletTap=true;
     guide.classList.add('tablet-reading');
     setState('tablet-reading');
     setMouth('smile');
@@ -881,6 +942,7 @@ export function createOneGuidedLab({
   }
 
   function exitTablet(){
+    awaitingTabletTap=false;
     guide.classList.remove('tablet-reading');
   }
 
@@ -893,13 +955,39 @@ export function createOneGuidedLab({
     scheduleBlink();
   }
 
+  async function standbyWithTablet(){
+    if(processActive||guide.classList.contains('speaking')||guide.classList.contains('dragging'))return;
+    contentWatch();
+    const promise=narrate('Voy a estar aquí por si necesitas algo... Solo avisame.',{
+      kind:'standby',
+      controlsAfter:false,
+      stateAfter:'attentive'
+    });
+    idleCycleActive=true;
+    await promise;
+    if(!idleCycleActive||processActive)return;
+    await sleep(620);
+    if(!idleCycleActive||processActive)return;
+    enterTablet();
+  }
+
   async function clarityCheck(){
     if(processActive||guide.classList.contains('speaking'))return;
+    clearIdle({keepTablet:true});
     exitTablet();
     guide.style.setProperty('--one-gaze-x','0px');
     guide.style.setProperty('--one-gaze-y','0px');
-    await narrate('¿Quedó claro lo que estamos viendo? Si querés puedo repetir la explicación. Si ya está claro, seguimos.',{kind:'clarity',controlsAfter:false,stateAfter:'attentive'});
+    await narrate('¿Quedó claro lo que estamos viendo? Si querés puedo repetir la explicación. Si ya está claro, seguimos.',{
+      kind:'clarity',
+      controlsAfter:false,
+      stateAfter:'attentive'
+    });
     showControls('clarity');
+    clarityReturnTimer=setTimeout(()=>{
+      if(processActive||guide.classList.contains('speaking'))return;
+      retractControls();
+      standbyWithTablet();
+    },15000);
   }
 
   function scheduleIdle(){
@@ -911,16 +999,15 @@ export function createOneGuidedLab({
     scheduleBlink();
 
     idleTimers.push(setTimeout(()=>{
-      if(guide.classList.contains('speaking'))return;
-      setState('waiting');
-      setGazeToFocus();
+      if(guide.classList.contains('speaking')||processActive)return;
       retractControls();
-      scheduleBlink();
-    },8500));
+      contentWatch();
+    },7000));
 
-    idleTimers.push(setTimeout(()=>enterTablet(),16000));
-    idleTimers.push(setTimeout(()=>contentWatch(),30000));
-    idleTimers.push(setTimeout(()=>clarityCheck(),47000));
+    idleTimers.push(setTimeout(()=>{
+      if(guide.classList.contains('speaking')||processActive)return;
+      standbyWithTablet();
+    },13000));
   }
 
   function processText(kind,p){
@@ -955,23 +1042,25 @@ export function createOneGuidedLab({
   function showProcessProgress(kind,payload){
     processActive=true;
     processPhase=payload.phase||'';
-    clearIdle();
+    clearIdle({keepTablet:false});
     clearTimeout(processSpeakTimer);
-    cancelNarration();
     hideControls();
-    setState('thinking');
-    setMouth('rest');
+
     const message=processText(kind,payload);
-    textNode.textContent=message;
-    bubble.classList.add('visible');
-    placeBubble();
-    scheduleBlink();
+    if(!narrationBusy){
+      setState('thinking');
+      setMouth('rest');
+      textNode.textContent=message;
+      bubble.classList.add('visible');
+      placeBubble();
+      scheduleBlink();
+    }
 
     if(['embedding','llm','vector_search'].includes(payload.phase)){
       const phase=payload.phase;
       processSpeakTimer=setTimeout(()=>{
-        if(processActive&&processPhase===phase){
-          narrate(message,{kind:'process',controlsAfter:false,stateAfter:'thinking'});
+        if(processActive&&processPhase===phase&&!narrationBusy){
+          narrate(message,{kind:'process',controlsAfter:false,stateAfter:'thinking',interrupt:false});
         }
       },1400);
     }
@@ -1035,14 +1124,15 @@ export function createOneGuidedLab({
 
     if(event==='PREVIEW_REQUESTED'||event==='INGEST_STARTED'||event==='ANALYSIS_STARTED'){
       processActive=true;
-      cancelNarration();
-      clearIdle();
+      clearIdle({keepTablet:false});
       hideControls();
-      bubble.classList.remove('visible');
-      setState('thinking');
-      setMouth('rest');
-      setGazeToFocus();
-      scheduleBlink();
+      if(!narrationBusy){
+        bubble.classList.remove('visible');
+        setState('thinking');
+        setMouth('rest');
+        setGazeToFocus();
+        scheduleBlink();
+      }
       return;
     }
 
@@ -1055,7 +1145,7 @@ export function createOneGuidedLab({
       processActive=false;
       clearTimeout(processSpeakTimer);
       setState('attentive');
-      narrate('La operación no terminó correctamente. Revisá el mensaje de error de esta sección y volvé a intentarlo.',{kind:'error'});
+      narrate('La operación no terminó correctamente. Revisá el mensaje de error de esta sección y volvé a intentarlo.',{kind:'error',interrupt:false});
       return;
     }
 
@@ -1065,13 +1155,17 @@ export function createOneGuidedLab({
     if(event===sceneDef.gate){
       processActive=false;
       clearTimeout(processSpeakTimer);
-      cancelNarration();
       $(sceneDef.actionTarget)?.classList.remove('one-action-required');
       updateControls();
       const result=eventResultNarration(sceneDef,event,payload);
       if(result){
         lastNarration=result;
-        narrate(result,{kind:'result'});
+        narrate(result,{kind:'result',interrupt:false});
+      }else if(narrationBusy){
+        currentNarrationPromise.finally(()=>{
+          showControls('normal');
+          scheduleIdle();
+        });
       }else{
         showControls('normal');
         scheduleIdle();
@@ -1123,12 +1217,10 @@ export function createOneGuidedLab({
 
   function installDrag(){
     handle.addEventListener('pointerdown',event=>{
-      cancelNarration();
-      clearIdle();
-      bubble.classList.remove('visible');
+      clearIdle({keepTablet:true});
       hideControls();
       const r=guide.getBoundingClientRect();
-      drag={id:event.pointerId,dx:event.clientX-r.left,dy:event.clientY-r.top,sx:event.clientX,sy:event.clientY};
+      drag={id:event.pointerId,dx:event.clientX-r.left,sx:event.clientX,sy:event.clientY,wasTablet:awaitingTabletTap};
       dragged=false;
       guide.classList.add('dragging');
       handle.setPointerCapture(event.pointerId);
@@ -1140,30 +1232,40 @@ export function createOneGuidedLab({
       if(Math.hypot(event.clientX-drag.sx,event.clientY-drag.sy)>7)dragged=true;
       const r=guide.getBoundingClientRect();
       const x=clamp(event.clientX-drag.dx,8,Math.max(8,innerWidth-r.width-8));
-      const y=clamp(event.clientY-drag.dy,68,Math.max(68,innerHeight-r.height-88));
       guide.style.left=x+'px';
-      guide.style.top=y+'px';
+      guide.style.top=(innerWidth<760?64:76)+'px';
       guide.style.right='auto';
+      guide.style.bottom='auto';
       updateFacingFromPosition();
-      syncReserveFromGuide();
       setGazeToFocus();
       if(bubble.classList.contains('visible'))placeBubble();
     });
 
     const end=event=>{
       if(!drag||drag.id!==event.pointerId)return;
+      const wasTablet=drag.wasTablet;
       drag=null;
       guide.classList.remove('dragging');
       updateFacingFromPosition();
-      syncReserveFromGuide();
+      if(bubble.classList.contains('visible'))placeBubble();
+
       if(!dragged){
+        if(wasTablet||awaitingTabletTap){
+          clarityCheck();
+          return;
+        }
+        if(guide.classList.contains('speaking')||narrationBusy||processActive)return;
         if(controls.classList.contains('retracted')||!controls.classList.contains('visible'))showControls('normal');
         else repeatCurrent();
-      }else{
-        showControls('normal');
-        scheduleIdle();
+        return;
       }
+
+      if(guide.classList.contains('speaking')||narrationBusy||processActive)return;
+      if(awaitingTabletTap)return;
+      showControls('normal');
+      scheduleIdle();
     };
+
     handle.addEventListener('pointerup',end);
     handle.addEventListener('pointercancel',end);
   }
@@ -1192,8 +1294,9 @@ export function createOneGuidedLab({
   }
 
   window.addEventListener('resize',()=>{
+    guide.style.top=(innerWidth<760?64:76)+'px';
+    applyReserveEdge('top',resolveTarget());
     updateFacingFromPosition();
-    syncReserveFromGuide();
     setGazeToFocus();
     if(bubble.classList.contains('visible'))placeBubble();
   });
