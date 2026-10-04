@@ -619,3 +619,24 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
   .one-action-required{animation:none!important}
   .one-face-stack,.one-eyes-open,.one-eyes-closed{transition:none!important}
 }
+
+
+/* ONE Guided Lab v1.1 — keep navigation inside the viewport at either edge. */
+.one-floating-guide[data-one-side="left"] .one-guide-controls{
+  left:0;
+  right:auto;
+  transform:translateY(7px) scale(.97);
+  transform-origin:left top;
+}
+.one-floating-guide[data-one-side="left"] .one-guide-controls.visible{
+  transform:translateY(0) scale(1);
+}
+.one-floating-guide[data-one-side="right"] .one-guide-controls{
+  left:auto;
+  right:0;
+  transform:translateY(7px) scale(.97);
+  transform-origin:right top;
+}
+.one-floating-guide[data-one-side="right"] .one-guide-controls.visible{
+  transform:translateY(0) scale(1);
+}
