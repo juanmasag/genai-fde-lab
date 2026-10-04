@@ -214,22 +214,29 @@ La mesa de ayuda atiende de 9:00 a 18:00.</textarea>
 </section>
 </main>
 <aside id="oneFloatingGuide" class="one-floating-guide" aria-label="ONE, guía interactiva" role="complementary" data-one-state="attentive" data-one-side="left" data-one-mouth="smile">
-  <div id="oneSpeechBubble" class="one-speech-bubble" role="status" aria-live="polite"><span>ONE · GUÍA</span><strong id="oneFloatingText">Primero vemos el documento</strong></div>
-  <button id="oneDragHandle" class="one-floating-handle" type="button" aria-label="Mover a ONE y repetir explicación">
+  <div id="oneSpeechBubble" class="one-speech-bubble" role="status" aria-live="polite"><span>ONE · GUÍA</span><strong id="oneFloatingText"></strong></div>
+  <button id="oneDragHandle" class="one-floating-handle" type="button" aria-label="Mover a ONE">
     <span class="one-rig">
-      <img id="oneFloatingImage" class="one-rig-base one-rig-base-clean" src="/characters/one/rig-v2/layers/00-base-clean.png" alt="ONE explicando" draggable="false">
-      <img class="one-rig-layer one-eyes-open" src="/characters/one/rig-v2/layers/eyes-open.png" alt="" aria-hidden="true" draggable="false">
-      <img class="one-rig-layer one-eyes-closed" src="/characters/one/rig-v2/layers/eyes-closed.png" alt="" aria-hidden="true" draggable="false">
-      <img class="one-rig-layer one-brow-left" src="/characters/one/rig-v2/layers/brow-left.png" alt="" aria-hidden="true" draggable="false">
-      <img class="one-rig-layer one-brow-right" src="/characters/one/rig-v2/layers/brow-right.png" alt="" aria-hidden="true" draggable="false">
-      <img class="one-rig-layer one-mouth-happy" src="/characters/one/rig-v2/layers/mouth-happy.png" alt="" aria-hidden="true" draggable="false">
-      <img class="one-rig-layer one-mouth-rest" src="/characters/one/rig-v2/layers/mouth-rest.png" alt="" aria-hidden="true" draggable="false">
-      <img class="one-rig-layer one-mouth-smile" src="/characters/one/rig-v2/layers/mouth-smile.png" alt="" aria-hidden="true" draggable="false">
-      <img class="one-rig-layer one-mouth-o-small" src="/characters/one/rig-v2/layers/mouth-o-small.png" alt="" aria-hidden="true" draggable="false">
-      <img class="one-rig-layer one-mouth-o" src="/characters/one/rig-v2/layers/mouth-o.png" alt="" aria-hidden="true" draggable="false">
-      <img class="one-rig-layer one-mouth-open" src="/characters/one/rig-v2/layers/mouth-open.png" alt="" aria-hidden="true" draggable="false">
+      <span class="one-face-stack">
+        <img id="oneFloatingImage" class="one-rig-base one-rig-base-clean" src="/characters/one/rig-v2/layers/00-base-clean.png" alt="ONE, guía del laboratorio" draggable="false">
+        <img class="one-rig-layer one-eyes-open" src="/characters/one/rig-v2/layers/eyes-open.png" alt="" aria-hidden="true" draggable="false">
+        <img class="one-rig-layer one-eyes-closed" src="/characters/one/rig-v2/layers/eyes-closed.png" alt="" aria-hidden="true" draggable="false">
+        <img class="one-rig-layer one-brow-left" src="/characters/one/rig-v2/layers/brow-left.png" alt="" aria-hidden="true" draggable="false">
+        <img class="one-rig-layer one-brow-right" src="/characters/one/rig-v2/layers/brow-right.png" alt="" aria-hidden="true" draggable="false">
+        <img class="one-rig-layer one-mouth-happy" src="/characters/one/rig-v2/layers/mouth-happy.png" alt="" aria-hidden="true" draggable="false">
+        <img class="one-rig-layer one-mouth-rest" src="/characters/one/rig-v2/layers/mouth-rest.png" alt="" aria-hidden="true" draggable="false">
+        <img class="one-rig-layer one-mouth-smile" src="/characters/one/rig-v2/layers/mouth-smile.png" alt="" aria-hidden="true" draggable="false">
+        <img class="one-rig-layer one-mouth-o-small" src="/characters/one/rig-v2/layers/mouth-o-small.png" alt="" aria-hidden="true" draggable="false">
+        <img class="one-rig-layer one-mouth-o" src="/characters/one/rig-v2/layers/mouth-o.png" alt="" aria-hidden="true" draggable="false">
+        <img class="one-rig-layer one-mouth-open" src="/characters/one/rig-v2/layers/mouth-open.png" alt="" aria-hidden="true" draggable="false">
+      </span>
     </span>
   </button>
+  <div id="oneGuideControls" class="one-guide-controls" aria-label="Controles de ONE">
+    <button id="oneGuideBack" class="secondary compact" type="button">Atrás</button>
+    <button id="oneGuideRepeat" class="secondary compact" type="button">Repetir</button>
+    <button id="oneGuideNext" class="primary compact" type="button">Siguiente</button>
+  </div>
 </aside>
 <div id="mobileWizardNav" class="mobile-wizard-nav">
   <button id="mobilePrev" class="secondary">Anterior</button>
