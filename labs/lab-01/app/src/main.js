@@ -132,7 +132,7 @@ $('#analyze').addEventListener('click',async()=>{
   }catch(e){status.className='status-line bad';status.textContent='Error: '+e.message;setOneState('curious');}
   finally{setBusy(btn,false);scheduleOneIdle();}
 });
-$('.quick-tests button').forEach(b=>b.addEventListener('click',()=>{$('#question').value=b.dataset.q;activateOneState('listening');}));
+$$('.quick-tests button').forEach(b=>b.addEventListener('click',()=>{$('#question').value=b.dataset.q;activateOneState('listening');}));
 $('#question').addEventListener('focus',()=>activateOneState('listening'));
 $('#question').addEventListener('input',()=>{clearOneIdle();setOneState('listening');scheduleOneBlink();});
 $('#question').addEventListener('blur',()=>scheduleOneIdle());
