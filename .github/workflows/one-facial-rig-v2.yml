@@ -1,0 +1,47 @@
+name: Build ONE facial rig v2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "assets/characters/one/source/rig/facial-v2/README.md"
+      - "assets/characters/one/source/rig/facial-v2/rig-config.json"
+      - "assets/characters/one/source/rig/facial-v2/build_facial_rig.py"
+      - "assets/characters/one/source/rig/facial-v2/render_preview.py"
+      - ".github/workflows/one-facial-rig-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deterministic image tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "Pillow==12.3.0"
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Build registered facial layers
+        run: |
+          python assets/characters/one/source/rig/facial-v2/build_facial_rig.py
+      - name: Render animation QA preview
+        run: |
+          python assets/characters/one/source/rig/facial-v2/render_preview.py
+      - name: Version candidate outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/characters/one/source/rig/facial-v2/generated
+          if git diff --cached --quiet; then
+            echo "No generated changes."
+          else
+            git commit -m "assets: build ONE facial rig v2 candidate [skip ci]"
+            git push
+          fi
