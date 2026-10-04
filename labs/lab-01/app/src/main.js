@@ -496,10 +496,10 @@ function scheduleOneIdle(){
   later(52000,()=>el.dataset.oneState='neutral');later(76000,()=>el.dataset.oneState='bored');
 }
 function placeOneSpeechBubble(){
-  const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble');if(!el||!bubble)return;const r=el.getBoundingClientRect(),gap=10,pad=12;
-  const bw=Math.min(164,innerWidth-pad*2),bh=150;let left=r.left+r.width/2-bw/2,top=r.top-bh-gap,side='above';
-  left=clamp(left,pad,innerWidth-bw-pad);if(top<pad){top=Math.min(innerHeight-bh-pad,r.bottom+gap);side='below';}
-  bubble.style.position='fixed';bubble.style.left=left+'px';bubble.style.top=top+'px';bubble.style.right='auto';bubble.style.bottom='auto';bubble.style.width=bw+'px';bubble.dataset.side=side;
+  const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble');if(!el||!bubble)return;const r=el.getBoundingClientRect(),pad=12,gap=8;
+  const bw=Math.min(156,innerWidth-pad*2);bubble.style.position='fixed';bubble.style.width=bw+'px';bubble.style.maxWidth=bw+'px';bubble.style.left=pad+'px';bubble.style.top=pad+'px';bubble.style.right='auto';bubble.style.bottom='auto';
+  const bh=Math.min(bubble.scrollHeight||120,Math.max(90,innerHeight-pad*2));let top=r.top-bh-gap,side='above';if(top<pad){top=r.bottom+gap;side='below';}top=clamp(top,pad,Math.max(pad,innerHeight-bh-pad));const left=clamp(r.left+r.width/2-bw/2,pad,Math.max(pad,innerWidth-bw-pad));
+  bubble.style.left=left+'px';bubble.style.top=top+'px';bubble.dataset.side=side;
 }
 
 function clampFloatingOne(){
@@ -546,7 +546,7 @@ function applyMobileStep(i,scroll=true){
   $('#mobileStepProgress').textContent=(state.mobileStep+1)+' / '+mobileScreens.length;
   $('#mobilePrev').disabled=state.mobileStep===0;$('#mobileNext').disabled=state.mobileStep===mobileScreens.length-1;
   syncTaskAnimations();
-  if(scroll){oneDragged=false;parkFloatingOne(state.mobileStep);setTimeout(()=>speakFloatingOne(state.mobileStep),520);}
+  if(scroll){oneDragged=false;parkFloatingOne(state.mobileStep);setTimeout(()=>speakFloatingOne(state.mobileStep),760);}
   const target=document.querySelector(mobileScreens[state.mobileStep][1]);
   if(target){animate(target,{opacity:[.65,1],transform:['translateY(12px)','translateY(0px)']},{duration:.28});}
   if(scroll&&window.innerWidth<760)target?.scrollIntoView({behavior:'smooth',block:'start'});

@@ -408,3 +408,15 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 .one-speech-bubble.visible{transform:translateY(0) scale(1)!important}
 .one-speech-bubble[data-side="above"]:after{right:50%!important;bottom:-11px!important;top:auto!important;transform:translateX(50%) rotate(135deg)!important}
 .one-speech-bubble[data-side="below"]:after{right:50%!important;top:-11px!important;bottom:auto!important;transform:translateX(50%) rotate(-45deg)!important}
+
+/* ONE v9 corrective layer: isolated mouth/eyelids and hard viewport-safe speech UI. */
+.one-rig{isolation:isolate!important}
+.one-rig-base{z-index:1!important}
+.one-rig-mouth{position:absolute!important;inset:auto!important;left:50%!important;top:67%!important;width:20%!important;height:auto!important;max-width:34px!important;max-height:24px!important;transform:translate(-50%,-50%)!important;object-fit:contain!important;z-index:4!important;filter:none!important}
+.one-rig-eyelids{position:absolute;left:28%;top:39%;width:44%;height:22%;z-index:5;pointer-events:none;opacity:0}
+.one-rig-eyelids i{position:absolute;top:42%;width:28%;height:4px;border-radius:50%;background:#061a32;transform:rotate(2deg)}
+.one-rig-eyelids i:first-child{left:5%}.one-rig-eyelids i:last-child{right:5%;transform:rotate(-2deg)}
+.one-floating-guide.blink .one-rig-eyelids{opacity:1}
+.one-speech-bubble{position:fixed!important;right:auto!important;bottom:auto!important;box-sizing:border-box!important;min-height:0!important;height:auto!important;max-height:calc(100vh - 24px)!important;overflow:hidden!important;margin:0!important;transform:translateY(4px) scale(.98)!important}
+.one-speech-bubble.visible{transform:translateY(0) scale(1)!important}
+.one-speech-bubble strong{overflow-wrap:anywhere!important}
