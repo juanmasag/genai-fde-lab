@@ -314,3 +314,12 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 .one-mascot img.one-idle-active{animation:oneIdleFloat 2.4s ease-in-out infinite;will-change:transform}
 .one-mascot-glow.one-idle-active{animation:oneIdleGlow 2.4s ease-in-out infinite;will-change:transform,opacity}
 @media(prefers-reduced-motion:reduce){.one-mascot img.one-idle-active,.one-mascot-glow.one-idle-active{animation:none!important}}
+
+/* ONE is part of the mobile wizard itself; the desktop guide is intentionally hidden there. */
+.one-mobile-guide{display:none}
+@media(max-width:759px){
+  .one-mobile-guide{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:center;gap:10px;position:relative;min-height:132px;margin:0 0 10px;padding:8px 14px 8px 6px;border:1px solid #35527a;border-radius:15px;background:linear-gradient(135deg,#101b31,#0b1424);overflow:hidden}
+  .one-mobile-guide img{display:block;width:112px;height:112px;object-fit:contain;z-index:2;filter:drop-shadow(0 10px 18px rgba(0,0,0,.3));transform-origin:50% 72%}
+  .one-mobile-guide .one-mascot-glow{left:24px;top:28px;width:72px;height:72px}
+  .one-mobile-guide>div:last-child{display:grid;gap:4px;z-index:2}.one-mobile-guide span{font-size:.62rem;letter-spacing:.14em;color:var(--accent2);font-weight:900}.one-mobile-guide strong{font-size:.9rem;line-height:1.25}
+}
