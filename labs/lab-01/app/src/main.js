@@ -471,47 +471,198 @@ function syncTaskAnimations(){
 }
 
 const oneStepLines=['Primero vemos el documento','Ahora tokenizamos el texto','Guardamos vectores y metadata','Formulamos la pregunta','Seguimos el pipeline RAG','Comparamos los vectores','Construimos la respuesta','Miremos dentro de pgvector'];
-const ONE_ASSETS={idle:'/characters/one/normalized/idle.png'};
-let oneDragged=false,oneSpeechTimer=null,onePointerMoved=false,oneIdleTimers=[],oneActivityEpoch=0;
-const clearOneIdle=()=>{oneIdleTimers.forEach(clearTimeout);oneIdleTimers=[];};
-const stopOneTalk=()=>{};
-function pulseOneBlink(){/* V10: disabled until a source-faithful eye-only layer is validated. */}
-function startOneTalk(){/* V10: canonical face stays intact; no unvalidated facial overlays. */}
-function scheduleOneIdle(){
-  clearOneIdle();const el=$('#oneFloatingGuide');if(!el)return;const epoch=++oneActivityEpoch;el.dataset.oneState='attentive';
-  const later=(delay,fn)=>oneIdleTimers.push(setTimeout(()=>{if(epoch===oneActivityEpoch&&!el.classList.contains('speaking'))fn();},delay));
-  later(26000,()=>el.dataset.oneState='playful');later(33000,()=>el.dataset.oneState='attentive');
-  later(52000,()=>el.dataset.oneState='neutral');later(76000,()=>el.dataset.oneState='bored');
-}
+const ONE_MOUTHS=new Set(['happy','rest','smile','o-small','o','open']);
+let oneDragged=false,onePointerMoved=false,oneIdleTimers=[],oneActivityEpoch=0,oneBlinkTimer=null,oneSpeechTimer=null,oneTalkTimer=null,oneUtterance=null,oneSpeechToken=0;
 
+const clearOneIdle=()=>{
+  oneIdleTimers.forEach(clearTimeout);oneIdleTimers=[];
+  clearTimeout(oneBlinkTimer);oneBlinkTimer=null;
+};
+function setOneMouth(name='smile'){
+  const el=$('#oneFloatingGuide');if(!el)return;
+  el.dataset.oneMouth=ONE_MOUTHS.has(name)?name:'smile';
+}
+function setOneState(name){
+  const el=$('#oneFloatingGuide');if(!el)return;
+  el.dataset.oneState=name;
+  if(name==='thinking'||name==='resting')setOneMouth('rest');
+  else if(name==='curious')setOneMouth('happy');
+  else if(name!=='talking')setOneMouth('smile');
+}
+function pulseOneBlink(duration=145){
+  const el=$('#oneFloatingGuide');if(!el||el.classList.contains('dragging'))return;
+  el.classList.add('blink');
+  setTimeout(()=>el.classList.remove('blink'),duration);
+}
+function scheduleOneBlink(){
+  clearTimeout(oneBlinkTimer);
+  const el=$('#oneFloatingGuide');if(!el||el.classList.contains('speaking'))return;
+  const delayByState={attentive:4800,waiting:6200,curious:3600,resting:7900,listening:4300,thinking:3100};
+  const delay=delayByState[el.dataset.oneState]||5200;
+  oneBlinkTimer=setTimeout(()=>{pulseOneBlink(el.dataset.oneState==='resting'?190:140);scheduleOneBlink();},delay);
+}
+function scheduleOneIdle(){
+  clearOneIdle();
+  const el=$('#oneFloatingGuide');if(!el)return;
+  const epoch=++oneActivityEpoch;
+  setOneState('attentive');scheduleOneBlink();
+  const later=(delay,stateName)=>oneIdleTimers.push(setTimeout(()=>{
+    if(epoch!==oneActivityEpoch||el.classList.contains('speaking')||el.classList.contains('dragging'))return;
+    setOneState(stateName);scheduleOneBlink();
+  },delay));
+  later(12000,'waiting');
+  later(28000,'curious');
+  later(48000,'resting');
+  later(70000,'attentive');
+  oneIdleTimers.push(setTimeout(()=>{if(epoch===oneActivityEpoch&&!el.classList.contains('speaking'))scheduleOneIdle();},82000));
+}
+function preferredOneVoice(){
+  if(!('speechSynthesis' in window))return null;
+  const voices=window.speechSynthesis.getVoices?.()||[];
+  return voices.find(v=>/^es-AR$/i.test(v.lang))
+    ||voices.find(v=>/^es-/i.test(v.lang))
+    ||voices.find(v=>/spanish|español/i.test(v.name))
+    ||null;
+}
+function visemeForBoundary(text,index=0){
+  const tail=String(text||'').slice(Math.max(0,index)).toLowerCase();
+  const ch=(tail.match(/[a-záéíóúüñ]/i)||[''])[0];
+  if(/[mbp]/i.test(ch))return'rest';
+  if(/[oóuú]/i.test(ch))return'o';
+  if(/[iíeé]/i.test(ch))return'smile';
+  if(/[aá]/i.test(ch))return'open';
+  return'o-small';
+}
+function stopOneTalk({cancelSpeech=true}={}){
+  clearInterval(oneTalkTimer);oneTalkTimer=null;
+  clearTimeout(oneSpeechTimer);oneSpeechTimer=null;
+  if(cancelSpeech&&'speechSynthesis' in window){
+    oneSpeechToken++;
+    try{window.speechSynthesis.cancel();}catch{}
+  }
+  oneUtterance=null;
+}
+function startOneTalk(text){
+  clearInterval(oneTalkTimer);
+  let i=0;
+  const fallback=['happy','open','o','happy','o-small','smile','open','rest'];
+  oneTalkTimer=setInterval(()=>{
+    if(!$('#oneFloatingGuide')?.classList.contains('speaking'))return;
+    const idx=Math.min(Math.max(0,i),Math.max(0,String(text).length-1));
+    const fromText=visemeForBoundary(text,idx);
+    setOneMouth(i%3===0?fromText:fallback[i%fallback.length]);
+    i=(i+2)%Math.max(2,String(text).length);
+  },115);
+}
+function finishOneSpeech(token){
+  if(token!==oneSpeechToken)return;
+  const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble');if(!el||!bubble)return;
+  stopOneTalk({cancelSpeech:false});
+  setOneMouth('smile');
+  oneSpeechTimer=setTimeout(()=>{
+    if(token!==oneSpeechToken)return;
+    bubble.classList.remove('visible');
+    el.classList.remove('speaking','blink');
+    setOneState('attentive');
+    scheduleOneIdle();
+  },260);
+}
+function speakOneTextExact(text){
+  const phrase=String(text||'').trim();
+  if(!phrase)return;
+  const token=++oneSpeechToken;
+  const canSpeak='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;
+  startOneTalk(phrase);
+  if(!canSpeak){
+    oneSpeechTimer=setTimeout(()=>finishOneSpeech(token),Math.max(2100,Math.min(9000,phrase.length*72)));
+    return;
+  }
+  try{window.speechSynthesis.cancel();}catch{}
+  const utterance=new SpeechSynthesisUtterance(phrase);
+  oneUtterance=utterance;
+  const voice=preferredOneVoice();if(voice)utterance.voice=voice;
+  utterance.lang=voice?.lang||'es-AR';utterance.rate=.98;utterance.pitch=1.03;utterance.volume=1;
+  utterance.onboundary=e=>{if(token!==oneSpeechToken)return;clearInterval(oneTalkTimer);oneTalkTimer=null;setOneMouth(visemeForBoundary(phrase,e.charIndex||0));};
+  utterance.onend=()=>finishOneSpeech(token);
+  utterance.onerror=()=>finishOneSpeech(token);
+  window.speechSynthesis.speak(utterance);
+  oneSpeechTimer=setTimeout(()=>finishOneSpeech(token),Math.max(3500,Math.min(14000,phrase.length*105)));
+}
+if('speechSynthesis' in window&&window.speechSynthesis.addEventListener){
+  window.speechSynthesis.addEventListener('voiceschanged',preferredOneVoice,{once:false});
+}
+function syncOneFacing(){
+  const el=$('#oneFloatingGuide');if(!el)return;
+  const r=el.getBoundingClientRect();
+  const side=(r.left+r.width/2)>=innerWidth/2?'right':'left';
+  el.dataset.oneSide=side;
+  el.dataset.oneFacing=side==='right'?'left':'right';
+}
 function placeOneSpeechBubble(){
-  const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble');if(!el||!bubble)return;const r=el.getBoundingClientRect(),pad=12,gap=8;
-  const bw=Math.min(156,innerWidth-pad*2);bubble.style.position='fixed';bubble.style.width=bw+'px';bubble.style.maxWidth=bw+'px';bubble.style.left=pad+'px';bubble.style.top=pad+'px';bubble.style.right='auto';bubble.style.bottom='auto';
-  const bh=Math.min(bubble.scrollHeight||120,Math.max(90,innerHeight-pad*2));let top=r.top-bh-gap,side='above';if(top<pad){top=r.bottom+gap;side='below';}top=clamp(top,pad,Math.max(pad,innerHeight-bh-pad));const left=clamp(r.left+r.width/2-bw/2,pad,Math.max(pad,innerWidth-bw-pad));
+  const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble');if(!el||!bubble)return;
+  const r=el.getBoundingClientRect(),pad=12,gap=8;
+  const desired=innerWidth<760?184:300;
+  const bw=Math.min(desired,innerWidth-pad*2);
+  bubble.style.position='fixed';bubble.style.width=bw+'px';bubble.style.maxWidth=bw+'px';bubble.style.left=pad+'px';bubble.style.top=pad+'px';bubble.style.right='auto';bubble.style.bottom='auto';
+  const bh=Math.min(bubble.scrollHeight||120,Math.max(90,innerHeight-pad*2));
+  let top=r.top-bh-gap,side='above';if(top<pad){top=r.bottom+gap;side='below';}
+  top=clamp(top,pad,Math.max(pad,innerHeight-bh-pad));
+  const left=clamp(r.left+r.width/2-bw/2,pad,Math.max(pad,innerWidth-bw-pad));
   bubble.style.left=left+'px';bubble.style.top=top+'px';bubble.dataset.side=side;
 }
-
 function clampFloatingOne(){
-  const el=$('#oneFloatingGuide');if(!el)return;const r=el.getBoundingClientRect(),pad=8,maxX=Math.max(pad,innerWidth-r.width-pad),maxY=Math.max(pad,innerHeight-r.height-86);
-  el.style.left=clamp(parseFloat(el.style.left)||r.left,pad,maxX)+'px';el.style.top=clamp(parseFloat(el.style.top)||r.top,pad,maxY)+'px';el.style.right='auto';el.style.bottom='auto';
+  const el=$('#oneFloatingGuide');if(!el)return;
+  const r=el.getBoundingClientRect(),pad=8,maxX=Math.max(pad,innerWidth-r.width-pad),maxY=Math.max(pad,innerHeight-r.height-86);
+  el.style.left=clamp(parseFloat(el.style.left)||r.left,pad,maxX)+'px';
+  el.style.top=clamp(parseFloat(el.style.top)||r.top,pad,maxY)+'px';
+  el.style.right='auto';el.style.bottom='auto';syncOneFacing();
+}
+function activateOneState(name){
+  const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble');if(!el)return;
+  clearOneIdle();stopOneTalk();oneActivityEpoch++;
+  bubble?.classList.remove('visible');el.classList.remove('speaking','blink');
+  setOneState(name);scheduleOneBlink();
 }
 function speakFloatingOne(step=state.mobileStep){
-  const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble'),img=$('#oneFloatingImage'),txt=$('#oneFloatingText');if(!el||!bubble||!img)return;
-  clearTimeout(oneSpeechTimer);clearOneIdle();stopOneTalk();oneActivityEpoch++;if(txt)txt.textContent=oneStepLines[step]||'Seguimos';
-  el.classList.remove('blink');el.dataset.oneState='talking';el.classList.add('speaking');placeOneSpeechBubble();bubble.classList.add('visible');
-  oneSpeechTimer=setTimeout(()=>{bubble.classList.remove('visible');el.classList.remove('speaking');stopOneTalk();scheduleOneIdle();},3200);
+  const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble'),txt=$('#oneFloatingText');if(!el||!bubble||!txt)return;
+  clearOneIdle();stopOneTalk();oneActivityEpoch++;
+  txt.textContent=oneStepLines[step]||'Seguimos';
+  const exactBubbleText=txt.textContent.trim();
+  el.classList.remove('blink');el.dataset.oneState='talking';el.classList.add('speaking');setOneMouth('happy');
+  syncOneFacing();placeOneSpeechBubble();bubble.classList.add('visible');
+  speakOneTextExact(exactBubbleText);
 }
 function parkFloatingOne(step){
-  const el=$('#oneFloatingGuide');if(!el)return;const r=el.getBoundingClientRect();
-  const targetX=Math.max(8,innerWidth-r.width-16),targetY=118+(step%2)*38,dx=targetX-r.left,dy=targetY-r.top;
+  const el=$('#oneFloatingGuide');if(!el)return;
+  const r=el.getBoundingClientRect(),pad=8;
+  const parkRight=step%2===0;
+  const targetX=parkRight?Math.max(pad,innerWidth-r.width-16):pad;
+  const targetY=118+(step%2)*38,dx=targetX-r.left,dy=targetY-r.top;
   const travel=el.animate([{transform:'translate3d(0,0,0)'},{transform:`translate3d(${dx}px,${dy}px,0)`}],{duration:720,easing:'cubic-bezier(.22,.8,.25,1)',fill:'forwards'});
-  travel.onfinish=()=>{el.style.left=targetX+'px';el.style.top=targetY+'px';el.style.right='auto';el.style.transform='none';travel.cancel();clampFloatingOne();};
+  const facingTimer=setInterval(syncOneFacing,55);
+  travel.onfinish=()=>{clearInterval(facingTimer);el.style.left=targetX+'px';el.style.top=targetY+'px';el.style.right='auto';el.style.transform='none';travel.cancel();clampFloatingOne();};
+  travel.oncancel=()=>clearInterval(facingTimer);
 }
 function initFloatingOne(){
-  const el=$('#oneFloatingGuide'),handle=$('#oneDragHandle');if(!el||!handle)return;let drag=null;
-  handle.addEventListener('pointerdown',e=>{clearOneIdle();oneActivityEpoch++;const r=el.getBoundingClientRect();drag={id:e.pointerId,dx:e.clientX-r.left,dy:e.clientY-r.top,sx:e.clientX,sy:e.clientY};onePointerMoved=false;oneDragged=true;el.classList.add('dragging');handle.setPointerCapture(e.pointerId);e.preventDefault();});
-  handle.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>7)onePointerMoved=true;el.style.left=(e.clientX-drag.dx)+'px';el.style.top=(e.clientY-drag.dy)+'px';el.style.right='auto';clampFloatingOne();});
-  const stop=e=>{if(!drag||drag.id!==e.pointerId)return;drag=null;el.classList.remove('dragging');clampFloatingOne();if(!onePointerMoved)speakFloatingOne();else scheduleOneIdle();};
+  const el=$('#oneFloatingGuide'),handle=$('#oneDragHandle');if(!el||!handle)return;
+  let drag=null;
+  handle.addEventListener('pointerdown',e=>{
+    clearOneIdle();stopOneTalk();oneActivityEpoch++;
+    const r=el.getBoundingClientRect();
+    drag={id:e.pointerId,dx:e.clientX-r.left,dy:e.clientY-r.top,sx:e.clientX,sy:e.clientY};
+    onePointerMoved=false;oneDragged=true;el.classList.remove('speaking');$('#oneSpeechBubble')?.classList.remove('visible');el.classList.add('dragging');setOneState('attentive');
+    handle.setPointerCapture(e.pointerId);e.preventDefault();
+  });
+  handle.addEventListener('pointermove',e=>{
+    if(!drag||drag.id!==e.pointerId)return;
+    if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>7)onePointerMoved=true;
+    el.style.left=(e.clientX-drag.dx)+'px';el.style.top=(e.clientY-drag.dy)+'px';el.style.right='auto';clampFloatingOne();
+  });
+  const stop=e=>{
+    if(!drag||drag.id!==e.pointerId)return;
+    drag=null;el.classList.remove('dragging');clampFloatingOne();
+    if(!onePointerMoved)speakFloatingOne();else scheduleOneIdle();
+  };
   handle.addEventListener('pointerup',stop);handle.addEventListener('pointercancel',stop);
 }
 
