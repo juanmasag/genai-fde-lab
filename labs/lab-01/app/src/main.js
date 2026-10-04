@@ -105,6 +105,7 @@ $('#document').addEventListener('input',updateDocStats);
 $('#previewChunks').addEventListener('click',previewChunking);
 
 async function runIngest(btn,status,stayOnDb=false){
+  activateOneState('thinking');
   try{
     setBusy(btn,true,'Ejecutando proceso real…');status.className='status-line';status.textContent='Chunking → embeddings → BEGIN → INSERT → COMMIT…';
     if(stayOnDb) document.querySelector('#step-db')?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -112,24 +113,29 @@ async function runIngest(btn,status,stayOnDb=false){
     state.activeDocumentId=state.ingest.documentId;
     status.className='status-line ok';status.textContent='✓ '+state.ingest.storedRows+' filas confirmadas en pgvector · '+state.ingest.chunks[0]?.dimensions+'D';
     populateTransformerSentences();replayDbEvents();renderAll();health();setGuide(4);
+    setOneState('attentive');
     if(stayOnDb) setTimeout(()=>document.querySelector('#step-db')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
-  }catch(e){status.className='status-line bad';status.textContent='Error: '+e.message;}
-  finally{setBusy(btn,false);}
+  }catch(e){status.className='status-line bad';status.textContent='Error: '+e.message;setOneState('curious');}
+  finally{setBusy(btn,false);scheduleOneIdle();}
 }
 $('#ingest').addEventListener('click',()=>runIngest($('#ingest'),$('#ingestStatus'),false));
 $('#ingestHere').addEventListener('click',()=>runIngest($('#ingestHere'),$('#ingestHereStatus'),true));
 
 $('#analyze').addEventListener('click',async()=>{
   const btn=$('#analyze'),status=$('#analysisStatus');
+  activateOneState('thinking');
   try{
     setBusy(btn,true,'Embedding → búsqueda → LLM…');status.className='status-line';status.textContent='Calculando embedding de pregunta y comparando contra pgvector…';
     state.analysis=await api('/api/analyze',{question:$('#question').value,topK:+$('#topK').value,threshold:+$('#threshold').value,documentId:state.ingest?.documentId||state.activeDocumentId||null});
     status.className='status-line ok';status.textContent='✓ '+state.analysis.retrieval.ranked.length+' candidatos · '+state.analysis.citations.length+' aceptados';
-    state.stage=5;renderAll();setGuide(6);
-  }catch(e){status.className='status-line bad';status.textContent='Error: '+e.message;}
-  finally{setBusy(btn,false);}
+    state.stage=5;renderAll();setGuide(6);setOneState('attentive');
+  }catch(e){status.className='status-line bad';status.textContent='Error: '+e.message;setOneState('curious');}
+  finally{setBusy(btn,false);scheduleOneIdle();}
 });
-$$('.quick-tests button').forEach(b=>b.addEventListener('click',()=>{$('#question').value=b.dataset.q;}));
+$('.quick-tests button').forEach(b=>b.addEventListener('click',()=>{$('#question').value=b.dataset.q;activateOneState('listening');}));
+$('#question').addEventListener('focus',()=>activateOneState('listening'));
+$('#question').addEventListener('input',()=>{clearOneIdle();setOneState('listening');scheduleOneBlink();});
+$('#question').addEventListener('blur',()=>scheduleOneIdle());
 
 
 const ingestionSceneMachine=createMachine({
