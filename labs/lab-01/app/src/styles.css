@@ -425,3 +425,82 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 .one-rig-mouth,.one-rig-eyelids,.one-rig-blink{display:none!important}
 .one-floating-guide.blink .one-rig-base{opacity:1!important;clip-path:none!important}
 .one-floating-guide[data-one-state="talking"] .one-rig{animation:oneTalkMotion 4.4s cubic-bezier(.45,0,.55,1) infinite!important}
+
+
+/* ONE v11 — approved facial-v2 runtime, bubble-driven speech and side-aware orientation. */
+.one-rig-base-clean{opacity:1!important;z-index:1!important}
+.one-rig-layer{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  opacity:0!important;
+  filter:none!important;
+  pointer-events:none!important;
+  transform-origin:50% 50%!important;
+}
+.one-eyes-open,.one-brow-left,.one-brow-right{opacity:1!important;z-index:3!important}
+.one-eyes-closed{z-index:4!important}
+.one-mouth-happy,.one-mouth-rest,.one-mouth-smile,.one-mouth-o-small,.one-mouth-o,.one-mouth-open{z-index:5!important}
+.one-floating-guide.blink .one-eyes-open{opacity:0!important}
+.one-floating-guide.blink .one-eyes-closed{opacity:1!important}
+.one-floating-guide[data-one-mouth="happy"] .one-mouth-happy,
+.one-floating-guide[data-one-mouth="rest"] .one-mouth-rest,
+.one-floating-guide[data-one-mouth="smile"] .one-mouth-smile,
+.one-floating-guide[data-one-mouth="o-small"] .one-mouth-o-small,
+.one-floating-guide[data-one-mouth="o"] .one-mouth-o,
+.one-floating-guide[data-one-mouth="open"] .one-mouth-open{opacity:1!important}
+
+/* The canonical source has the antenna on its right. Flip only the artwork,
+   never the bubble/drag geometry: right side of screen => antenna points left. */
+.one-floating-guide[data-one-side="right"] .one-rig img{transform:scaleX(-1)!important}
+.one-floating-guide[data-one-side="left"] .one-rig img{transform:scaleX(1)!important}
+
+.one-floating-guide[data-one-state="talking"] .one-rig{animation:oneApprovedTalking 3.15s ease-in-out infinite!important}
+.one-floating-guide[data-one-state="attentive"] .one-rig{animation:oneApprovedAttentive 6.4s ease-in-out infinite!important}
+.one-floating-guide[data-one-state="waiting"] .one-rig{animation:oneApprovedWaiting 7.4s ease-in-out infinite!important}
+.one-floating-guide[data-one-state="curious"] .one-rig{animation:oneApprovedCurious 4.8s ease-in-out infinite!important}
+.one-floating-guide[data-one-state="resting"] .one-rig{animation:oneApprovedResting 9.2s ease-in-out infinite!important}
+.one-floating-guide[data-one-state="listening"] .one-rig{animation:oneApprovedListening 4.9s ease-in-out infinite!important}
+.one-floating-guide[data-one-state="thinking"] .one-rig{animation:oneApprovedThinking 3.8s ease-in-out infinite!important}
+
+@keyframes oneApprovedTalking{
+  0%,100%{transform:translate3d(0,0,0) rotate(0)}
+  22%{transform:translate3d(0,-2px,0) rotate(-.7deg)}
+  48%{transform:translate3d(1px,-1px,0) rotate(.55deg)}
+  72%{transform:translate3d(0,-3px,0) rotate(-.35deg)}
+}
+@keyframes oneApprovedAttentive{
+  0%,100%{transform:translate3d(0,0,0) rotate(-.2deg)}
+  50%{transform:translate3d(0,-3px,0) rotate(.25deg)}
+}
+@keyframes oneApprovedWaiting{
+  0%,100%{transform:translate3d(0,1px,0) rotate(-.15deg)}
+  50%{transform:translate3d(0,-1px,0) rotate(.15deg)}
+}
+@keyframes oneApprovedCurious{
+  0%,100%{transform:translate3d(0,0,0) rotate(0)}
+  35%{transform:translate3d(-1px,-3px,0) rotate(-1.4deg)}
+  68%{transform:translate3d(1px,-2px,0) rotate(1deg)}
+}
+@keyframes oneApprovedResting{
+  0%,100%{transform:translate3d(0,2px,0) rotate(-.15deg)}
+  50%{transform:translate3d(0,0,0) rotate(.1deg)}
+}
+@keyframes oneApprovedListening{
+  0%,100%{transform:translate3d(0,0,0) rotate(0)}
+  45%{transform:translate3d(0,-2px,0) rotate(.65deg)}
+  70%{transform:translate3d(0,-1px,0) rotate(.35deg)}
+}
+@keyframes oneApprovedThinking{
+  0%,100%{transform:translate3d(0,1px,0) rotate(-1deg)}
+  50%{transform:translate3d(0,-2px,0) rotate(1.2deg)}
+}
+
+.one-speech-bubble{width:300px!important;max-width:calc(100vw - 24px)!important}
+@media(max-width:759px){.one-speech-bubble{width:184px!important}}
+@media(prefers-reduced-motion:reduce){
+  .one-floating-guide[data-one-state] .one-rig{animation:none!important}
+}
