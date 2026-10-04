@@ -3,6 +3,16 @@ const base=process.env.RAG_LAB_URL||'http://127.0.0.1:4173';
 const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
 async function post(path,body){const r=await fetch(base+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error(path+' '+r.status+' '+await r.text());return r.json()}
 async function get(path){const r=await fetch(base+path,{cache:'no-store'});if(!r.ok)throw new Error(path+' '+r.status);return r.json()}
+async function streamPost(path,body){
+  const r=await fetch(base+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error(path+' '+r.status+' '+await r.text());
+  const lines=(await r.text()).trim().split(/\n/).filter(Boolean).map(JSON.parse);
+  const error=lines.find(x=>x.type==='error');
+  if(error)throw new Error(path+' '+error.error);
+  const result=lines.find(x=>x.type==='result')?.result;
+  assert(result,path+': falta result');
+  return {events:lines,result};
+}
 const words=['usuario','acceso','sistema','soporte','contraseña','permiso','solicitud','responsable','tiempo','portal'];
 const text='# Auditoría\n'+Array.from({length:9},()=>words.join(' ')).join(' ');
 const params={text,chunkSize:30,overlap:5};
@@ -28,12 +38,27 @@ for(let i=0;i<db.rows.length;i++){
 }
 const scoped=await post('/api/analyze',{question:'acceso soporte',topK:3,threshold:1,documentId:ingest.documentId});
 assert(scoped.retrieval.ranked.every(x=>String(x.document_id)===String(ingest.documentId)),'retrieval salió del documento activo');
+
+const streamedIngest=await streamPost('/api/ingest-stream',{...params,title:'integration-audit.md'});
+const ingestPhases=streamedIngest.events.filter(x=>x.type==='progress').map(x=>x.phase);
+for(const phase of ['chunking','embedding','embedding_done','db_begin','db_document','db_insert','db_commit']){
+  assert(ingestPhases.includes(phase),'stream ingest: falta '+phase);
+}
+const streamedAnalysis=await streamPost('/api/analyze-stream',{question:'consulta sin coincidencia exacta',topK:3,threshold:1,documentId:streamedIngest.result.documentId});
+const analysisPhases=streamedAnalysis.events.filter(x=>x.type==='progress').map(x=>x.phase);
+for(const phase of ['question_embedding','question_embedding_done','vector_search','retrieval','context','validation']){
+  assert(analysisPhases.includes(phase),'stream analyze: falta '+phase);
+}
+assert(analysisPhases.includes('abstention')||analysisPhases.includes('llm'),'stream analyze: falta decisión LLM/abstención');
+
 const health=await get('/api/health');
 console.log('PASS chunk preview == ingest:',preview.chunks.length,'chunks');
 console.log('PASS overlap exacto entre límites');
 console.log('PASS metadata pgvector:',db.rows.length,'filas');
 console.log('PASS retrieval acotado al documento:',ingest.documentId);
 console.log('PASS modelos:',health.embedModel,'+',health.llmModel);
+console.log('PASS ingest stream phases:',ingestPhases.join(' → '));
+console.log('PASS analyze stream phases:',analysisPhases.join(' → '));
 
 const {Pool}=pg;
 const pool=new Pool({connectionString:process.env.DATABASE_URL||'postgresql://raglab:raglab@127.0.0.1:5433/raglab'});

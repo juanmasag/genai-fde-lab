@@ -1,4 +1,4 @@
-const CACHE='rag-engine-lab-v16';
+const CACHE='rag-engine-lab-v17';
 const CORE=['/','/manifest.webmanifest','/icon.svg','/icon-192.png','/icon-512.png'];
 self.addEventListener('install',event=>{
   self.skipWaiting();

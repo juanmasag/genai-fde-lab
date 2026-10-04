@@ -23,6 +23,36 @@ async function api(url,body){
   if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
   return j;
 }
+async function apiStream(url,body,onProgress=()=>{}){
+  const r=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  if(!r.body) throw new Error('El navegador no soporta streaming de progreso.');
+  const reader=r.body.getReader();
+  const decoder=new TextDecoder();
+  let buffer='',result=null;
+  while(true){
+    const {done,value}=await reader.read();
+    buffer+=decoder.decode(value||new Uint8Array(),{stream:!done});
+    const lines=buffer.split(/\n/);
+    buffer=lines.pop()||'';
+    for(const raw of lines){
+      const line=raw.trim();if(!line)continue;
+      const event=JSON.parse(line);
+      if(event.type==='progress')onProgress(event);
+      else if(event.type==='result')result=event.result;
+      else if(event.type==='error')throw new Error(event.error||'Error de proceso');
+    }
+    if(done)break;
+  }
+  if(buffer.trim()){
+    const event=JSON.parse(buffer.trim());
+    if(event.type==='progress')onProgress(event);
+    else if(event.type==='result')result=event.result;
+    else if(event.type==='error')throw new Error(event.error||'Error de proceso');
+  }
+  if(!result)throw new Error('El proceso terminó sin resultado.');
+  return result;
+}
 function setBusy(btn,on,label){btn.disabled=on;if(on){btn.dataset.old=btn.textContent;btn.textContent=label;}else if(btn.dataset.old)btn.textContent=btn.dataset.old;}
 
 async function health(){
@@ -114,17 +144,32 @@ $('#previewChunks').addEventListener('click',()=>previewChunking({announce:true}
 async function runIngest(btn,status,stayOnDb=false){
   oneEmit('INGEST_STARTED');
   try{
-    setBusy(btn,true,'Ejecutando proceso real…');status.className='status-line';status.textContent='Chunking → embeddings → BEGIN → INSERT → COMMIT…';
-    if(stayOnDb) document.querySelector('#step-db')?.scrollIntoView({behavior:'smooth',block:'start'});
-    state.ingest=await api('/api/ingest',{title:$('#title').value,text:$('#document').value,chunkSize:+$('#chunkSize').value,overlap:+$('#overlap').value});
+    setBusy(btn,true,'Ejecutando proceso real…');
+    status.className='status-line';
+    status.textContent='Iniciando chunking real…';
+    const body={title:$('#title').value,text:$('#document').value,chunkSize:+$('#chunkSize').value,overlap:+$('#overlap').value};
+    state.ingest=await apiStream('/api/ingest-stream',body,progress=>{
+      oneEmit('INGEST_PROGRESS',progress);
+      const phaseText={
+        chunking:'Chunking confirmado…',
+        embedding:'Generando embeddings…',
+        embedding_done:'Embeddings listos…',
+        db_begin:'BEGIN en PostgreSQL…',
+        db_replace:'Reemplazando versión previa…',
+        db_document:'Documento insertado…',
+        db_insert:'Insertando chunks en pgvector…',
+        db_commit:'COMMIT confirmado…'
+      }[progress.phase];
+      if(phaseText)status.textContent=phaseText+(progress.phase==='db_insert'?' '+progress.current+'/'+progress.total:'');
+    });
     state.activeDocumentId=state.ingest.documentId;
     status.className='status-line ok';status.textContent='✓ '+state.ingest.storedRows+' filas confirmadas en pgvector · '+state.ingest.chunks[0]?.dimensions+'D';
     populateTransformerSentences();replayDbEvents();renderAll();health();setGuide(4);
     oneState('attentive');
     oneEmit('INGEST_COMPLETED',state.ingest);
-    if(stayOnDb) setTimeout(()=>document.querySelector('#step-db')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
-  }catch(e){status.className='status-line bad';status.textContent='Error: '+e.message;oneEmit('INGEST_FAILED',{message:e.message});}
-  finally{setBusy(btn,false);}
+  }catch(e){
+    status.className='status-line bad';status.textContent='Error: '+e.message;oneEmit('INGEST_FAILED',{message:e.message});
+  }finally{setBusy(btn,false);}
 }
 $('#ingest').addEventListener('click',()=>runIngest($('#ingest'),$('#ingestStatus'),false));
 $('#ingestHere').addEventListener('click',()=>runIngest($('#ingestHere'),$('#ingestHereStatus'),true));
@@ -133,12 +178,29 @@ $('#analyze').addEventListener('click',async()=>{
   const btn=$('#analyze'),status=$('#analysisStatus');
   oneEmit('ANALYSIS_STARTED');
   try{
-    setBusy(btn,true,'Embedding → búsqueda → LLM…');status.className='status-line';status.textContent='Calculando embedding de pregunta y comparando contra pgvector…';
-    state.analysis=await api('/api/analyze',{question:$('#question').value,topK:+$('#topK').value,threshold:+$('#threshold').value,documentId:state.ingest?.documentId||state.activeDocumentId||null});
+    setBusy(btn,true,'Embedding → búsqueda → LLM…');
+    status.className='status-line';status.textContent='Generando embedding de la pregunta…';
+    const body={question:$('#question').value,topK:+$('#topK').value,threshold:+$('#threshold').value,documentId:state.ingest?.documentId||state.activeDocumentId||null};
+    state.analysis=await apiStream('/api/analyze-stream',body,progress=>{
+      oneEmit('ANALYSIS_PROGRESS',progress);
+      const phaseText={
+        question_embedding:'Generando embedding de la pregunta…',
+        question_embedding_done:'Embedding de pregunta listo…',
+        vector_search:'Buscando vecinos en pgvector…',
+        retrieval:'Aplicando ranking y threshold…',
+        context:'Construyendo contexto recuperado…',
+        llm:'Qwen3 está generando con la evidencia…',
+        llm_done:'Generación terminada…',
+        abstention:'No hubo evidencia suficiente: preparando abstención…',
+        validation:'Validando citas contra la evidencia…'
+      }[progress.phase];
+      if(phaseText)status.textContent=phaseText;
+    });
     status.className='status-line ok';status.textContent='✓ '+state.analysis.retrieval.ranked.length+' candidatos · '+state.analysis.citations.length+' aceptados';
     state.stage=5;renderAll();setGuide(6);oneState('attentive');oneEmit('ANALYSIS_COMPLETED',state.analysis);
-  }catch(e){status.className='status-line bad';status.textContent='Error: '+e.message;oneEmit('ANALYSIS_FAILED',{message:e.message});}
-  finally{setBusy(btn,false);}
+  }catch(e){
+    status.className='status-line bad';status.textContent='Error: '+e.message;oneEmit('ANALYSIS_FAILED',{message:e.message});
+  }finally{setBusy(btn,false);}
 });
 $$('.quick-tests button').forEach(b=>b.addEventListener('click',()=>{$('#question').value=b.dataset.q;oneActivity('listening');oneEmit('PARAMETER_CHANGED',{type:'question'});}));
 $('#question').addEventListener('focus',()=>oneActivity('listening'));

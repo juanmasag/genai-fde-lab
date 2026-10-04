@@ -640,3 +640,229 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 .one-floating-guide[data-one-side="right"] .one-guide-controls.visible{
   transform:translateY(0) scale(1);
 }
+
+
+/* ONE v13 — Guided Lab v2: side-aware speech, dynamic stage reserve and richer acting. */
+.one-stage-reserve{
+  grid-column:1 / -1;
+  width:100%;
+  height:var(--one-reserve-height,300px);
+  min-height:var(--one-reserve-height,300px);
+  flex:0 0 var(--one-reserve-height,300px);
+  pointer-events:none;
+}
+@media(min-width:760px){
+  .one-stage-reserve{--one-reserve-height:230px}
+}
+
+.one-action-concealed{display:none!important}
+.one-action-locked{opacity:.42!important;pointer-events:none!important;filter:saturate(.55)}
+.one-guided-active #ingest{display:none!important}
+
+.one-speech-bubble{
+  width:184px!important;
+  max-width:184px!important;
+  text-align:left;
+  transition:opacity .16s ease,transform .16s ease;
+}
+.one-speech-bubble strong{
+  font-size:.82rem!important;
+  line-height:1.34!important;
+  min-height:2.7em;
+}
+.one-speech-bubble[data-pointer="right"]:after{
+  left:auto!important;
+  right:-11px!important;
+  top:50%!important;
+  bottom:auto!important;
+  transform:translateY(-50%) rotate(45deg)!important;
+  border-top:2px solid #39a7ff!important;
+  border-right:2px solid #39a7ff!important;
+  border-left:0!important;
+  border-bottom:0!important;
+}
+.one-speech-bubble[data-pointer="left"]:after{
+  right:auto!important;
+  left:-11px!important;
+  top:50%!important;
+  bottom:auto!important;
+  transform:translateY(-50%) rotate(45deg)!important;
+  border-left:2px solid #39a7ff!important;
+  border-bottom:2px solid #39a7ff!important;
+  border-top:0!important;
+  border-right:0!important;
+}
+@media(min-width:760px){
+  .one-speech-bubble{width:260px!important;max-width:260px!important}
+}
+
+.one-focus-target{transition:outline-color .28s ease,box-shadow .28s ease}
+.one-focus-target.one-focus-soft{
+  outline-color:rgba(57,167,255,.26)!important;
+  box-shadow:0 0 0 2px rgba(57,167,255,.035)!important;
+}
+
+.one-mouth-happy,.one-mouth-rest,.one-mouth-smile,.one-mouth-o-small,.one-mouth-o,.one-mouth-open{
+  transition:opacity 62ms ease!important;
+}
+
+.one-tablet-prop{
+  position:absolute;
+  inset:0;
+  z-index:8;
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(14px) scale(.88);
+  transform-origin:50% 72%;
+  transition:opacity .24s ease,transform .34s cubic-bezier(.22,.8,.25,1);
+}
+.one-tablet-back{
+  position:absolute!important;
+  inset:auto!important;
+  left:22%!important;
+  top:57%!important;
+  width:56%!important;
+  height:auto!important;
+  object-fit:contain!important;
+  z-index:8!important;
+  filter:drop-shadow(0 6px 8px rgba(0,0,0,.3))!important;
+}
+.one-tablet-hand{
+  position:absolute!important;
+  inset:auto!important;
+  top:67%!important;
+  width:27%!important;
+  height:auto!important;
+  object-fit:contain!important;
+  z-index:9!important;
+  filter:drop-shadow(0 4px 6px rgba(0,0,0,.22))!important;
+}
+.one-tablet-hand-left{
+  left:10%!important;
+  transform:rotate(10deg)!important;
+}
+.one-tablet-hand-right{
+  right:10%!important;
+  transform:scaleX(-1) rotate(10deg)!important;
+}
+.one-floating-guide.tablet-reading .one-tablet-prop{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+.one-floating-guide.tablet-reading .one-face-stack{
+  transform-origin:50% 60%;
+}
+.one-floating-guide.tablet-reading[data-one-side="left"] .one-face-stack{
+  transform:scaleX(1) translateY(-2px) rotate(-1deg)!important;
+}
+.one-floating-guide.tablet-reading[data-one-side="right"] .one-face-stack{
+  transform:scaleX(-1) translateY(-2px) rotate(-1deg)!important;
+}
+
+.one-rig::after{
+  content:'';
+  position:absolute;
+  z-index:10;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  top:7%;
+  right:13%;
+  opacity:0;
+  pointer-events:none;
+  background:radial-gradient(circle,rgba(255,245,187,.9) 0 20%,rgba(255,181,45,.72) 35%,rgba(255,139,0,.24) 60%,transparent 72%);
+  filter:blur(.4px);
+}
+.one-floating-guide[data-one-side="right"] .one-rig::after{right:auto;left:13%}
+.one-floating-guide[data-one-state="thinking"] .one-rig::after{
+  opacity:1;
+  animation:oneThinkingPulse 1.05s ease-in-out infinite;
+}
+@keyframes oneThinkingPulse{
+  0%,100%{transform:scale(.82);opacity:.38}
+  50%{transform:scale(1.24);opacity:1}
+}
+
+.one-floating-guide[data-one-state="content-watch"] .one-rig{
+  animation:oneApprovedWaiting 7.8s ease-in-out infinite!important;
+}
+.one-floating-guide[data-one-state="tablet-reading"] .one-rig{
+  animation:oneTabletRead 5.2s ease-in-out infinite!important;
+}
+@keyframes oneTabletRead{
+  0%,100%{transform:translate3d(0,1px,0) rotate(-.35deg)}
+  45%{transform:translate3d(0,-1px,0) rotate(.35deg)}
+  70%{transform:translate3d(0,0,0) rotate(.1deg)}
+}
+
+.one-guide-controls[data-mode="clarity"] #oneGuideBack{display:none}
+.one-guide-controls[data-mode="clarity"]{min-width:172px}
+.one-guide-controls.retracted{
+  opacity:0!important;
+  pointer-events:none!important;
+  transform:translateY(6px) scale(.97)!important;
+}
+
+@media(max-width:759px){
+  .one-speech-bubble{width:184px!important;max-width:184px!important}
+  .one-speech-bubble strong{font-size:.8rem!important}
+}
+
+/* ONE v13.1 — tablet composition corrected after visual QA. */
+.one-tablet-back{
+  left:28%!important;
+  top:68%!important;
+  width:44%!important;
+}
+.one-tablet-hand{
+  top:73%!important;
+  width:21%!important;
+}
+.one-tablet-hand-left{left:17%!important}
+.one-tablet-hand-right{right:17%!important}
+.one-floating-guide.tablet-reading[data-one-side="left"] .one-face-stack{
+  transform:scaleX(1) translateY(-8px) rotate(-.8deg)!important;
+}
+.one-floating-guide.tablet-reading[data-one-side="right"] .one-face-stack{
+  transform:scaleX(-1) translateY(-8px) rotate(-.8deg)!important;
+}
+
+/* ONE v13.2 — prop specificity must beat legacy ".one-rig img" rules. */
+.one-rig .one-tablet-back{
+  position:absolute!important;
+  inset:auto!important;
+  left:28%!important;
+  right:auto!important;
+  top:68%!important;
+  bottom:auto!important;
+  width:44%!important;
+  height:auto!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  z-index:8!important;
+  filter:drop-shadow(0 6px 8px rgba(0,0,0,.3))!important;
+}
+.one-rig .one-tablet-hand{
+  position:absolute!important;
+  inset:auto!important;
+  top:73%!important;
+  bottom:auto!important;
+  width:21%!important;
+  height:auto!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  z-index:9!important;
+  filter:drop-shadow(0 4px 6px rgba(0,0,0,.22))!important;
+}
+.one-floating-guide[data-one-side] .one-rig .one-tablet-hand-left{
+  left:17%!important;
+  right:auto!important;
+  transform:rotate(8deg)!important;
+}
+.one-floating-guide[data-one-side] .one-rig .one-tablet-hand-right{
+  right:17%!important;
+  left:auto!important;
+  transform:scaleX(-1) rotate(8deg)!important;
+}

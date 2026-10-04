@@ -153,67 +153,176 @@ app.post('/api/chunk-preview',(req,res)=>{
   }catch(e){res.status(500).json({error:e.message});}
 });
 
-app.post('/api/ingest', async (req,res)=>{
+
+function httpError(message,status=400){
+  const error=new Error(message);
+  error.status=status;
+  return error;
+}
+
+async function performIngest(body,onProgress=()=>{}){
+  const text=String(body.text||'').trim();
+  const title=String(body.title||'documento.md').slice(0,180);
+  if(text.length<20) throw httpError('El documento es demasiado corto.');
+
+  const totalTokens=wordPieceTokenize(sectionsFromMarkdown(text).map(s=>s.text).join(' ')).length;
+  const chunkSize=clamp(Number(body.chunkSize)||Math.min(90,totalTokens||1),1,Math.max(1,totalTokens));
+  const overlap=clamp(Number(body.overlap)||0,0,Math.max(0,chunkSize-1));
+  const chunks=chunkDocument(text,chunkSize,overlap);
+  onProgress({phase:'chunking',totalTokens,chunkSize,overlap,chunks:chunks.length});
+
+  onProgress({phase:'embedding',model:EMBED_MODEL,chunks:chunks.length});
+  const embeddings=await embed(chunks.map(c=>c.content));
+  onProgress({phase:'embedding_done',vectors:embeddings.length,dimensions:embeddings[0]?.length||0});
+
+  const client=await pool.connect();
+  let documentId;
+  const dbEvents=[];
   try{
-    const text=String(req.body.text||'').trim();
-    const title=String(req.body.title||'documento.md').slice(0,180);
-    if(text.length<20) return res.status(400).json({error:'El documento es demasiado corto.'});
-    const totalTokens=wordPieceTokenize(sectionsFromMarkdown(text).map(s=>s.text).join(' ')).length;
-    const chunkSize=clamp(Number(req.body.chunkSize)||Math.min(90,totalTokens||1),1,Math.max(1,totalTokens));
-    const overlap=clamp(Number(req.body.overlap)||0,0,Math.max(0,chunkSize-1));
-    const chunks=chunkDocument(text,chunkSize,overlap);
-    const embeddings=await embed(chunks.map(c=>c.content));
-    const client=await pool.connect();
-    let documentId;
-    const dbEvents=[];
-    try{
-      await client.query('begin');
-      dbEvents.push({type:'transaction_begin',label:'BEGIN transaction'});
-      const deleted=await client.query('delete from rag_documents where title=$1 returning id',[title]);
-      if(deleted.rowCount) dbEvents.push({type:'replace_document',label:'Documento anterior reemplazado',rows:deleted.rowCount});
-      const dr=await client.query('insert into rag_documents(title) values($1) returning id',[title]);
-      documentId=dr.rows[0].id;
-      dbEvents.push({type:'insert_document',label:'Documento insertado',documentId});
-      for(let i=0;i<chunks.length;i++){
-        const c=chunks[i];
-        const chunkId='chunk_'+String(c.chunk_index+1).padStart(3,'0');
-        const metadata={source:title,section:c.section,chunk_id:chunkId,token_start:c.token_start,token_end:c.token_end,token_count:c.tokens.length,overlap_from_previous:c.overlap_from_previous,overlap_to_next:c.overlap_to_next,sections:c.sections};
-        const ir=await client.query('insert into rag_chunks(document_id,chunk_index,section,content,embedding,metadata) values($1,$2,$3,$4,$5::vector,$6::jsonb) returning id',[documentId,c.chunk_index,c.section,c.content,vec(embeddings[i]),JSON.stringify(metadata)]);
-        dbEvents.push({type:'insert_chunk',label:'Chunk + embedding insertados en pgvector',chunkId,rowId:ir.rows[0].id,dimensions:embeddings[i].length,section:c.section});
-      }
-      await client.query('commit');
-      dbEvents.push({type:'transaction_commit',label:'COMMIT confirmado'});
-    }catch(e){await client.query('rollback');dbEvents.push({type:'transaction_rollback',label:'ROLLBACK'});throw e;}finally{client.release();}
-    const stored=await pool.query('select count(*)::int as rows from rag_chunks where document_id=$1',[documentId]);
-    res.json({ok:true,documentId,title,chunkSize,overlap,tokenEstimate:totalTokens,tokenizer:'BERT WordPiece usado por el laboratorio' ,dbEvents,storedRows:stored.rows[0].rows,chunks:chunks.map((c,i)=>({chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),section:c.section,content:c.content,tokens:c.tokens,tokenStart:c.token_start,tokenEnd:c.token_end,overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next,dimensions:embeddings[i].length,vectorSample:embeddings[i].slice(0,10),norm:norm(embeddings[i])}))});
-  }catch(e){res.status(500).json({error:e.message});}
+    await client.query('begin');
+    dbEvents.push({type:'transaction_begin',label:'BEGIN transaction'});
+    onProgress({phase:'db_begin'});
+
+    const deleted=await client.query('delete from rag_documents where title=$1 returning id',[title]);
+    if(deleted.rowCount){
+      dbEvents.push({type:'replace_document',label:'Documento anterior reemplazado',rows:deleted.rowCount});
+      onProgress({phase:'db_replace',rows:deleted.rowCount});
+    }
+
+    const dr=await client.query('insert into rag_documents(title) values($1) returning id',[title]);
+    documentId=dr.rows[0].id;
+    dbEvents.push({type:'insert_document',label:'Documento insertado',documentId});
+    onProgress({phase:'db_document',documentId});
+
+    for(let i=0;i<chunks.length;i++){
+      const c=chunks[i];
+      const chunkId='chunk_'+String(c.chunk_index+1).padStart(3,'0');
+      const metadata={source:title,section:c.section,chunk_id:chunkId,token_start:c.token_start,token_end:c.token_end,token_count:c.tokens.length,overlap_from_previous:c.overlap_from_previous,overlap_to_next:c.overlap_to_next,sections:c.sections};
+      const ir=await client.query('insert into rag_chunks(document_id,chunk_index,section,content,embedding,metadata) values($1,$2,$3,$4,$5::vector,$6::jsonb) returning id',[documentId,c.chunk_index,c.section,c.content,vec(embeddings[i]),JSON.stringify(metadata)]);
+      dbEvents.push({type:'insert_chunk',label:'Chunk + embedding insertados en pgvector',chunkId,rowId:ir.rows[0].id,dimensions:embeddings[i].length,section:c.section});
+      onProgress({phase:'db_insert',current:i+1,total:chunks.length,chunkId,dimensions:embeddings[i].length});
+    }
+
+    await client.query('commit');
+    dbEvents.push({type:'transaction_commit',label:'COMMIT confirmado'});
+    onProgress({phase:'db_commit',rows:chunks.length});
+  }catch(e){
+    await client.query('rollback');
+    dbEvents.push({type:'transaction_rollback',label:'ROLLBACK'});
+    onProgress({phase:'db_rollback'});
+    throw e;
+  }finally{
+    client.release();
+  }
+
+  const stored=await pool.query('select count(*)::int as rows from rag_chunks where document_id=$1',[documentId]);
+  return {
+    ok:true,documentId,title,chunkSize,overlap,tokenEstimate:totalTokens,
+    tokenizer:'BERT WordPiece usado por el laboratorio',
+    dbEvents,storedRows:stored.rows[0].rows,
+    chunks:chunks.map((c,i)=>({
+      chunkId:'chunk_'+String(c.chunk_index+1).padStart(3,'0'),
+      section:c.section,content:c.content,tokens:c.tokens,
+      tokenStart:c.token_start,tokenEnd:c.token_end,
+      overlapFromPrevious:c.overlap_from_previous,overlapToNext:c.overlap_to_next,
+      dimensions:embeddings[i].length,vectorSample:embeddings[i].slice(0,10),norm:norm(embeddings[i])
+    }))
+  };
+}
+
+async function performAnalysis(body,onProgress=()=>{}){
+  const question=String(body.question||'').trim();
+  if(!question) throw httpError('Falta la pregunta.');
+  const topK=clamp(Number(body.topK)||5,1,12);
+  const threshold=clamp(Number(body.threshold)||0.35,-1,1);
+  const documentId=body.documentId?Number(body.documentId):null;
+
+  onProgress({phase:'question_embedding',model:EMBED_MODEL});
+  const [qv]=await embed(question);
+  onProgress({phase:'question_embedding_done',dimensions:qv.length});
+
+  onProgress({phase:'vector_search',topK,documentId});
+  const qr=documentId
+    ? await pool.query("select id,document_id,chunk_index,section,content,metadata,embedding::text as embedding_text,1-(embedding <=> $1::vector) as similarity from rag_chunks where document_id=$3 order by embedding <=> $1::vector limit $2",[vec(qv),topK,documentId])
+    : await pool.query("select id,document_id,chunk_index,section,content,metadata,embedding::text as embedding_text,1-(embedding <=> $1::vector) as similarity from rag_chunks order by embedding <=> $1::vector limit $2",[vec(qv),topK]);
+
+  const ranked=qr.rows.map((r,i)=>{
+    const similarity=Number(r.similarity);
+    const ev=String(r.embedding_text||'').replace(/[\[\]]/g,'').split(',').filter(Boolean).map(Number);
+    delete r.embedding_text;
+    return {...r,rank:i+1,similarity,angleDeg:Math.acos(clamp(similarity,-1,1))*180/Math.PI,accepted:similarity>=threshold,vectorSample:ev.slice(0,12),dimensions:ev.length};
+  });
+  const accepted=ranked.filter(r=>r.accepted);
+  onProgress({phase:'retrieval',candidates:ranked.length,accepted:accepted.length,threshold,topK,bestSimilarity:ranked[0]?.similarity??null});
+
+  const context=accepted.map(r=>'['+(r.metadata?.chunk_id||r.id)+' | '+(r.metadata?.source||'documento')+' | '+r.section+']\n'+r.content).join('\n\n');
+  onProgress({phase:'context',accepted:accepted.length,characters:context.length});
+
+  const prompt='EVIDENCIA RECUPERADA:\n'+(context||'(ninguna evidencia superó el threshold)')+'\n\nPREGUNTA:\n'+question+'\n\nREGLAS:\n- Usá únicamente la evidencia.\n- Si no alcanza, indicá que no encontraste información suficiente.\n- No inventes datos.\n- Citá cada afirmación factual usando el chunk_id exacto entre corchetes.';
+
+  let generation;
+  if(!accepted.length){
+    onProgress({phase:'abstention'});
+    generation={text:'No encontré información suficiente en los documentos disponibles.',prompt_eval_count:0,eval_count:0,total_duration:0};
+  }else{
+    onProgress({phase:'llm',model:LLM_MODEL,accepted:accepted.length});
+    generation=await chat(prompt);
+    onProgress({phase:'llm_done',evalCount:generation.eval_count||0,duration:generation.total_duration||0});
+  }
+
+  const citedIds=[...generation.text.matchAll(/\[(chunk_\d+)\]/g)].map(m=>m[1]);
+  const allowedIds=new Set(accepted.map(r=>r.metadata?.chunk_id).filter(Boolean));
+  const invalidIds=citedIds.filter(id=>!allowedIds.has(id));
+  const validation={evidenceAvailable:accepted.length>0,citedIds,invalidIds,citationsValid:invalidIds.length===0};
+  if(invalidIds.length) generation.text='Respuesta rechazada por validación: el modelo citó una fuente que no fue recuperada.';
+  onProgress({phase:'validation',citations:citedIds.length,invalid:invalidIds.length,valid:validation.citationsValid});
+
+  return {
+    ok:true,models:{embedding:EMBED_MODEL,llm:LLM_MODEL},question,
+    questionTokens:tokenizeApprox(question),
+    questionVector:{dimensions:qv.length,sample:qv.slice(0,12),norm:norm(qv)},
+    retrieval:{topK,threshold,ranked},context,prompt,generation,validation,
+    citations:accepted.map(r=>({chunkId:r.metadata?.chunk_id||String(r.id),source:r.metadata?.source||'documento',section:r.section,similarity:r.similarity,content:r.content}))
+  };
+}
+
+function beginNdjson(res){
+  res.status(200);
+  res.set('Content-Type','application/x-ndjson; charset=utf-8');
+  res.set('Cache-Control','no-store');
+  res.set('X-Accel-Buffering','no');
+  res.flushHeaders?.();
+}
+function sendNdjson(res,payload){
+  if(!res.writableEnded)res.write(JSON.stringify(payload)+'\n');
+}
+
+app.post('/api/ingest', async (req,res)=>{
+  try{res.json(await performIngest(req.body));}
+  catch(e){res.status(e.status||500).json({error:e.message});}
+});
+app.post('/api/ingest-stream', async (req,res)=>{
+  beginNdjson(res);
+  try{
+    const result=await performIngest(req.body,progress=>sendNdjson(res,{type:'progress',...progress}));
+    sendNdjson(res,{type:'result',result});
+  }catch(e){
+    sendNdjson(res,{type:'error',error:e.message,status:e.status||500});
+  }finally{res.end();}
 });
 
 app.post('/api/analyze', async (req,res)=>{
+  try{res.json(await performAnalysis(req.body));}
+  catch(e){res.status(e.status||500).json({error:e.message});}
+});
+app.post('/api/analyze-stream', async (req,res)=>{
+  beginNdjson(res);
   try{
-    const question=String(req.body.question||'').trim();
-    if(!question) return res.status(400).json({error:'Falta la pregunta.'});
-    const topK=clamp(Number(req.body.topK)||5,1,12);
-    const threshold=clamp(Number(req.body.threshold)||0.35,-1,1);
-    const documentId=req.body.documentId?Number(req.body.documentId):null;
-    const [qv]=await embed(question);
-    const qr=documentId
-      ? await pool.query("select id,document_id,chunk_index,section,content,metadata,embedding::text as embedding_text,1-(embedding <=> $1::vector) as similarity from rag_chunks where document_id=$3 order by embedding <=> $1::vector limit $2",[vec(qv),topK,documentId])
-      : await pool.query("select id,document_id,chunk_index,section,content,metadata,embedding::text as embedding_text,1-(embedding <=> $1::vector) as similarity from rag_chunks order by embedding <=> $1::vector limit $2",[vec(qv),topK]);
-    const ranked=qr.rows.map((r,i)=>{const similarity=Number(r.similarity);const ev=String(r.embedding_text||'').replace(/[\[\]]/g,'').split(',').filter(Boolean).map(Number);delete r.embedding_text;return {...r,rank:i+1,similarity,angleDeg:Math.acos(clamp(similarity,-1,1))*180/Math.PI,accepted:similarity>=threshold,vectorSample:ev.slice(0,12),dimensions:ev.length};});
-    const accepted=ranked.filter(r=>r.accepted);
-    const context=accepted.map(r=>'['+(r.metadata?.chunk_id||r.id)+' | '+(r.metadata?.source||'documento')+' | '+r.section+']\n'+r.content).join('\n\n');
-    const prompt='EVIDENCIA RECUPERADA:\n'+(context||'(ninguna evidencia superó el threshold)')+'\n\nPREGUNTA:\n'+question+'\n\nREGLAS:\n- Usá únicamente la evidencia.\n- Si no alcanza, indicá que no encontraste información suficiente.\n- No inventes datos.\n- Citá cada afirmación factual usando el chunk_id exacto entre corchetes.';
-    let generation;
-    if(!accepted.length) generation={text:'No encontré información suficiente en los documentos disponibles.',prompt_eval_count:0,eval_count:0,total_duration:0};
-    else generation=await chat(prompt);
-    const citedIds=[...generation.text.matchAll(/\[(chunk_\d+)\]/g)].map(m=>m[1]);
-    const allowedIds=new Set(accepted.map(r=>r.metadata?.chunk_id).filter(Boolean));
-    const invalidIds=citedIds.filter(id=>!allowedIds.has(id));
-    const validation={evidenceAvailable:accepted.length>0,citedIds,invalidIds,citationsValid:invalidIds.length===0};
-    if(invalidIds.length) generation.text='Respuesta rechazada por validación: el modelo citó una fuente que no fue recuperada.';
-    res.json({ok:true,models:{embedding:EMBED_MODEL,llm:LLM_MODEL},question,questionTokens:tokenizeApprox(question),questionVector:{dimensions:qv.length,sample:qv.slice(0,12),norm:norm(qv)},retrieval:{topK,threshold,ranked},context,prompt,generation,validation,citations:accepted.map(r=>({chunkId:r.metadata?.chunk_id||String(r.id),source:r.metadata?.source||'documento',section:r.section,similarity:r.similarity,content:r.content}))});
-  }catch(e){res.status(500).json({error:e.message});}
+    const result=await performAnalysis(req.body,progress=>sendNdjson(res,{type:'progress',...progress}));
+    sendNdjson(res,{type:'result',result});
+  }catch(e){
+    sendNdjson(res,{type:'error',error:e.message,status:e.status||500});
+  }finally{res.end();}
 });
 
 app.get('/api/chunks',async(req,res)=>{

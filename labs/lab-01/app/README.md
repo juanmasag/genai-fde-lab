@@ -202,3 +202,64 @@ The bubble becomes visible when narration starts. Words are progressively reveal
 Each guided scene defines a focus target. ONE highlights the current target, looks toward it with a small eye-layer offset, chooses a side of the viewport, and keeps a left/right dead zone to avoid rapid flipping near screen center. On mobile ONE stays low in the viewport so the focused laboratory content remains readable above it.
 
 The tablet/hand idle sequence, advanced clarity check and richer prop choreography remain the next increment after user validation of Guided Lab v1.
+
+
+## ONE Guided Lab v2
+
+Guided Lab v2 extends the v1 contract from a narrated walkthrough into a context-aware tutor.
+
+### Teaching from first principles
+
+ONE no longer assumes that the learner already knows the vocabulary. The welcome explains that **RAG** means **Retrieval-Augmented Generation / Generación Aumentada por Recuperación**, why retrieval is useful for private/current knowledge, and how grounding reduces unsupported answers. The guided scenes also define the concepts as they first appear: source document, chunk, chunk size, overlap, token, transformer, vector, Q/K/V, attention, pooling, embedding, pgvector, top-k, threshold, retrieval, context, LLM, grounding, citations and metadata.
+
+The narration still uses live values from the laboratory where appropriate.
+
+### Opposite-side speech and dynamic stage reserve
+
+ONE and the speech bubble never intentionally occupy the same side:
+
+- ONE on the right -> bubble on the left.
+- ONE on the left -> bubble on the right.
+
+The bubble also checks the current focus target and moves vertically if needed to avoid covering it.
+
+A real blank reserve is inserted adjacent to the current focus target. On mobile it is large enough to contain ONE, its speech and navigation footprint. The reserve follows the vertical location of ONE:
+
+- ONE dragged toward the top -> reserve moves before the target and the content shifts down.
+- ONE dragged toward the bottom -> reserve moves after the target and the content shifts up.
+
+The page remains normally scrollable.
+
+### Real process narration
+
+The backend now exposes additive NDJSON progress endpoints without removing the existing JSON endpoints:
+
+- `POST /api/ingest-stream`
+- `POST /api/analyze-stream`
+
+Ingestion reports real phases including chunking, embedding generation, transaction start, document/chunk inserts and commit/rollback. E2E analysis reports question embedding, vector search, retrieval/filtering, context construction, LLM generation or abstention, and citation validation.
+
+ONE enters a visibly distinct thinking state and explains those real phases while they happen. Longer phases such as embedding, vector search and LLM generation can also be spoken if they last long enough.
+
+### Progressive disclosure and synchronized pipeline
+
+Only the real action relevant to the current guided scene is exposed: preview, calculation inspector, real ingestion or E2E analysis. Future actions remain concealed until the walkthrough reaches them.
+
+The pipeline recap is no longer a generic narration over an independent autoplay timer. ONE advances the pipeline stage immediately before explaining that exact stage.
+
+### Idle acting
+
+After an explanation and a period without interaction, ONE progresses through:
+
+1. attentive / waiting;
+2. tablet-reading using the canonical rear-tablet and hand assets;
+3. content-watch with a closed smile and gaze toward the active content;
+4. a one-time clarity check: “¿Quedó claro…?”, with **Repetir** and **Seguir**.
+
+Narrative controls retract during longer observation periods and can be brought back by interacting with ONE.
+
+### Voice selection
+
+Speech still uses the browser Web Speech engine because voice availability is device-specific. v2 ranks the installed Spanish voices and prefers, in order, a high-quality Argentine/Latin-American voice and then the best natural Spanish voice available. Neural/natural/online voices from the platform receive preference, while legacy robotic engines receive a strong penalty. The selected voice uses a slightly slower, lower-pitch delivery than v1.
+
+The exact voice heard on a phone must still be validated on that phone because Android/browser voice inventories differ.
