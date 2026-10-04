@@ -471,26 +471,20 @@ function syncTaskAnimations(){
 }
 
 const oneStepLines=['Primero vemos el documento','Ahora tokenizamos el texto','Guardamos vectores y metadata','Formulamos la pregunta','Seguimos el pipeline RAG','Comparamos los vectores','Construimos la respuesta','Miremos dentro de pgvector'];
-const ONE_ASSETS={idle:'/characters/one/normalized/idle.png',happy:'/characters/one/normalized/happy.png',neutral:'/characters/one/normalized/neutral.png',wink:'/characters/one/normalized/wink.png',smile:'/characters/one/normalized/smile.png',surprised:'/characters/one/normalized/surprised.png'};
+const ONE_ASSETS={idle:'/characters/one/normalized/idle.png'};
 let oneDragged=false,oneSpeechTimer=null,onePointerMoved=false,oneIdleTimers=[],oneTalkTimer=null,oneActivityEpoch=0;
 const clearOneIdle=()=>{oneIdleTimers.forEach(clearTimeout);oneIdleTimers=[];};
-const stopOneTalk=()=>{clearInterval(oneTalkTimer);oneTalkTimer=null;};
-function setOneFace(face='idle',ms=0){const img=$('#oneFloatingImage');if(!img)return;img.src=ONE_ASSETS[face]||ONE_ASSETS.idle;if(ms)oneIdleTimers.push(setTimeout(()=>{if(!$('#oneFloatingGuide')?.classList.contains('speaking'))img.src=ONE_ASSETS.happy;},ms));}
+const stopOneTalk=()=>{clearInterval(oneTalkTimer);oneTalkTimer=null;$('#oneFloatingGuide')?.classList.remove('mouth-a','mouth-b');};
+function pulseOneBlink(ms=150){const el=$('#oneFloatingGuide');if(!el)return;el.classList.add('blink');oneIdleTimers.push(setTimeout(()=>el.classList.remove('blink'),ms));}
 function startOneTalk(){
-  stopOneTalk();const seq=['happy','happy','neutral','happy','happy','neutral','happy','surprised','happy','neutral'];let i=0;setOneFace('happy');
-  oneTalkTimer=setInterval(()=>{setOneFace(seq[i++%seq.length]);},260);
+  stopOneTalk();const el=$('#oneFloatingGuide');if(!el)return;let open=false;el.classList.add('mouth-a');
+  oneTalkTimer=setInterval(()=>{open=!open;el.classList.toggle('mouth-a',open);el.classList.toggle('mouth-b',!open);},390);
 }
 function scheduleOneIdle(){
-  stopOneTalk();clearOneIdle();const epoch=++oneActivityEpoch;setOneFace('happy');
-  const later=(delay,fn)=>oneIdleTimers.push(setTimeout(()=>{if(epoch===oneActivityEpoch&&!$('#oneFloatingGuide')?.classList.contains('speaking'))fn();},delay));
-  // attentive smile first; brief natural blinks, then playful, neutral, and only much later bored/waiting.
-  later(7200,()=>setOneFace('wink',170));
-  later(15400,()=>setOneFace('wink',160));
-  later(26000,()=>setOneFace('surprised',520));
-  later(39000,()=>setOneFace('wink',210));
-  later(52000,()=>setOneFace('neutral'));
-  later(68000,()=>setOneFace('smile',900));
-  later(82000,()=>setOneFace('neutral'));
+  stopOneTalk();clearOneIdle();const el=$('#oneFloatingGuide');if(!el)return;const epoch=++oneActivityEpoch;el.classList.remove('funny','neutral-wait','bored');
+  const later=(delay,fn)=>oneIdleTimers.push(setTimeout(()=>{if(epoch===oneActivityEpoch&&!el.classList.contains('speaking'))fn();},delay));
+  later(7600,()=>pulseOneBlink(145));later(16600,()=>pulseOneBlink(155));later(28500,()=>{el.classList.add('funny');pulseOneBlink(190);});later(31500,()=>el.classList.remove('funny'));
+  later(47000,()=>pulseOneBlink(160));later(58000,()=>el.classList.add('neutral-wait'));later(76000,()=>el.classList.add('bored'));
 }
 
 function clampFloatingOne(){
@@ -500,7 +494,7 @@ function clampFloatingOne(){
 function speakFloatingOne(step=state.mobileStep){
   const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble'),img=$('#oneFloatingImage'),txt=$('#oneFloatingText');if(!el||!bubble||!img)return;
   clearTimeout(oneSpeechTimer);clearOneIdle();stopOneTalk();oneActivityEpoch++;if(txt)txt.textContent=oneStepLines[step]||'Seguimos';
-  el.classList.add('speaking');bubble.classList.add('visible');startOneTalk();
+  el.classList.remove('funny','neutral-wait','bored','blink');el.classList.add('speaking');bubble.classList.add('visible');startOneTalk();
   oneSpeechTimer=setTimeout(()=>{bubble.classList.remove('visible');el.classList.remove('speaking');stopOneTalk();scheduleOneIdle();},3200);
 }
 function parkFloatingOne(step){

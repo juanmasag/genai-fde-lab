@@ -361,3 +361,19 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 .one-floating-handle img{width:var(--one-stage)!important;height:var(--one-stage)!important;object-fit:contain!important;object-position:center!important;overflow:visible!important;transform-origin:50% 50%!important}
 .one-speech-bubble{right:calc(var(--one-stage) - 18px)!important;top:4px!important}
 @media(min-width:760px){:root{--one-stage:196px;--one-visible:154px}}
+
+/* ONE rig v6: one canonical front image stays mounted; only facial overlays animate. */
+:root{--one-stage:204px}
+.one-floating-guide{box-sizing:border-box!important;padding:18px!important}
+.one-floating-handle{box-sizing:border-box!important;padding:18px!important;overflow:visible!important}
+.one-rig{position:absolute;inset:18px;display:block;overflow:visible;pointer-events:none;transform-origin:50% 55%}
+.one-rig img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;filter:drop-shadow(0 8px 12px rgba(0,0,0,.34));pointer-events:none}
+.one-rig-base{z-index:1}.one-rig-mouth{z-index:2;clip-path:inset(64% 33% 13% 33%);transform-origin:50% 77%;opacity:0}.one-rig-blink{z-index:3;clip-path:inset(34% 20% 34% 20%);opacity:0}
+.one-floating-guide.speaking .one-rig-mouth{opacity:1}.one-floating-guide.mouth-a .one-rig-mouth{transform:scaleY(1.06)}.one-floating-guide.mouth-b .one-rig-mouth{transform:scaleY(1.16)}
+.one-floating-guide.blink .one-rig-blink{opacity:1}
+.one-floating-guide:not(.speaking):not(.dragging) .one-rig{animation:oneAttentiveRig 6.2s ease-in-out infinite}
+.one-floating-guide.funny .one-rig{animation:oneFunnyRig 1.6s ease-in-out 2}.one-floating-guide.neutral-wait .one-rig{animation-duration:7.4s;filter:saturate(.96)}.one-floating-guide.bored .one-rig{animation-duration:9s;filter:saturate(.9);transform:translateY(3px)}
+@keyframes oneAttentiveRig{0%,100%{transform:translate3d(0,0,0) rotate(-.25deg)}50%{transform:translate3d(0,-2px,0) rotate(.25deg)}}
+@keyframes oneFunnyRig{0%,100%{transform:rotate(0)}35%{transform:rotate(-3deg) translateY(-2px)}65%{transform:rotate(3deg) translateY(-2px)}}
+.one-speech-bubble{right:calc(var(--one-stage) - 34px)!important}
+@media(min-width:760px){:root{--one-stage:228px}}
