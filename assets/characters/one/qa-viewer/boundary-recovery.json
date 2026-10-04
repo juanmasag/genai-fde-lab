@@ -1,0 +1,46 @@
+{
+  "status": "qa-only",
+  "reason": "components intersecting previous y=830 inspection boundary, recovered from complete canonical source",
+  "items": [
+    {
+      "file": "recovered-00.png",
+      "source_bbox": [
+        363,
+        768,
+        408,
+        871
+      ],
+      "area": 3207
+    },
+    {
+      "file": "recovered-01.png",
+      "source_bbox": [
+        430,
+        817,
+        520,
+        861
+      ],
+      "area": 2396
+    },
+    {
+      "file": "recovered-02.png",
+      "source_bbox": [
+        534,
+        818,
+        564,
+        839
+      ],
+      "area": 424
+    },
+    {
+      "file": "recovered-03.png",
+      "source_bbox": [
+        226,
+        822,
+        262,
+        869
+      ],
+      "area": 1271
+    }
+  ]
+}
