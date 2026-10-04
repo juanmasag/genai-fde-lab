@@ -9,8 +9,7 @@ Do not reconstruct by approximation. Existing production candidates confirmed by
 - hood: 6 variants
 - antenna: 5 variants
 - open eyes: 5 variants
-- mouths: 5 visually coherent variants
-- unclassified: 1 blue piece formerly mislabeled as `mouth-open-b`; removed from mouths without pixel changes; correct category pending
+- mouths: 6 variants
 - head-neutral target: 186×184 RGBA
 
 The exact neutral correspondence is still pending. Facial plate and neutral eyebrows are not yet represented as independently mapped production layers.
