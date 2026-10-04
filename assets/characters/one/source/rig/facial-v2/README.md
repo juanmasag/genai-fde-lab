@@ -43,7 +43,7 @@ python render_preview.py
 
 `build_facial_rig.py` validates canonical source dimensions, extracts/normalizes the layers, creates a facial-state QA strip, and writes SHA-256 hashes to `generated/manifest.json`.
 
-`render_preview.py` uses those independent layers to render a six-second transparent animated WebP at 12 fps with occasional blinks, mouth-state changes, eyebrow emphasis and subtle conversational head movement. It requires FFmpeg with `libwebp_anim`.
+`render_preview.py` uses those independent layers to render two six-second previews at 24 fps: a transparent animated WebP for integration QA and an H.264 MP4 on a neutral background for easy review on mobile. Both include occasional blinks, mouth-state changes, eyebrow emphasis and subtle conversational head movement. It requires FFmpeg with `libwebp_anim` and `libx264`.
 
 ## Promotion gate
 
