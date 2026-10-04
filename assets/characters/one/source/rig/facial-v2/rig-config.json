@@ -1,0 +1,48 @@
+{
+  "version": "facial-v2",
+  "canvas": 512,
+  "sources": {
+    "front_head": "references/new-source/front-head.png",
+    "clean_plate": "references/one-facial-plate-clean.png",
+    "parts_sheet": "references/one-character-parts-clean.png"
+  },
+  "expected_source_sizes": {
+    "front_head": [1254, 1254],
+    "clean_plate": [1254, 1254],
+    "parts_sheet": [1206, 1304]
+  },
+  "background_threshold": 30,
+  "feature_diff_threshold": 42,
+  "feature_regions": {
+    "brow_left": [430, 555, 575, 680],
+    "brow_right": [790, 540, 960, 665],
+    "eye_left": [330, 640, 625, 990],
+    "eye_right": [735, 625, 1045, 990],
+    "mouth_happy": [550, 870, 815, 1055]
+  },
+  "parts": {
+    "eye_closed_left": [151, 705, 202, 734],
+    "eye_closed_right": [285, 690, 331, 718],
+    "mouth_rest": [296, 779, 334, 797],
+    "mouth_smile": [32, 831, 80, 851],
+    "mouth_o_small": [230, 768, 263, 809],
+    "mouth_o": [364, 768, 406, 814],
+    "mouth_open": [124, 773, 198, 815]
+  },
+  "source_space_centers": {
+    "eye_left": [474, 803],
+    "eye_right": [891, 791],
+    "mouth": [680, 965]
+  },
+  "target_widths": {
+    "eye_closed": 190,
+    "mouth_rest": 145,
+    "mouth_smile": 155,
+    "mouth_o_small": 85,
+    "mouth_o": 110,
+    "mouth_open": 175
+  },
+  "normalization": {
+    "target_head_width": 480
+  }
+}
