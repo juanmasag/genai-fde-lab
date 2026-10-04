@@ -472,13 +472,14 @@ function syncTaskAnimations(){
 
 const oneStepLines=['Primero vemos el documento','Ahora tokenizamos el texto','Guardamos vectores y metadata','Formulamos la pregunta','Seguimos el pipeline RAG','Comparamos los vectores','Construimos la respuesta','Miremos dentro de pgvector'];
 const ONE_ASSETS={idle:'/characters/one/normalized/idle.png'};
+const ONE_MOUTHS=['/characters/one/mouths/mouth-smile.png','/characters/one/mouths/mouth-open-small-a.png','/characters/one/mouths/mouth-open-smile.png','/characters/one/mouths/mouth-open-a.png'];
 let oneDragged=false,oneSpeechTimer=null,onePointerMoved=false,oneIdleTimers=[],oneTalkTimer=null,oneActivityEpoch=0;
 const clearOneIdle=()=>{oneIdleTimers.forEach(clearTimeout);oneIdleTimers=[];};
-const stopOneTalk=()=>{clearInterval(oneTalkTimer);oneTalkTimer=null;$('#oneFloatingGuide')?.classList.remove('mouth-a','mouth-b');};
+const stopOneTalk=()=>{clearInterval(oneTalkTimer);oneTalkTimer=null;const m=$('#oneRigMouth');if(m)m.src=ONE_MOUTHS[0];};
 function pulseOneBlink(ms=150){const el=$('#oneFloatingGuide');if(!el)return;el.classList.add('blink');oneIdleTimers.push(setTimeout(()=>el.classList.remove('blink'),ms));}
 function startOneTalk(){
-  stopOneTalk();const el=$('#oneFloatingGuide');if(!el)return;let open=false;el.classList.add('mouth-a');
-  oneTalkTimer=setInterval(()=>{open=!open;el.classList.toggle('mouth-a',open);el.classList.toggle('mouth-b',!open);},390);
+  stopOneTalk();const mouth=$('#oneRigMouth');if(!mouth)return;let i=1;mouth.src=ONE_MOUTHS[i];
+  oneTalkTimer=setInterval(()=>{i=(i+1)%ONE_MOUTHS.length;mouth.src=ONE_MOUTHS[i];},460);
 }
 function scheduleOneIdle(){
   stopOneTalk();clearOneIdle();const el=$('#oneFloatingGuide');if(!el)return;const epoch=++oneActivityEpoch;el.classList.remove('funny','neutral-wait','bored');

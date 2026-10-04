@@ -377,3 +377,15 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 @keyframes oneFunnyRig{0%,100%{transform:rotate(0)}35%{transform:rotate(-3deg) translateY(-2px)}65%{transform:rotate(3deg) translateY(-2px)}}
 .one-speech-bubble{right:calc(var(--one-stage) - 34px)!important}
 @media(min-width:760px){:root{--one-stage:228px}}
+
+/* ONE v7: real mouth assets, natural body motion restored, mobile-safe vertical speech. */
+.one-rig-mouth{z-index:4!important;left:50%!important;top:65%!important;right:auto!important;bottom:auto!important;width:34%!important;height:18%!important;object-fit:contain!important;clip-path:none!important;transform:translate(-50%,-50%)!important;opacity:0!important;filter:none!important}
+.one-floating-guide.speaking .one-rig-mouth{opacity:1!important}
+.one-floating-guide.speaking .one-rig{animation:oneSpeakingBody 3.2s ease-in-out infinite!important}
+@keyframes oneSpeakingBody{0%,100%{transform:translate3d(0,0,0) rotate(0)}25%{transform:translate3d(0,-2px,0) rotate(-.45deg)}55%{transform:translate3d(0,-1px,0) rotate(.5deg)}78%{transform:translate3d(0,-3px,0) rotate(-.2deg)}}
+@media(max-width:759px){
+ .one-speech-bubble{box-sizing:border-box!important;right:auto!important;left:50%!important;top:auto!important;bottom:calc(100% - 20px)!important;width:150px!important;max-width:calc(100vw - 24px)!important;min-height:128px;padding:12px 12px 14px!important;transform:translate(-50%,7px) scale(.96)!important;text-align:left}
+ .one-speech-bubble.visible{transform:translate(-50%,0) scale(1)!important}
+ .one-speech-bubble:after{right:50%!important;bottom:-11px!important;transform:translateX(50%) rotate(135deg)!important}
+ .one-speech-bubble strong{font-size:.74rem!important;line-height:1.32!important}
+}
