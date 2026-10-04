@@ -1,0 +1,26 @@
+{
+  "version": "facial-v2",
+  "status": "candidate-awaiting-user-visual-approval",
+  "source_bbox": [
+    34,
+    123,
+    1238,
+    1126
+  ],
+  "layers": {
+    "00-base-clean.png": "b142de82a75d8da1cfe99cdd33e6502b342c991a165e606642c04a806797d80d",
+    "brow-left.png": "65034c673bd05ab2a5ab5dcb860cb6c9284015a4803a3218d6815544953be8dc",
+    "brow-right.png": "d1adc1dafa550151efdcb943dd6341f50b935606b80351329679c394a31a6120",
+    "eyes-closed.png": "b8bc7bac26e0394727aed9d1b2ccbddaba6d05f2ab35478791dc0b00eb0ef6fa",
+    "eyes-open.png": "d3e313a1e8c5c561a3b687017b8bb0b765c3b229dcc60adff4e9e0ca31d9e800",
+    "mouth-happy.png": "a2f5df46acc4398a1bfd8301c9898cd2cbd97bd1bdbaf363e6b02458ca1bf8e1",
+    "mouth-o-small.png": "5ee9a63c81d0743fbef1a4710900f9d5bb72529e67c507ab7fd286f76c05b66f",
+    "mouth-o.png": "418f2e1b338395a174935dfcf820ffca63844e7a4defc95853b9146706227008",
+    "mouth-open.png": "77d664ca04197ec5bca9267f4ad7415d32d1e608a2ba6f4985aa6d01506839c9",
+    "mouth-rest.png": "bdf6ad8b13780159c2c331929715dc22df8b4c13e0e2287b3f47a5e820a594c6",
+    "mouth-smile.png": "a98956cee235b28955d33d8c06b6d78d591063ee88ad1799b337eb35571af88d"
+  },
+  "qa": {
+    "facial-states-v1.png": "20bef94f3bad530b110c3679ed7002a81317f4183db0764337e8d9a3eff768f0"
+  }
+}
