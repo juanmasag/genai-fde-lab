@@ -425,7 +425,6 @@ const guides=[
 function startOneMascotIdle(){
   const mascot=$('#oneMascot'),glow=$('.one-mascot-glow');
   if(!mascot)return;
-  mascot.classList.add('one-idle-active');
   if(glow)glow.classList.add('one-idle-active');
 }
 
