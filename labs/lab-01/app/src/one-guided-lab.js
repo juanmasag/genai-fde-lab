@@ -508,7 +508,12 @@ export function createOneGuidedLab({
       startProgressiveFallback(sentence,token);
       startMouth(sentence,token);
 
+      let finished=false;
+      let speechProbe=null;
       const done=()=>{
+        if(finished)return;
+        finished=true;
+        clearTimeout(speechProbe);speechProbe=null;
         if(activeSpeechResolve===resolve)activeSpeechResolve=null;
         clearInterval(mouthTimer);mouthTimer=null;
         clearInterval(revealTimer);revealTimer=null;
@@ -518,9 +523,14 @@ export function createOneGuidedLab({
         resolve();
       };
 
+      const fallbackDuration=()=>{
+        const words=(sentence.match(/\S+/g)||[]).length;
+        return clamp(words*105,520,3200);
+      };
+
       const canSpeak='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;
       if(!canSpeak){
-        safetyTimer=setTimeout(done,Math.max(1900,Math.min(11000,sentence.length*64)));
+        safetyTimer=setTimeout(done,fallbackDuration());
         return;
       }
 
@@ -528,12 +538,15 @@ export function createOneGuidedLab({
       const u=new SpeechSynthesisUtterance(sentence);
       utterance=u;
       const voice=bestVoice();
-      if(voice)u.voice=voice;
-      u.lang=voice?.lang||'es-AR';
+      let assignedVoice=null;
+      if(voice){
+        try{u.voice=voice;assignedVoice=voice;}catch{}
+      }
+      u.lang=assignedVoice?.lang||voice?.lang||'es-AR';
       u.rate=.94;
       u.pitch=.98;
       u.volume=1;
-      guide.dataset.oneVoice=voice?.name||u.lang;
+      guide.dataset.oneVoice=assignedVoice?.name||voice?.name||u.lang;
       u.onboundary=event=>{
         if(token!==speechToken)return;
         const idx=Number(event.charIndex)||0;
@@ -542,7 +555,24 @@ export function createOneGuidedLab({
       };
       u.onend=done;
       u.onerror=done;
-      window.speechSynthesis.speak(u);
+
+      try{
+        window.speechSynthesis.speak(u);
+      }catch{
+        safetyTimer=setTimeout(done,fallbackDuration());
+        return;
+      }
+
+      speechProbe=setTimeout(()=>{
+        if(finished||token!==speechToken)return;
+        let active=false;
+        try{active=Boolean(window.speechSynthesis.speaking||window.speechSynthesis.pending);}catch{}
+        if(!active){
+          clearTimeout(safetyTimer);
+          safetyTimer=setTimeout(done,fallbackDuration());
+        }
+      },420);
+
       safetyTimer=setTimeout(done,Math.max(4500,Math.min(18000,sentence.length*105)));
     });
   }
