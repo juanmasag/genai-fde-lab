@@ -123,3 +123,20 @@ La evolución de GUI/UX está documentada separadamente para mantener claro qué
 - [`GUI_UX_ARCHITECTURE.md`](./GUI_UX_ARCHITECTURE.md): arquitectura escena + inspector, responsabilidades de Vite/XState/Motion/D3/Lucide y distinción entre cálculos reales y modelos didácticos.
 
 La primera escena implementada recorre **Documento → Tokens → Chunks + overlap** usando exclusivamente el resultado real de `/api/chunk-preview`.
+
+
+## ONE · comportamiento interactivo
+
+LAB-01 usa el rig facial aprobado de ONE desde `assets/characters/one/source/rig/facial-v2/generated`. El build sincroniza esas capas al runtime mediante `npm run sync:one`; no mantiene una copia visual paralela creada a mano.
+
+El guía flotante aplica estas reglas:
+
+- el contenido audible se toma del mismo nodo de texto que muestra el globo; la frase enviada a `SpeechSynthesisUtterance` es exactamente el texto visible del globo;
+- durante operaciones reales de ingesta/retrieval usa el estado `thinking`, y durante entrada del usuario usa `listening`;
+- sin interacción progresa por `attentive → waiting → curious → resting → attentive`, con parpadeos y micro-movimiento propios de cada estado;
+- el rig se orienta siempre hacia el contenido: si ONE está en la mitad derecha de la pantalla se refleja horizontalmente y la antena apunta a la izquierda; si está en la mitad izquierda conserva la orientación canónica y la antena apunta a la derecha;
+- ojos, cejas y bocas son capas independientes del rig facial v2; no se regeneran cabezas completas para cada estado.
+
+La voz depende del motor Web Speech disponible en el navegador/dispositivo y prioriza una voz `es-AR`, luego cualquier voz `es-*`. Si el dispositivo no expone síntesis de voz, la actuación facial sigue ejecutándose como fallback visual.
+
+Evidencia visual de la validación móvil se conserva en `qa/one-behavior-v11-mobile.png` y `qa/one-behavior-v11-left-speaking.png`.
