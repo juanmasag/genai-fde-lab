@@ -140,3 +140,65 @@ El guía flotante aplica estas reglas:
 La voz depende del motor Web Speech disponible en el navegador/dispositivo y prioriza una voz `es-AR`, luego cualquier voz `es-*`. Si el dispositivo no expone síntesis de voz, la actuación facial sigue ejecutándose como fallback visual.
 
 Evidencia visual de la validación móvil se conserva en `qa/one-behavior-v11-mobile.png` y `qa/one-behavior-v11-left-speaking.png`.
+
+
+## ONE Guided Lab v1
+
+ONE now owns the narrative flow of LAB-01 while the learner keeps control of real operations.
+
+### Narrative controls
+
+The persistent ONE component exposes only three narrative hooks after each explanation:
+
+- **Atrás**: reconstructs the previous guided scene.
+- **Repetir**: repeats the current explanation.
+- **Siguiente**: advances only when the current scene has no pending real action.
+
+Legacy guide/journey navigation, per-scene previous/next controls and the generic pipeline play button are hidden while guided mode is active. They remain in the DOM as compatibility primitives, but ONE is the visible narrative controller.
+
+### Real-action gates
+
+The following learner actions remain visible and functional because they are part of the experiment rather than navigation:
+
+- open or restore a document;
+- edit chunk size and overlap;
+- run **Previsualizar chunks**;
+- open **Ver cálculo** before the transformer walkthrough;
+- run **Ejecutar ingesta real / Ejecutar ingesta y ver proceso**;
+- edit the question, top-k and threshold;
+- run **Ejecutar análisis E2E**;
+- inspect real PostgreSQL/pgvector rows and results.
+
+ONE listens to those actions through explicit hooks. Preview, ingest and analysis place ONE in a thinking state while the operation is running; the result narration is generated only after the real UI/state has updated.
+
+### Guided scenes
+
+The v1 script covers:
+
+1. welcome and source document;
+2. chunk parameters and real preview;
+3. document → tokens → chunks/overlap;
+4. transformer calculation gate;
+5. tokens, vector, position, Q/K/V, scores, attention, context and pooling;
+6. real pgvector ingestion and transaction result;
+7. question/retrieval configuration and real E2E analysis;
+8. pipeline replay, vector geometry, grounded answer and pgvector browser;
+9. closing summary.
+
+Narration uses current runtime values such as token count, chunk configuration, stored rows, embedding dimensions, top-k, threshold, retrieval scores, accepted candidates, citations and model name.
+
+### Speech contract
+
+For every utterance a single narration string is the source of truth for:
+
+- speech synthesis;
+- progressive bubble text;
+- mouth/viseme animation.
+
+The bubble becomes visible when narration starts. Words are progressively revealed while ONE speaks. On speech end the mouth immediately returns to a closed/resting expression; the completed bubble remains briefly for reading and then disappears before the narrative controls appear.
+
+### Visual guidance
+
+Each guided scene defines a focus target. ONE highlights the current target, looks toward it with a small eye-layer offset, chooses a side of the viewport, and keeps a left/right dead zone to avoid rapid flipping near screen center. On mobile ONE stays low in the viewport so the focused laboratory content remains readable above it.
+
+The tablet/hand idle sequence, advanced clarity check and richer prop choreography remain the next increment after user validation of Guided Lab v1.
