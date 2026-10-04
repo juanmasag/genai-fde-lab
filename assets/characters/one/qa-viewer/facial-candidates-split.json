@@ -1,0 +1,48 @@
+{
+  "status": "qa-split",
+  "method": "alpha>=16 establishes two visible seed components; cut is midpoint of transparent/low-alpha gap; original RGBA pixels are partitioned, never recolored or interpolated",
+  "results": [
+    {
+      "source": "candidate-07",
+      "variant": "upper",
+      "file": "candidate-07-upper.png",
+      "cut_row_local": 35,
+      "retained_pixels": 683
+    },
+    {
+      "source": "candidate-07",
+      "variant": "lower",
+      "file": "candidate-07-lower.png",
+      "cut_row_local": 35,
+      "retained_pixels": 863
+    },
+    {
+      "source": "candidate-09",
+      "variant": "upper",
+      "file": "candidate-09-upper.png",
+      "cut_row_local": 28,
+      "retained_pixels": 330
+    },
+    {
+      "source": "candidate-09",
+      "variant": "lower",
+      "file": "candidate-09-lower.png",
+      "cut_row_local": 28,
+      "retained_pixels": 357
+    },
+    {
+      "source": "candidate-12",
+      "variant": "upper",
+      "file": "candidate-12-upper.png",
+      "cut_row_local": 26,
+      "retained_pixels": 299
+    },
+    {
+      "source": "candidate-12",
+      "variant": "lower",
+      "file": "candidate-12-lower.png",
+      "cut_row_local": 26,
+      "retained_pixels": 319
+    }
+  ]
+}
