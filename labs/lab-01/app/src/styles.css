@@ -389,3 +389,22 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
  .one-speech-bubble:after{right:50%!important;bottom:-11px!important;transform:translateX(50%) rotate(135deg)!important}
  .one-speech-bubble strong{font-size:.74rem!important;line-height:1.32!important}
 }
+
+/* ONE v8 rig runtime: canonical front, orthogonal facial layers, state-driven motion. */
+.one-rig-mouth{left:50%!important;top:65%!important;width:34%!important;height:18%!important;transform:translate(-50%,-50%)!important;clip-path:none!important;filter:none!important;object-fit:contain!important}
+.one-floating-guide.speaking .one-rig-mouth{opacity:1!important}
+.one-floating-guide:not(.speaking) .one-rig-mouth{opacity:0!important}
+.one-floating-guide[data-one-state="talking"] .one-rig{animation:oneTalkMotion 4.4s cubic-bezier(.45,0,.55,1) infinite!important}
+.one-floating-guide[data-one-state="attentive"] .one-rig{animation:oneAttentiveMotion 6.8s ease-in-out infinite!important}
+.one-floating-guide[data-one-state="playful"] .one-rig{animation:onePlayfulMotion 2.8s ease-in-out 2!important}
+.one-floating-guide[data-one-state="neutral"] .one-rig{animation:oneNeutralMotion 8s ease-in-out infinite!important}
+.one-floating-guide[data-one-state="bored"] .one-rig{animation:oneBoredMotion 10s ease-in-out infinite!important}
+@keyframes oneTalkMotion{0%,100%{transform:translate3d(0,0,0) rotate(0)}22%{transform:translate3d(0,-2px,0) rotate(-.35deg)}48%{transform:translate3d(1px,-1px,0) rotate(.25deg)}72%{transform:translate3d(0,-3px,0) rotate(-.18deg)}}
+@keyframes oneAttentiveMotion{0%,100%{transform:translate3d(0,0,0) rotate(-.2deg)}50%{transform:translate3d(0,-3px,0) rotate(.25deg)}}
+@keyframes onePlayfulMotion{0%,100%{transform:translate3d(0,0,0) rotate(0)}35%{transform:translate3d(-2px,-4px,0) rotate(-1.8deg)}65%{transform:translate3d(2px,-3px,0) rotate(1.5deg)}}
+@keyframes oneNeutralMotion{0%,100%{transform:translate3d(0,1px,0)}50%{transform:translate3d(0,-1px,0)}}
+@keyframes oneBoredMotion{0%,100%{transform:translate3d(0,3px,0) rotate(-.2deg)}50%{transform:translate3d(0,1px,0) rotate(.15deg)}}
+.one-speech-bubble{box-sizing:border-box!important;max-width:calc(100vw - 24px)!important;min-height:0!important;padding:12px 13px 14px!important;transform:translateY(5px) scale(.97)!important}
+.one-speech-bubble.visible{transform:translateY(0) scale(1)!important}
+.one-speech-bubble[data-side="above"]:after{right:50%!important;bottom:-11px!important;top:auto!important;transform:translateX(50%) rotate(135deg)!important}
+.one-speech-bubble[data-side="below"]:after{right:50%!important;top:-11px!important;bottom:auto!important;transform:translateX(50%) rotate(-45deg)!important}

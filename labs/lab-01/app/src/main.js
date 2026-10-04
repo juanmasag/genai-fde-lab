@@ -473,19 +473,33 @@ function syncTaskAnimations(){
 const oneStepLines=['Primero vemos el documento','Ahora tokenizamos el texto','Guardamos vectores y metadata','Formulamos la pregunta','Seguimos el pipeline RAG','Comparamos los vectores','Construimos la respuesta','Miremos dentro de pgvector'];
 const ONE_ASSETS={idle:'/characters/one/normalized/idle.png'};
 const ONE_MOUTHS=['/characters/one/mouths/mouth-smile.png','/characters/one/mouths/mouth-open-small-a.png','/characters/one/mouths/mouth-open-smile.png','/characters/one/mouths/mouth-open-a.png'];
-let oneDragged=false,oneSpeechTimer=null,onePointerMoved=false,oneIdleTimers=[],oneTalkTimer=null,oneActivityEpoch=0;
+const ONE_TALK_PATTERN=[
+  [1,180],[2,240],[1,150],[0,110],[3,210],[2,260],[1,170],[0,130],
+  [2,220],[3,180],[1,250],[0,120],[1,190],[2,280],[0,140]
+];
+let oneDragged=false,oneSpeechTimer=null,onePointerMoved=false,oneIdleTimers=[],oneTalkTimer=null,oneActivityEpoch=0,oneTalkIndex=0;
 const clearOneIdle=()=>{oneIdleTimers.forEach(clearTimeout);oneIdleTimers=[];};
-const stopOneTalk=()=>{clearInterval(oneTalkTimer);oneTalkTimer=null;const m=$('#oneRigMouth');if(m)m.src=ONE_MOUTHS[0];};
-function pulseOneBlink(ms=150){const el=$('#oneFloatingGuide');if(!el)return;el.classList.add('blink');oneIdleTimers.push(setTimeout(()=>el.classList.remove('blink'),ms));}
-function startOneTalk(){
-  stopOneTalk();const mouth=$('#oneRigMouth');if(!mouth)return;let i=1;mouth.src=ONE_MOUTHS[i];
-  oneTalkTimer=setInterval(()=>{i=(i+1)%ONE_MOUTHS.length;mouth.src=ONE_MOUTHS[i];},460);
+const setOneMouth=i=>{const m=$('#oneRigMouth');if(m)m.src=ONE_MOUTHS[i]||ONE_MOUTHS[0];};
+const stopOneTalk=()=>{clearTimeout(oneTalkTimer);oneTalkTimer=null;oneTalkIndex=0;setOneMouth(0);};
+function pulseOneBlink(ms=145){const el=$('#oneFloatingGuide');if(!el)return;el.classList.add('blink');oneIdleTimers.push(setTimeout(()=>el.classList.remove('blink'),ms));}
+function advanceOneTalk(){
+  const el=$('#oneFloatingGuide');if(!el?.classList.contains('speaking'))return stopOneTalk();
+  const [mouth,hold]=ONE_TALK_PATTERN[oneTalkIndex++%ONE_TALK_PATTERN.length];setOneMouth(mouth);
+  oneTalkTimer=setTimeout(advanceOneTalk,hold);
 }
+function startOneTalk(){stopOneTalk();advanceOneTalk();}
 function scheduleOneIdle(){
-  stopOneTalk();clearOneIdle();const el=$('#oneFloatingGuide');if(!el)return;const epoch=++oneActivityEpoch;el.classList.remove('funny','neutral-wait','bored');
+  stopOneTalk();clearOneIdle();const el=$('#oneFloatingGuide');if(!el)return;const epoch=++oneActivityEpoch;el.dataset.oneState='attentive';
   const later=(delay,fn)=>oneIdleTimers.push(setTimeout(()=>{if(epoch===oneActivityEpoch&&!el.classList.contains('speaking'))fn();},delay));
-  later(7600,()=>pulseOneBlink(145));later(16600,()=>pulseOneBlink(155));later(28500,()=>{el.classList.add('funny');pulseOneBlink(190);});later(31500,()=>el.classList.remove('funny'));
-  later(47000,()=>pulseOneBlink(160));later(58000,()=>el.classList.add('neutral-wait'));later(76000,()=>el.classList.add('bored'));
+  later(6800,()=>pulseOneBlink());later(14200,()=>pulseOneBlink(135));
+  later(26000,()=>{el.dataset.oneState='playful';pulseOneBlink(175);});later(33000,()=>el.dataset.oneState='attentive');
+  later(52000,()=>el.dataset.oneState='neutral');later(76000,()=>el.dataset.oneState='bored');
+}
+function placeOneSpeechBubble(){
+  const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble');if(!el||!bubble)return;const r=el.getBoundingClientRect(),gap=10,pad=12;
+  const bw=Math.min(164,innerWidth-pad*2),bh=150;let left=r.left+r.width/2-bw/2,top=r.top-bh-gap,side='above';
+  left=clamp(left,pad,innerWidth-bw-pad);if(top<pad){top=Math.min(innerHeight-bh-pad,r.bottom+gap);side='below';}
+  bubble.style.position='fixed';bubble.style.left=left+'px';bubble.style.top=top+'px';bubble.style.right='auto';bubble.style.bottom='auto';bubble.style.width=bw+'px';bubble.dataset.side=side;
 }
 
 function clampFloatingOne(){
@@ -495,7 +509,7 @@ function clampFloatingOne(){
 function speakFloatingOne(step=state.mobileStep){
   const el=$('#oneFloatingGuide'),bubble=$('#oneSpeechBubble'),img=$('#oneFloatingImage'),txt=$('#oneFloatingText');if(!el||!bubble||!img)return;
   clearTimeout(oneSpeechTimer);clearOneIdle();stopOneTalk();oneActivityEpoch++;if(txt)txt.textContent=oneStepLines[step]||'Seguimos';
-  el.classList.remove('funny','neutral-wait','bored','blink');el.classList.add('speaking');bubble.classList.add('visible');startOneTalk();
+  el.classList.remove('blink');el.dataset.oneState='talking';el.classList.add('speaking');placeOneSpeechBubble();bubble.classList.add('visible');startOneTalk();oneIdleTimers.push(setTimeout(()=>pulseOneBlink(135),1850));
   oneSpeechTimer=setTimeout(()=>{bubble.classList.remove('visible');el.classList.remove('speaking');stopOneTalk();scheduleOneIdle();},3200);
 }
 function parkFloatingOne(step){
@@ -553,5 +567,5 @@ createIcons({icons:{FileText,Scissors,BrainCircuit,Binary,Database,Search,Packag
 initIngestionScene();
 initTransformerScene();
 wireRanges();updateDocStats();populateTransformerSentences();setGuide(0);startOneMascotIdle();installTaskAnimations();initFloatingOne();setMobileStep(0,false);parkFloatingOne(0);speakFloatingOne(0);health();renderAll();loadDbBrowser().catch(()=>{});
-window.addEventListener('resize',()=>{syncTaskAnimations();clampFloatingOne();});
+window.addEventListener('resize',()=>{syncTaskAnimations();clampFloatingOne();if($('#oneSpeechBubble')?.classList.contains('visible'))placeOneSpeechBubble();});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
