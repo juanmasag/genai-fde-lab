@@ -300,3 +300,10 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 .one-mascot-glow{position:absolute;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle,rgba(96,165,250,.22),rgba(52,211,153,.08) 48%,transparent 72%);filter:blur(3px);z-index:1;pointer-events:none}
 @media(max-width:760px){.guide{grid-template-columns:82px 1fr}.one-mascot{width:80px;height:80px}.one-mascot img{width:78px;height:78px}.one-mascot-glow{width:58px;height:58px}}
 @media(prefers-reduced-motion:reduce){.one-mascot img{transform:none!important}.one-mascot-glow{transform:none!important;opacity:.55!important}}
+
+/* Keep ONE readable in the guide: override the legacy 62px avatar constraint. */
+.guide .one-mascot{width:clamp(118px,14vw,168px);height:clamp(118px,14vw,168px);align-self:center}
+.guide .one-mascot img{width:100%;height:100%;object-fit:contain}
+.guide{grid-template-columns:clamp(118px,14vw,168px) minmax(0,1fr)}
+@media(max-width:760px){.guide{grid-template-columns:108px minmax(0,1fr);gap:10px}.guide .one-mascot{width:108px;height:108px}.guide .one-mascot img{width:108px;height:108px}}
+@media(max-width:430px){.guide{grid-template-columns:96px minmax(0,1fr)}.guide .one-mascot{width:96px;height:96px}.guide .one-mascot img{width:96px;height:96px}}
