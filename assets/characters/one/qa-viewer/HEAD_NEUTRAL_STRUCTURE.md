@@ -22,3 +22,9 @@ The comparison also establishes that the groups are not simple mutually-exclusiv
 ## Next controlled inspection
 
 Inspect the already-confirmed facial source regions `parts-04` and `parts-05` at higher scale, alongside the neutral master, specifically to map the facial plate and neutral eyebrow pair. No reconstruction or pixel transformation is authorized until that correspondence is demonstrated.
+
+## Visual evidence update
+
+User review of the `parts-04` / `parts-05` comparison shows expression libraries and composed heads, not an independently isolated complete white facial plate. `parts-05` also enters hood structural material. Therefore those two tiles are not proof of a standalone facial plate and must not be used as an extraction box for it.
+
+The next visual gate is limited to the six already pixel-preserving eyebrow splits against `head-neutral`. Facial-plate source remains unresolved and must be located from the complete canonical source, not guessed from the earlier 04..07 metadata.
