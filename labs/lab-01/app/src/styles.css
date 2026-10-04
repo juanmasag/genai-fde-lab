@@ -420,3 +420,8 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 .one-speech-bubble{position:fixed!important;right:auto!important;bottom:auto!important;box-sizing:border-box!important;min-height:0!important;height:auto!important;max-height:calc(100vh - 24px)!important;overflow:hidden!important;margin:0!important;transform:translateY(4px) scale(.98)!important}
 .one-speech-bubble.visible{transform:translateY(0) scale(1)!important}
 .one-speech-bubble strong{overflow-wrap:anywhere!important}
+
+/* ONE v10 safety reset: never duplicate canonical facial features. */
+.one-rig-mouth,.one-rig-eyelids,.one-rig-blink{display:none!important}
+.one-floating-guide.blink .one-rig-base{opacity:1!important;clip-path:none!important}
+.one-floating-guide[data-one-state="talking"] .one-rig{animation:oneTalkMotion 4.4s cubic-bezier(.45,0,.55,1) infinite!important}
