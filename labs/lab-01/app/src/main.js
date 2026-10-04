@@ -66,7 +66,6 @@ async function previewChunking({announce=false}={}){
     syncChunkControlLimits(data.tokenCount);
     const chunks=data.chunks||[];
     state.preview=data;
-    if(announce)oneEmit('PREVIEW_READY',data);
     renderIngestionScene(ingestionSceneActor?.getSnapshot()?.value||'document');
     const tokenHtml=(c,chunkIndex)=>(c.tokens||[]).map((tok,i)=>{
       const repeatsInNext=c.overlapToNext>0 && i>=Math.max(0,c.tokens.length-c.overlapToNext);
@@ -85,6 +84,7 @@ async function previewChunking({announce=false}={}){
       const overlapNote=c.overlapToNext>0&&next?'<div class="chunk-overlap-note"><span></span>'+c.overlapToNext+' tokens en verde se repiten en '+esc(next.chunkId)+'</div>':'';
       return '<div class="data-card preview-card"><strong>'+esc(c.chunkId)+' · '+esc(c.section)+'</strong><div class="chunk-token-stream">'+tokenHtml(c,idx)+'</div>'+overlapNote+'<small>tokens '+c.tokenStart+'–'+(Math.max(c.tokenStart,c.tokenEnd-1))+' · '+c.tokens.length+' tokens</small></div>';
     }).join('');
+    if(announce)oneEmit('PREVIEW_READY',data);
     return chunks;
   }catch(e){
     if(seq===previewSeq)box.innerHTML='<div class="empty-state">No se pudo calcular la previsualización: '+esc(e.message)+'</div>';
