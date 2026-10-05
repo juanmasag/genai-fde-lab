@@ -1,3 +1,4 @@
+import { narrationPayload, naturalSpeechText } from './one-speech-text.js';
 const $=selector=>document.querySelector(selector);
 const $$=selector=>[...document.querySelectorAll(selector)];
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
@@ -312,6 +313,9 @@ export function createOneGuidedLab({
   let idleCycleActive=false;
   let awaitingTabletTap=false;
   let clarityReturnTimer=null;
+  let oneAudio=null;
+  let oneAudioUrl=null;
+  let oneAudioRaf=0;
   const completed=new Set();
 
   const context=()=>{
@@ -452,6 +456,9 @@ export function createOneGuidedLab({
     clearInterval(revealTimer);revealTimer=null;
     clearTimeout(safetyTimer);safetyTimer=null;
     clearTimeout(bubbleTimer);bubbleTimer=null;
+    if(oneAudioRaf){cancelAnimationFrame(oneAudioRaf);oneAudioRaf=0;}
+    if(oneAudio){try{oneAudio.pause();oneAudio.currentTime=0;}catch{}oneAudio=null;}
+    if(oneAudioUrl){try{URL.revokeObjectURL(oneAudioUrl);}catch{}oneAudioUrl=null;}
     if(cancel&&'speechSynthesis' in window){
       try{window.speechSynthesis.cancel();}catch{}
     }
@@ -531,7 +538,7 @@ export function createOneGuidedLab({
     },72);
   }
 
-  function runNarration(text,{kind='intro',controlsAfter=true,stateAfter='attentive',segments=null,onSegment=null}={}){
+  function runWebSpeechNarration(text,{kind='intro',controlsAfter=true,stateAfter='attentive',segments=null,onSegment=null}={}){
     const clean=String(text||'').trim();
     const plan=speechUnits(clean,segments);
     if(!plan.fullText)return Promise.resolve();
@@ -679,6 +686,158 @@ export function createOneGuidedLab({
 
       safetyTimer=setTimeout(finish,Math.max(12000,Math.min(90000,words.length*900+10000)));
     });
+  }
+
+  function azureVisemeToMouth(id){
+    const value=Number(id)||0;
+    if(value===0||value===21)return'rest';
+    if([1,2].includes(value))return'open';
+    if([3,7,8,9,10,11].includes(value))return'o';
+    if([4,5,6].includes(value))return'smile';
+    if([15,16,17,18].includes(value))return'o-small';
+    return'happy';
+  }
+
+  function base64AudioUrl(base64,mimeType='audio/mpeg'){
+    const binary=atob(String(base64||''));
+    const bytes=new Uint8Array(binary.length);
+    for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+    const blob=new Blob([bytes],{type:mimeType});
+    return URL.createObjectURL(blob);
+  }
+
+  async function fetchNeuralSpeech(displayText,plan,speechText=null){
+    const segments=plan.units.map((unit,index)=>({id:index,speechText:naturalSpeechText(unit.text)}));
+    try{
+      const response=await fetch('/api/one/tts',{
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({
+          displayText,
+          speechText:speechText||naturalSpeechText(displayText),
+          segments
+        })
+      });
+      const payload=await response.json().catch(()=>null);
+      if(!response.ok||!payload?.available||!payload?.audioBase64)return null;
+      return payload;
+    }catch{return null;}
+  }
+
+  function displayPrefixForAudio(plan,tts,timeMs){
+    const bookmarks=(tts.bookmarks||[]).map(item=>({
+      ...item,
+      index:Number(String(item.text||'').replace('seg-',''))
+    })).filter(item=>Number.isFinite(item.index)).sort((a,b)=>a.audioOffsetMs-b.audioOffsetMs);
+    let unitIndex=0;
+    for(const item of bookmarks){if(timeMs+4>=item.audioOffsetMs)unitIndex=item.index;else break;}
+    unitIndex=clamp(unitIndex,0,Math.max(0,plan.units.length-1));
+    const unit=plan.units[unitIndex];
+    const start=bookmarks.find(item=>item.index===unitIndex)?.audioOffsetMs||0;
+    const next=bookmarks.find(item=>item.index===unitIndex+1)?.audioOffsetMs??Infinity;
+    const spoken=(tts.words||[]).filter(word=>word.audioOffsetMs>=start&&word.audioOffsetMs<next);
+    const passed=spoken.filter(word=>word.audioOffsetMs<=timeMs+8).length;
+    const displayWords=[...String(unit?.text||'').matchAll(/\\S+/g)];
+    const ratio=spoken.length?clamp(passed/spoken.length,0,1):clamp((timeMs-start)/Math.max(400,next-start),0,1);
+    const count=displayWords.length?clamp(Math.max(1,Math.ceil(displayWords.length*ratio)),1,displayWords.length):0;
+    const partial=count?unit.text.slice(0,displayWords[count-1].index+displayWords[count-1][0].length):'';
+    const completed=plan.units.slice(0,unitIndex).map(item=>item.text).join(' ');
+    return {unitIndex,text:(completed+(completed&&partial?' ':'')+partial).trim()};
+  }
+
+  async function runAzureNarration(text,options,plan,tts){
+    const clean=String(text||'').trim();
+    const token=++speechToken;
+    const {kind='intro',controlsAfter=true,stateAfter='attentive',onSegment=null}=options||{};
+    let currentUnitIndex=-1;
+    let visemeIndex=-1;
+    let finished=false;
+    const url=base64AudioUrl(tts.audioBase64,tts.mimeType||'audio/mpeg');
+    const audio=new Audio(url);
+    audio.preload='auto';
+
+    const activateUnit=async index=>{
+      if(index<0||index>=plan.units.length||index===currentUnitIndex)return;
+      currentUnitIndex=index;
+      const unit=plan.units[index];
+      if(unit.before)await unit.before();
+      onSegment?.(unit,index);
+    };
+
+    await activateUnit(0);
+    try{await audio.play();}
+    catch{
+      URL.revokeObjectURL(url);
+      return false;
+    }
+
+    oneAudio=audio;
+    oneAudioUrl=url;
+    currentNarrationKind=kind;
+    if(clean)lastNarration=clean;
+    narrationBusy=true;
+    setState('talking');
+    guide.classList.add('speaking');
+    bubble.classList.add('visible');
+    textNode.textContent=plan.units[0]?.text.split(/\\s+/)[0]||'';
+    placeBubble();
+    guide.dataset.oneVoice=tts.voice||'es-AR-TomasNeural';
+
+    return await new Promise(resolveOuter=>{
+      const finish=()=>{
+        if(finished)return;
+        finished=true;
+        if(oneAudioRaf){cancelAnimationFrame(oneAudioRaf);oneAudioRaf=0;}
+        if(oneAudio===audio)oneAudio=null;
+        if(oneAudioUrl===url)oneAudioUrl=null;
+        try{URL.revokeObjectURL(url);}catch{}
+        if(activeSpeechResolve===finish)activeSpeechResolve=null;
+        narrationBusy=false;
+        const last=plan.units.at(-1);
+        if(last)textNode.textContent=last.text;
+        setMouth(processActive?'rest':'smile');
+        guide.classList.remove('speaking','blink');
+        setState(processActive?'thinking':stateAfter);
+        setGazeToFocus();
+        bubbleTimer=setTimeout(()=>{
+          if(token!==speechToken)return;
+          bubble.classList.remove('visible');
+          if(processActive){setState('thinking');scheduleBlink();return;}
+          if(controlsAfter){showControls('normal');scheduleIdle();}
+          else if(stateAfter==='thinking')scheduleBlink();
+        },520);
+        resolveOuter(true);
+      };
+      activeSpeechResolve=finish;
+      audio.onended=finish;
+      audio.onerror=finish;
+
+      const sync=()=>{
+        if(finished||token!==speechToken)return;
+        const timeMs=audio.currentTime*1000;
+        const progress=displayPrefixForAudio(plan,tts,timeMs);
+        if(progress.unitIndex!==currentUnitIndex)activateUnit(progress.unitIndex);
+        if(progress.text){textNode.textContent=progress.text;textNode.scrollTop=textNode.scrollHeight;}
+        const visemes=tts.visemes||[];
+        while(visemeIndex+1<visemes.length&&visemes[visemeIndex+1].audioOffsetMs<=timeMs+18)visemeIndex++;
+        if(visemeIndex>=0)setMouth(azureVisemeToMouth(visemes[visemeIndex].visemeId));
+        placeBubble();
+        oneAudioRaf=requestAnimationFrame(sync);
+      };
+      oneAudioRaf=requestAnimationFrame(sync);
+    });
+  }
+
+  async function runNarration(text,{speechText=null,...options}={}){
+    const clean=String(text||'').trim();
+    const plan=speechUnits(clean,options.segments||null);
+    if(!plan.fullText)return;
+    const tts=await fetchNeuralSpeech(clean,plan,speechText);
+    if(tts){
+      const played=await runAzureNarration(clean,options,plan,tts);
+      if(played!==false)return played;
+    }
+    return runWebSpeechNarration(clean,options);
   }
 
   function narrate(text,{interrupt=true,...options}={}){
