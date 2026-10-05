@@ -39,7 +39,7 @@ Cada laboratorio debe incluir:
 |---|---|---|
 | LAB-00 | Baseline y entorno reproducible | Planned |
 | LAB-01 | RAG + embeddings + pgvector | Completed |
-| LAB-02 | Retrieval evaluation | Planned |
+| LAB-02 | Retrieval evaluation | In Progress |
 | LAB-03 | LangGraph multi-agent workflow | Planned |
 | LAB-04 | MCP server + tools | Planned |
 | LAB-05 | LLM evals + regression suite | Planned |

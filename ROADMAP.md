@@ -31,8 +31,10 @@ Aprender:
 
 **Entrega realizada:** backend RAG que recibe una pregunta y responde con fuentes, más una PWA educativa para inspeccionar cada etapa del pipeline.
 
-### LAB-02 — Retrieval Evaluation
+### LAB-02 — Retrieval Evaluation [IN PROGRESS]
 Medir la calidad del retrieval.
+
+**Inicio:** 2026-10-04. Se reutiliza LAB-01 como sistema bajo evaluación; el primer hito es construir un golden dataset con relevance judgments explícitos antes de implementar métricas.
 
 Aprender:
 - golden dataset
