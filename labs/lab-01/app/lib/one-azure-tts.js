@@ -166,8 +166,14 @@ export async function synthesizeOneSpeech(payload={}){
       words,
       visemes,
       bookmarks,
-      segments
+      segments,
+      timingMode:'azure-events'
     };
+    remember(cacheKey,value);
+    return {...value,cached:false};
+  }catch(error){
+    const rest=await synthesizeViaRest(ssml,voice);
+    const value={...rest,segments,sdkFallbackReason:error.message};
     remember(cacheKey,value);
     return {...value,cached:false};
   }finally{
