@@ -991,3 +991,24 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 .one-floating-guide[data-one-voice-provider="azure-speech"] .one-rig{
   animation-duration:3.35s!important;
 }
+
+
+/* ONE v15.1 — draggable box equals the visual rig instead of a padded transparent stage. */
+:root{--one-stage:168px!important}
+.one-floating-guide{
+  --one-guide-edge-inset:0px!important;
+  width:var(--one-stage)!important;
+  height:var(--one-stage)!important;
+  padding:0!important;
+}
+.one-floating-handle{
+  width:var(--one-stage)!important;
+  height:var(--one-stage)!important;
+  padding:0!important;
+}
+.one-rig{
+  inset:0!important;
+}
+@media(min-width:760px){
+  :root{--one-stage:192px!important}
+}
