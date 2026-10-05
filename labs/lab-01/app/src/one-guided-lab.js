@@ -402,6 +402,8 @@ export function createOneGuidedLab({
       else if(['es-uy','es-mx','es-cl','es-us'].includes(lang))n+=110;
       else if(lang.startsWith('es-'))n+=85;
       if(/argentin|latino|latin american|latinoam/.test(name))n+=38;
+      if(/male|masculino|hombre|tomas|tomás|jorge|diego|alvaro|álvaro|pablo|carlos|miguel|juan|gonzalo|lorenzo|marcelo|manuel|emilio|luis/.test(name))n+=52;
+      if(/female|femenino|mujer|elena|sofia|sofía|catalina|salome|salomé|maria|maría|andrea/.test(name))n-=45;
       if(/natural|neural|online|premium|enhanced/.test(name))n+=35;
       if(/google|microsoft|siri|samsung/.test(name))n+=24;
       if(v.localService===false)n+=12;
