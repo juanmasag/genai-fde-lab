@@ -4,10 +4,10 @@ Este documento registra comprensión demostrada por explicación propia y experi
 
 ## Estado actual
 
-**Etapa:** Recall@k
+**Etapa:** Precision@k
 **Laboratorio:** iniciado el 2026-10-04
-**Checkpoint alcanzado:** golden dataset + relevance judgment comprendidos
-**Objetivo inmediato:** comprender y calcular Recall@k manualmente antes de implementarlo.
+**Checkpoint alcanzado:** golden dataset + relevance judgment + Recall@k comprendidos
+**Objetivo inmediato:** comprender y calcular Precision@k manualmente antes de implementarlo.
 
 ## Regla de registro de aprendizaje
 
@@ -25,7 +25,7 @@ Se mantiene el mismo criterio utilizado en LAB-01:
 - [x] golden dataset
 - [x] relevance judgment
 - [x] diferencia entre evaluación de retrieval y evaluación de generación
-- [ ] recall@k
+- [x] recall@k
 - [ ] precision@k
 - [ ] reciprocal rank
 - [ ] MRR
@@ -72,6 +72,20 @@ Comprendido con corrección conceptual:
 - En este laboratorio la referencia principal es la **evidencia que debería recuperarse**.
 
 Estado: **Comprendido con corrección conceptual**
+
+### 4. Recall@k: cuánto de lo relevante logró recuperarse
+
+Explicado y calculado correctamente con palabras propias:
+
+- Recall@k compara los elementos relevantes definidos por el golden dataset contra los resultados recuperados dentro de los primeros `k` lugares.
+- La pregunta que responde es: **de toda la evidencia relevante que existía, cuánto logró encontrar retrieval dentro del top-k**.
+- Se calcula como `relevantes recuperados en top-k / total de relevantes esperados`.
+- En el ejemplo validado, el golden contenía `chunk_A`, `chunk_B`, `chunk_C` y `chunk_D`; retrieval top-5 devolvió `chunk_X`, `chunk_B`, `chunk_Y`, `chunk_D`, `chunk_Z`.
+- Se identificó correctamente que sólo `chunk_B` y `chunk_D` eran relevantes: `2 / 4 = 0,5 = 50%`.
+- Se corrigió una confusión inicial en la que se tomó un chunk irrelevante como si fuera el valor de recall. Después de la corrección, el cálculo fue resuelto correctamente de forma independiente.
+- Se entendió que Recall se concentra en **cuánta evidencia relevante faltó o se logró recuperar**, no en cuántos resultados irrelevantes aparecieron. Ese segundo problema se estudia con Precision.
+
+Estado: **Comprendido con corrección conceptual y cálculo manual validado**
 
 ## Modelo mental alcanzado
 
@@ -120,10 +134,22 @@ Ya se puede explicar con palabras propias:
 
 **Estado:** fundamentos para comenzar Recall@k completados.
 
-## Próximo concepto — Recall@k
+## Checkpoint: Recall@k completado
+
+Ya se puede explicar y calcular manualmente:
+
+- qué mide Recall@k;
+- cuál es su denominador;
+- cómo usar el golden dataset como referencia;
+- cómo identificar los relevantes recuperados dentro del top-k;
+- cómo interpretar `0`, `0,5` o `1` como proporción de evidencia relevante recuperada.
+
+**Estado:** Recall@k comprendido. Se habilita el siguiente concepto.
+
+## Próximo concepto — Precision@k
 
 La próxima pregunta a poder responder con palabras propias será:
 
-> De toda la evidencia relevante definida por el golden dataset, ¿qué proporción logró recuperar el sistema dentro de los primeros k resultados?
+> De todos los resultados que retrieval trajo dentro de los primeros k lugares, ¿qué proporción era realmente relevante según el golden dataset?
 
-No se marcará Recall@k como comprendido hasta poder resolver y explicar ejemplos manualmente antes de automatizar su cálculo.
+No se marcará Precision@k como comprendido hasta poder resolver y explicar ejemplos manualmente.
