@@ -967,3 +967,27 @@ label,.transformer-scene,.transformer-sentence-label{min-width:0;max-width:100%}
 @media(max-width:759px){
   .one-stage-reserve{--one-reserve-height:280px!important}
 }
+
+
+/* ONE v15 — silhouette edge geometry and invisible drag stage. */
+.one-floating-guide{
+  --one-guide-edge-inset:18px;
+}
+.one-floating-guide.dragging{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  outline:none!important;
+}
+.one-floating-handle,
+.one-floating-handle:focus,
+.one-floating-handle:focus-visible{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  outline:none!important;
+}
+.one-floating-guide[data-one-voice-provider="azure-speech"] .one-rig{
+  animation-duration:3.35s!important;
+}
