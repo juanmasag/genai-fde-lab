@@ -965,6 +965,30 @@ export function createOneGuidedLab({
     return guide.dataset.oneSide||'right';
   }
 
+  function guideEdgeInset(){
+    const raw=getComputedStyle(guide).getPropertyValue('--one-guide-edge-inset');
+    return Number.parseFloat(raw)||18;
+  }
+
+  function guideHorizontalBounds(rect=guide.getBoundingClientRect()){
+    const inset=guideEdgeInset();
+    const pad=5;
+    return {min:pad-inset,max:innerWidth-rect.width-pad+inset};
+  }
+
+  function visibleGuideRect(){
+    const rect=guide.getBoundingClientRect();
+    const inset=guideEdgeInset();
+    return {
+      left:rect.left+inset,
+      right:rect.right-inset,
+      top:rect.top+inset,
+      bottom:rect.bottom-inset,
+      width:Math.max(1,rect.width-inset*2),
+      height:Math.max(1,rect.height-inset*2)
+    };
+  }
+
   async function moveToScene(sceneDef=scene()){
     const target=resolveTarget(sceneDef);
     const current=guide.getBoundingClientRect();
@@ -972,7 +996,8 @@ export function createOneGuidedLab({
     const top=innerWidth<760?64:76;
     const targetRect=target?.getBoundingClientRect();
     const side=intendedSide(sceneDef,targetRect);
-    const x=side==='right'?Math.max(pad,innerWidth-current.width-10):pad;
+    const bounds=guideHorizontalBounds(current);
+    const x=side==='right'?bounds.max:bounds.min;
 
     applyReserveEdge('top',target,{scroll:true});
     if(target)await sleep(innerWidth<760?520:330);
@@ -1010,9 +1035,9 @@ export function createOneGuidedLab({
   }
 
   function placeBubble(){
-    const r=guide.getBoundingClientRect();
-    const pad=8;
-    const gap=7;
+    const r=visibleGuideRect();
+    const pad=5;
+    const gap=5;
     const width=innerWidth<760?184:260;
     bubble.style.setProperty('width',width+'px','important');
     bubble.style.setProperty('max-width',width+'px','important');
@@ -1390,7 +1415,8 @@ export function createOneGuidedLab({
       if(!drag||drag.id!==event.pointerId)return;
       if(Math.hypot(event.clientX-drag.sx,event.clientY-drag.sy)>7)dragged=true;
       const r=guide.getBoundingClientRect();
-      const x=clamp(event.clientX-drag.dx,8,Math.max(8,innerWidth-r.width-8));
+      const bounds=guideHorizontalBounds(r);
+      const x=clamp(event.clientX-drag.dx,bounds.min,bounds.max);
       guide.style.left=x+'px';
       guide.style.top=(innerWidth<760?64:76)+'px';
       guide.style.right='auto';
