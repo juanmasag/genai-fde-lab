@@ -725,25 +725,48 @@ export function createOneGuidedLab({
     }catch{return null;}
   }
 
-  function displayPrefixForAudio(plan,tts,timeMs){
+  function displayPrefixForAudio(plan,tts,timeMs,totalDurationMs=0){
     const bookmarks=(tts.bookmarks||[]).map(item=>({
       ...item,
       index:Number(String(item.text||'').replace('seg-',''))
     })).filter(item=>Number.isFinite(item.index)).sort((a,b)=>a.audioOffsetMs-b.audioOffsetMs);
-    let unitIndex=0;
-    for(const item of bookmarks){if(timeMs+4>=item.audioOffsetMs)unitIndex=item.index;else break;}
+
+    let unitIndex=0,start=0,next=totalDurationMs||Infinity;
+    if(bookmarks.length){
+      for(const item of bookmarks){if(timeMs+4>=item.audioOffsetMs)unitIndex=item.index;else break;}
+      unitIndex=clamp(unitIndex,0,Math.max(0,plan.units.length-1));
+      start=bookmarks.find(item=>item.index===unitIndex)?.audioOffsetMs||0;
+      next=bookmarks.find(item=>item.index===unitIndex+1)?.audioOffsetMs??(totalDurationMs||Infinity);
+    }else{
+      const weights=plan.units.map((unit,index)=>{
+        const spoken=tts.segments?.[index]?.speechText||naturalSpeechText(unit.text);
+        return Math.max(1,(spoken.match(/\S+/g)||[]).length);
+      });
+      const totalWeight=weights.reduce((sum,value)=>sum+value,0)||1;
+      let cursor=0;
+      for(let i=0;i<weights.length;i++){
+        const duration=(totalDurationMs||weights.length*1800)*(weights[i]/totalWeight);
+        if(timeMs>=cursor)unitIndex=i;
+        if(timeMs<cursor+duration){start=cursor;next=cursor+duration;break;}
+        cursor+=duration;
+      }
+    }
+
     unitIndex=clamp(unitIndex,0,Math.max(0,plan.units.length-1));
     const unit=plan.units[unitIndex];
-    const start=bookmarks.find(item=>item.index===unitIndex)?.audioOffsetMs||0;
-    const next=bookmarks.find(item=>item.index===unitIndex+1)?.audioOffsetMs??Infinity;
     const spoken=(tts.words||[]).filter(word=>word.audioOffsetMs>=start&&word.audioOffsetMs<next);
     const passed=spoken.filter(word=>word.audioOffsetMs<=timeMs+8).length;
-    const displayWords=[...String(unit?.text||'').matchAll(/\\S+/g)];
-    const ratio=spoken.length?clamp(passed/spoken.length,0,1):clamp((timeMs-start)/Math.max(400,next-start),0,1);
+    const displayWords=[...String(unit?.text||'').matchAll(/\S+/g)];
+    const ratio=spoken.length
+      ?clamp(passed/spoken.length,0,1)
+      :clamp((timeMs-start)/Math.max(350,next-start),0,1);
     const count=displayWords.length?clamp(Math.max(1,Math.ceil(displayWords.length*ratio)),1,displayWords.length):0;
     const partial=count?unit.text.slice(0,displayWords[count-1].index+displayWords[count-1][0].length):'';
     const completed=plan.units.slice(0,unitIndex).map(item=>item.text).join(' ');
-    return {unitIndex,text:(completed+(completed&&partial?' ':'')+partial).trim()};
+    const spokenText=tts.segments?.[unitIndex]?.speechText||naturalSpeechText(unit?.text||'');
+    const spokenWords=spokenText.match(/\S+/g)||[];
+    const speechWord=spokenWords.length?spokenWords[clamp(Math.floor(ratio*spokenWords.length),0,spokenWords.length-1)]:'';
+    return {unitIndex,text:(completed+(completed&&partial?' ':'')+partial).trim(),speechWord};
   }
 
   async function runAzureNarration(text,options,plan,tts){
@@ -817,12 +840,13 @@ export function createOneGuidedLab({
       const sync=()=>{
         if(finished||token!==speechToken)return;
         const timeMs=audio.currentTime*1000;
-        const progress=displayPrefixForAudio(plan,tts,timeMs);
+        const progress=displayPrefixForAudio(plan,tts,timeMs,(audio.duration||0)*1000);
         if(progress.unitIndex!==currentUnitIndex)activateUnit(progress.unitIndex);
         if(progress.text){textNode.textContent=progress.text;textNode.scrollTop=textNode.scrollHeight;}
         const visemes=tts.visemes||[];
         while(visemeIndex+1<visemes.length&&visemes[visemeIndex+1].audioOffsetMs<=timeMs+18)visemeIndex++;
         if(visemeIndex>=0)setMouth(azureVisemeToMouth(visemes[visemeIndex].visemeId));
+        else if(progress.speechWord)setMouth(visemeAt(progress.speechWord,0));
         placeBubble();
         oneAudioRaf=requestAnimationFrame(sync);
       };
