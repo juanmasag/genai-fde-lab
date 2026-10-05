@@ -4,10 +4,10 @@ Este documento registra comprensión demostrada por explicación propia y experi
 
 ## Estado actual
 
-**Etapa:** Reciprocal Rank
+**Etapa:** MRR
 **Laboratorio:** iniciado el 2026-10-04
-**Checkpoint alcanzado:** golden dataset + relevance judgment + Recall@k + Precision@k comprendidos
-**Objetivo inmediato:** comprender y calcular Reciprocal Rank manualmente antes de pasar a MRR.
+**Checkpoint alcanzado:** golden dataset + relevance judgment + Recall@k + Precision@k + Reciprocal Rank comprendidos
+**Objetivo inmediato:** comprender cómo MRR promedia el Reciprocal Rank de múltiples consultas.
 
 ## Regla de registro de aprendizaje
 
@@ -27,7 +27,7 @@ Se mantiene el mismo criterio utilizado en LAB-01:
 - [x] diferencia entre evaluación de retrieval y evaluación de generación
 - [x] recall@k
 - [x] precision@k
-- [ ] reciprocal rank
+- [x] reciprocal rank
 - [ ] MRR
 - [ ] failure analysis
 - [ ] comparación objetiva de configuraciones
@@ -100,6 +100,22 @@ Explicado y calculado correctamente con palabras propias:
 
 Estado: **Comprendido y cálculo manual validado**
 
+### 6. Reciprocal Rank: qué tan pronto aparece el primer relevante
+
+Explicado y calculado correctamente con palabras propias:
+
+- Reciprocal Rank usa únicamente la posición del **primer** resultado relevante para una consulta.
+- Se calcula como `1 / posición del primer relevante`.
+- Si el primer relevante está en posición 1, `RR = 1`.
+- Si está en posición 2, `RR = 0,5`.
+- Si está en posición 3, `RR ≈ 0,33`.
+- Si no aparece ningún relevante, `RR = 0`.
+- Se corrigió una confusión inicial en la que se dividió por la cantidad de relevantes del golden (`1/4`). Después de la corrección se identificó correctamente que importa la posición del primer relevante.
+- En el ejemplo validado, el golden contenía `A`, `B`, `C`; retrieval devolvió `X`, `B`, `Y`, `A`. El primer relevante fue `B` en posición 2, por lo que `RR = 1/2 = 0,5`.
+- Se entendió que los resultados relevantes que aparecen después del primero ya no cambian el RR de esa consulta.
+
+Estado: **Comprendido con corrección conceptual y cálculo manual validado**
+
 ## Modelo mental alcanzado
 
 El flujo de evaluación ya puede representarse así:
@@ -171,10 +187,22 @@ Ya se puede explicar y calcular manualmente:
 
 **Estado:** Precision@k comprendido. Se habilita el siguiente concepto.
 
-## Próximo concepto — Reciprocal Rank
+## Checkpoint: Reciprocal Rank completado
+
+Ya se puede explicar y calcular manualmente:
+
+- qué mide Reciprocal Rank;
+- por qué sólo importa el primer resultado relevante;
+- cómo convertir la posición del primer relevante en `1/rank`;
+- por qué una evidencia correcta en posición 1 vale más que la misma evidencia en posición 3;
+- cuándo RR vale `0`.
+
+**Estado:** Reciprocal Rank comprendido. Se habilita MRR.
+
+## Próximo concepto — MRR
 
 La próxima pregunta a poder responder con palabras propias será:
 
-> ¿En qué posición aparece el primer resultado relevante y cómo convertir esa posición en una métrica?
+> Si cada consulta tiene su propio Reciprocal Rank, ¿cómo resumimos en un único número qué tan pronto suele aparecer el primer resultado relevante en todo el dataset?
 
-No se marcará Reciprocal Rank como comprendido hasta poder resolver y explicar ejemplos manualmente.
+No se marcará MRR como comprendido hasta poder calcularlo manualmente sobre varias consultas.
