@@ -157,7 +157,7 @@ app.get('/api/health', async (req,res)=>{
   try{
     const db=await pool.query('select count(*)::int as chunks from rag_chunks');
     const models=await fetch(OLLAMA_URL+'/api/tags').then(r=>r.json());
-    res.json({ok:true,database:true,chunks:db.rows[0].chunks,embedModel:EMBED_MODEL,llmModel:LLM_MODEL,models:(models.models||[]).map(x=>x.name)});
+    res.json({ok:true,database:true,chunks:db.rows[0].chunks,embedModel:EMBED_MODEL,llmModel:LLM_MODEL,models:(models.models||[]).map(x=>x.name),oneTts:oneTtsStatus()});
   }catch(e){res.status(500).json({ok:false,error:e.message});}
 });
 
