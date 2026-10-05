@@ -655,6 +655,7 @@ export function createOneGuidedLab({
       u.pitch=1;
       u.volume=1;
       guide.dataset.oneVoice=assignedVoice?.name||voice?.name||u.lang;
+      guide.dataset.oneVoiceProvider='web-speech';
       u.onstart=()=>{started=true;fallbackStart=performance.now();};
       u.onboundary=event=>{
         if(token!==speechToken)return;
@@ -782,6 +783,7 @@ export function createOneGuidedLab({
     textNode.textContent=plan.units[0]?.text.split(/\\s+/)[0]||'';
     placeBubble();
     guide.dataset.oneVoice=tts.voice||'es-AR-TomasNeural';
+    guide.dataset.oneVoiceProvider='azure-speech';
 
     return await new Promise(resolveOuter=>{
       const finish=()=>{
