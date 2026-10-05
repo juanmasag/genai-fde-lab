@@ -4,6 +4,7 @@ import pg from 'pg';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { oneTtsStatus, synthesizeOneSpeech } from './lib/one-azure-tts.js';
 
 const { Pool } = pg;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -133,6 +134,24 @@ async function chat(prompt){
   const j=await r.json();
   return {text:j.message?.content||'',prompt_eval_count:j.prompt_eval_count||null,eval_count:j.eval_count||null,total_duration:j.total_duration||null};
 }
+
+app.get('/api/one/tts/status',(req,res)=>{
+  res.json({ok:true,...oneTtsStatus()});
+});
+
+app.post('/api/one/tts',async(req,res)=>{
+  try{
+    const displayText=String(req.body.displayText||'').trim();
+    const speechText=String(req.body.speechText||displayText).trim();
+    const segments=Array.isArray(req.body.segments)?req.body.segments:[];
+    if(!speechText&&!segments.length)return res.status(400).json({error:'Falta la narración de ONE.'});
+    const result=await synthesizeOneSpeech({displayText,speechText,segments,voice:req.body.voice});
+    res.set('Cache-Control','no-store');
+    res.json({ok:true,...result});
+  }catch(e){
+    res.status(500).json({ok:false,error:e.message,...oneTtsStatus()});
+  }
+});
 
 app.get('/api/health', async (req,res)=>{
   try{
