@@ -993,7 +993,8 @@ export function createOneGuidedLab({
 
   function guideEdgeInset(){
     const raw=getComputedStyle(guide).getPropertyValue('--one-guide-edge-inset');
-    return Number.parseFloat(raw)||18;
+    const value=Number.parseFloat(raw);
+    return Number.isFinite(value)?value:0;
   }
 
   function guideHorizontalBounds(rect=guide.getBoundingClientRect()){
