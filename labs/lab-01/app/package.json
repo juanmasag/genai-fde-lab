@@ -9,7 +9,9 @@
     "start": "node server.js",
     "check:integration": "node scripts/integration-check.mjs",
     "check": "npm run build && npm run check:integration",
-    "sync:one": "node scripts/sync-one-rig.mjs"
+    "sync:one": "node scripts/sync-one-rig.mjs",
+    "check:rag-validation": "node scripts/rag-validation-check.mjs",
+    "check:lab": "npm run check && npm run check:rag-validation"
   },
   "dependencies": {
     "d3": "7.9.0",

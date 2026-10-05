@@ -1,5 +1,7 @@
 # Plan de desarrollo de la experiencia educativa
 
+**Estado del objetivo RAG:** ✅ completado el 2026-10-04. Las fases 0–5 necesarias para comprender e inspeccionar el pipeline están implementadas. Las fases 6–7 describen mejoras de experiencia/UX y no bloquean el cierre didáctico de LAB-01.
+
 ## Objetivo
 
 Evolucionar LAB-01 desde una interfaz técnica con paneles y controles hacia una experiencia educativa interactiva donde cada concepto del pipeline RAG pueda **verse, manipularse y verificarse**.
@@ -39,7 +41,7 @@ No se agregará una librería nueva salvo que resuelva una necesidad concreta qu
 - Mantener Express, Ollama, PostgreSQL y pgvector sin cambios funcionales.
 - Validar build, PWA, integración y acceso por Tailscale.
 
-### Fase 1 — Documento → Tokens → Chunks [IMPLEMENTADA V1]
+### Fase 1 — Documento → Tokens → Chunks [COMPLETADA]
 
 Objetivo: establecer el patrón de interacción que luego reutilizarán las demás etapas.
 
@@ -54,7 +56,7 @@ Objetivo: establecer el patrón de interacción que luego reutilizarán las dem�
 
 Criterio de aceptación: la escena y el preview técnico deben derivar del mismo resultado del backend.
 
-### Fase 2 — Transformer / embedding [IMPLEMENTADA V1]
+### Fase 2 — Transformer / embedding [COMPLETADA]
 
 - Separar claramente el transformer didáctico del embedding real de Ollama.
 - Recorrido progresivo: token → vector inicial → posición → Q/K/V → atención → vector contextual → pooling.
@@ -67,14 +69,14 @@ Criterio de aceptación: la escena y el preview técnico deben derivar del mismo
 - Comparación visual explícita entre modelo educativo 4D y embedding real 768D.
 - Motion reservado a transiciones de representación, no a telemetría ficticia del modelo.
 
-### Fase 3 — Ingesta y pgvector
+### Fase 3 — Ingesta y pgvector [COMPLETADA]
 
 - Representar cada chunk viajando a almacenamiento.
 - Vincular cada movimiento a un evento real de `dbEvents`.
 - Permitir abrir desde la escena la fila real correspondiente en PostgreSQL.
 - Visualizar texto, metadata y embedding como componentes distintos de la fila.
 
-### Fase 4 — Pregunta y retrieval
+### Fase 4 — Pregunta y retrieval [COMPLETADA]
 
 - Convertir visualmente la pregunta en embedding.
 - D3 para comparar pregunta/chunks usando similitud real.
@@ -82,21 +84,21 @@ Criterio de aceptación: la escena y el preview técnico deben derivar del mismo
 - Animar aceptación/rechazo sin ocultar los scores.
 - Vincular cada elemento visual al chunk real.
 
-### Fase 5 — Contexto → LLM → Respuesta
+### Fase 5 — Contexto → LLM → Respuesta [COMPLETADA]
 
 - Mostrar qué chunks forman el contexto final.
 - Diferenciar contexto recuperado de instrucciones del prompt.
 - Representar generación token a token de forma educativa sin afirmar que se exponen estados internos del modelo.
 - Visualizar grounding, citas válidas y abstención.
 
-### Fase 6 — Unificación del recorrido
+### Fase 6 — Unificación del recorrido [OPCIONAL / NO BLOQUEA CIERRE]
 
 - Reemplazar los recorridos paralelos antiguos por una única máquina de estados del laboratorio completo.
 - Desktop: tablero con contexto alrededor de la etapa activa.
 - Mobile: una escena principal por vez.
 - El mismo estado lógico debe gobernar ambos layouts.
 
-### Fase 7 — Pulido y validación pedagógica
+### Fase 7 — Pulido y validación pedagógica [OPCIONAL / NO BLOQUEA CIERRE]
 
 - Revisar cada escena preguntando: “¿qué concepto debería poder explicar el alumno después de verla?”.
 - Quitar animaciones decorativas sin función pedagógica.

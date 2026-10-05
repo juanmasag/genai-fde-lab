@@ -4,9 +4,10 @@ Este documento registra comprensión demostrada por explicación propia, no sól
 
 ## Estado actual
 
-**Etapa:** Fundamentos conceptuales de RAG  
-**Mini-proyecto:** Todavía no iniciado  
-**Objetivo para avanzar:** comprender el flujo completo de retrieval antes de implementar.
+**Etapa:** LAB-01 completado
+**Mini-proyecto:** RAG E2E funcional y validado
+**Cierre:** 2026-10-04
+**Próximo objetivo:** LAB-02 — Retrieval Evaluation.
 
 ## Conceptos comprendidos
 
@@ -129,7 +130,7 @@ Documento
 → contexto para el LLM
 → respuesta fundamentada
 
-## Checkpoint: fundamentos completados
+## Checkpoint histórico: fundamentos completados
 
 Los fundamentos conceptuales necesarios para comenzar el mini-proyecto fueron explicados con palabras propias:
 
@@ -144,3 +145,69 @@ Los fundamentos conceptuales necesarios para comenzar el mini-proyecto fueron ex
 **Estado:** teoría base completada. Se habilita el inicio del mini-proyecto LAB-01.
 
 El desarrollo se realizará por etapas didácticas, comenzando con un vector playground antes de construir el RAG completo.
+
+
+## Cierre práctico del mini-proyecto
+
+Después del checkpoint teórico se implementó y practicó el pipeline completo.
+
+Evidencia directa incorporada al repositorio:
+
+- chunking y overlap reales;
+- embeddings con `nomic-embed-text`;
+- persistencia en PostgreSQL + pgvector;
+- metadata y trazabilidad por chunk;
+- embedding de la pregunta;
+- búsqueda por similitud coseno;
+- top-k y threshold;
+- inspección del ranking;
+- contexto grounded;
+- generación con `qwen3:8b`;
+- abstención cuando la evidencia no alcanza;
+- citas y validación contra chunks recuperados;
+- pruebas de integración;
+- dataset final 5+3+1.
+
+La validación 5+3+1 usa:
+
+- 5 preguntas cuya respuesta está presente;
+- 3 preguntas cuya respuesta no aparece en la documentación;
+- 1 pregunta semánticamente relacionada con soporte pero sin evidencia suficiente para responderla.
+
+El último caso permite comprobar una diferencia importante: **recuperar un chunk parecido no significa que ese chunk contenga la respuesta**.
+
+## Qué puedo explicar al cerrar LAB-01
+
+Al finalizar este laboratorio debo poder explicar con palabras propias:
+
+1. qué diferencia hay entre palabra y token;
+2. qué es un embedding y para qué sirve;
+3. cómo se compara semánticamente una pregunta con un chunk;
+4. por qué se divide un documento en chunks;
+5. qué problema intenta resolver el overlap y qué costo introduce;
+6. qué se almacena realmente en una base vectorial;
+7. para qué sirve la metadata;
+8. cómo se genera el embedding de una pregunta;
+9. qué significa búsqueda por similitud;
+10. qué controla `top_k`;
+11. qué controla `threshold`;
+12. por qué el resultado más similar no necesariamente contiene la respuesta;
+13. cómo se construye el contexto que recibe el LLM;
+14. qué significa grounding;
+15. por qué y cuándo el sistema debe abstenerse;
+16. cómo se construyen citas verificables;
+17. cómo distinguir un problema de retrieval de un problema de generación;
+18. cómo afectan `chunk_size`, `overlap`, `top_k` y `threshold` al comportamiento del sistema.
+
+## Limitaciones aceptadas al cierre
+
+LAB-01 no intenta medir todavía la calidad del retrieval con métricas formales. Quedan para LAB-02:
+
+- recall@k;
+- precision@k;
+- MRR;
+- golden datasets más amplios;
+- análisis sistemático de fallos;
+- comparación de configuraciones de retrieval.
+
+**Estado final: LAB-01 completado.**

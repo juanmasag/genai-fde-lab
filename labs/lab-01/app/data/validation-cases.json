@@ -1,0 +1,72 @@
+{
+  "title": "LAB-01 validación 5+3+1",
+  "source": "data/guia-soporte.md",
+  "ingest": {
+    "title": "lab01-validation-audit.md",
+    "chunkSize": 42,
+    "overlap": 8
+  },
+  "analysis": {
+    "topK": 4,
+    "threshold": 0.35
+  },
+  "cases": [
+    {
+      "id": "answer-alta-demora",
+      "kind": "answer_present",
+      "question": "¿Cuánto puede demorar el alta de un usuario?",
+      "answerIncludes": ["48"],
+      "requireCitation": true
+    },
+    {
+      "id": "answer-alta-aprobacion",
+      "kind": "answer_present",
+      "question": "¿Quién debe aprobar la solicitud de alta?",
+      "answerIncludes": ["responsable"],
+      "requireCitation": true
+    },
+    {
+      "id": "answer-vacaciones-anticipacion",
+      "kind": "answer_present",
+      "question": "¿Con cuánta anticipación deben pedirse las vacaciones?",
+      "answerIncludes": ["15"],
+      "requireCitation": true
+    },
+    {
+      "id": "answer-contrasena",
+      "kind": "answer_present",
+      "question": "¿Qué debe hacer un usuario si olvida su contraseña?",
+      "answerIncludes": ["recuper"],
+      "requireCitation": true
+    },
+    {
+      "id": "answer-mesa-ayuda",
+      "kind": "answer_present",
+      "question": "¿En qué horario atiende la mesa de ayuda?",
+      "answerIncludes": ["9"],
+      "requireCitation": true
+    },
+    {
+      "id": "abstain-remoto",
+      "kind": "no_answer",
+      "question": "¿Cuántos días por semana se puede trabajar remoto?"
+    },
+    {
+      "id": "abstain-gastos",
+      "kind": "no_answer",
+      "question": "¿Cuál es el límite mensual de reintegro de gastos?"
+    },
+    {
+      "id": "abstain-estacionamiento",
+      "kind": "no_answer",
+      "question": "¿Dónde se solicita una cochera de estacionamiento?"
+    },
+    {
+      "id": "related-but-insufficient-sla",
+      "kind": "related_insufficient",
+      "question": "¿Cuánto demora soporte en resolver una incidencia?",
+      "topContentIncludes": "soporte",
+      "requireAcceptedEvidence": true
+    }
+  ]
+}

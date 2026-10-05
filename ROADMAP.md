@@ -15,8 +15,10 @@ Objetivo: entorno reproducible, convenciones, CI mínima y plantilla estándar p
 
 ## Fase 1 - Retrieval
 
-### LAB-01 — RAG + pgvector
+### LAB-01 — RAG + pgvector [COMPLETED]
 Construir un RAG mínimo sobre documentación sintética de negocio.
+
+**Cierre:** 2026-10-04. Pipeline RAG E2E, pgvector, grounding, citas y dataset de validación 5+3+1 verificados. La evaluación cuantitativa del retrieval queda deliberadamente para LAB-02.
 
 Aprender:
 - chunking
@@ -27,7 +29,7 @@ Aprender:
 - grounding
 - citations
 
-**Entrega:** API que recibe una pregunta y responde con fuentes.
+**Entrega realizada:** backend RAG que recibe una pregunta y responde con fuentes, más una PWA educativa para inspeccionar cada etapa del pipeline.
 
 ### LAB-02 — Retrieval Evaluation
 Medir la calidad del retrieval.

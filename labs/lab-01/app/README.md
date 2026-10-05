@@ -1,5 +1,7 @@
 # RAG Engine Lab PWA
 
+**Estado del LAB-01 RAG:** ✅ completado el 2026-10-04. La definición de cierre, criterios de aceptación y resultado final están en [`../README.md`](../README.md). Las secciones de UX/personaje de este documento conservan historial de implementación y no forman parte de los criterios de cierre del mini-proyecto RAG.
+
 Aplicación funcional y educativa para inspeccionar un pipeline RAG de punta a punta.
 
 ## Qué ejecuta de verdad
@@ -68,7 +70,7 @@ Abrir la URL HTTPS informada por Tailscale desde un teléfono conectado al mismo
 
 ## Recorrido didáctico actual
 
-La PWA incluye un documento corto de laboratorio (`data/guia-soporte.md`) y un guía visual llamado **Vector**. El recorrido cubre documento, tokens, chunks, transformer, base vectorial, pregunta, retrieval, LLM y respuesta.
+La PWA incluye un documento corto de laboratorio (`data/guia-soporte.md`) y un recorrido visual que cubre documento, tokens, chunks, transformer, base vectorial, pregunta, retrieval, LLM y respuesta.
 
 El **Microscopio del transformer** ejecuta en el navegador un transformer mínimo de 4 dimensiones con matrices fijas para poder inspeccionar la matemática: vector inicial, codificación posicional, Q/K/V, producto punto escalado, softmax, atención, vector contextual, pooling y una proyección final. Este cálculo está rotulado como educativo y no pretende ser una extracción de los pesos internos de Ollama. Al lado se muestra el embedding real de 768 dimensiones producido por `nomic-embed-text`.
 
@@ -84,6 +86,18 @@ Ejecutar la auditoría de integración con:
 
 ```bash
 npm run check:integration
+```
+
+La validación final del comportamiento RAG usa el dataset 5+3+1 documentado en `data/validation-cases.json`:
+
+```bash
+npm run check:rag-validation
+```
+
+Para ejecutar ambos grupos de validación y reproducir el cierre completo de LAB-01:
+
+```bash
+npm run check:lab
 ```
 
 ## Límites adaptativos de chunking
