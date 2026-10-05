@@ -46,6 +46,34 @@ async function loadSdk(){
   return sdkPromise;
 }
 
+
+async function synthesizeViaRest(ssml,voice){
+  const endpoint='https://'+SPEECH_REGION+'.tts.speech.microsoft.com/cognitiveservices/v1';
+  const response=await fetch(endpoint,{
+    method:'POST',
+    headers:{
+      'Ocp-Apim-Subscription-Key':SPEECH_KEY,
+      'Content-Type':'application/ssml+xml',
+      'X-Microsoft-OutputFormat':'audio-24khz-48kbitrate-mono-mp3',
+      'User-Agent':'ONE-RAG-Lab'
+    },
+    body:ssml
+  });
+  if(!response.ok)throw new Error('Azure Speech REST: '+response.status+' '+await response.text());
+  const audio=Buffer.from(await response.arrayBuffer());
+  return {
+    available:true,
+    provider:'azure-speech-rest',
+    voice,
+    mimeType:'audio/mpeg',
+    audioBase64:audio.toString('base64'),
+    words:[],
+    visemes:[],
+    bookmarks:[],
+    timingMode:'estimated'
+  };
+}
+
 function remember(key,value){
   cache.set(key,value);
   if(cache.size>64){
@@ -80,8 +108,11 @@ export async function synthesizeOneSpeech(payload={}){
 
   let sdk;
   try{sdk=await loadSdk();}
-  catch(error){
-    return {...oneTtsStatus(),available:false,reason:'azure-speech-sdk-missing',detail:error.message};
+  catch{
+    const rest=await synthesizeViaRest(ssml,voice);
+    const value={...rest,segments};
+    remember(cacheKey,value);
+    return {...value,cached:false};
   }
 
   const speechConfig=sdk.SpeechConfig.fromSubscription(SPEECH_KEY,SPEECH_REGION);
