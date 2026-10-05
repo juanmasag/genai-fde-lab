@@ -4,10 +4,10 @@ Este documento registra comprensión demostrada por explicación propia y experi
 
 ## Estado actual
 
-**Etapa:** Precision@k
+**Etapa:** Reciprocal Rank
 **Laboratorio:** iniciado el 2026-10-04
-**Checkpoint alcanzado:** golden dataset + relevance judgment + Recall@k comprendidos
-**Objetivo inmediato:** comprender y calcular Precision@k manualmente antes de implementarlo.
+**Checkpoint alcanzado:** golden dataset + relevance judgment + Recall@k + Precision@k comprendidos
+**Objetivo inmediato:** comprender y calcular Reciprocal Rank manualmente antes de pasar a MRR.
 
 ## Regla de registro de aprendizaje
 
@@ -26,7 +26,7 @@ Se mantiene el mismo criterio utilizado en LAB-01:
 - [x] relevance judgment
 - [x] diferencia entre evaluación de retrieval y evaluación de generación
 - [x] recall@k
-- [ ] precision@k
+- [x] precision@k
 - [ ] reciprocal rank
 - [ ] MRR
 - [ ] failure analysis
@@ -87,6 +87,19 @@ Explicado y calculado correctamente con palabras propias:
 
 Estado: **Comprendido con corrección conceptual y cálculo manual validado**
 
+### 5. Precision@k: cuánto de lo recuperado era realmente relevante
+
+Explicado y calculado correctamente con palabras propias:
+
+- Precision@k mira los resultados desde el lado de lo recuperado: de todos los chunks traídos dentro del top-k, qué proporción era realmente relevante según el golden dataset.
+- Se calcula como `relevantes recuperados en top-k / cantidad de resultados considerados en top-k`.
+- En el ejemplo validado, el golden contenía `A`, `B`, `C`, `D`, `E` y retrieval top-4 devolvió `A`, `X`, `C`, `Y`.
+- Se identificó correctamente que `A` y `C` eran relevantes: `2 / 4 = 0,5 = 50%`.
+- La interpretación dada fue correcta: **50% de precisión sobre todos los valores que trajo retrieval**.
+- Se distinguió correctamente de Recall: Recall pregunta cuánto de todo lo relevante fue encontrado; Precision pregunta cuánto de todo lo recuperado era relevante.
+
+Estado: **Comprendido y cálculo manual validado**
+
 ## Modelo mental alcanzado
 
 El flujo de evaluación ya puede representarse así:
@@ -146,10 +159,22 @@ Ya se puede explicar y calcular manualmente:
 
 **Estado:** Recall@k comprendido. Se habilita el siguiente concepto.
 
-## Próximo concepto — Precision@k
+## Checkpoint: Precision@k completado
+
+Ya se puede explicar y calcular manualmente:
+
+- qué mide Precision@k;
+- cuál es su denominador;
+- cómo usar el golden dataset para distinguir relevante de ruido;
+- cómo interpretar una precision de `0,5` como que la mitad de los resultados recuperados era relevante;
+- cómo diferenciar Precision de Recall usando el mismo conjunto de resultados.
+
+**Estado:** Precision@k comprendido. Se habilita el siguiente concepto.
+
+## Próximo concepto — Reciprocal Rank
 
 La próxima pregunta a poder responder con palabras propias será:
 
-> De todos los resultados que retrieval trajo dentro de los primeros k lugares, ¿qué proporción era realmente relevante según el golden dataset?
+> ¿En qué posición aparece el primer resultado relevante y cómo convertir esa posición en una métrica?
 
-No se marcará Precision@k como comprendido hasta poder resolver y explicar ejemplos manualmente.
+No se marcará Reciprocal Rank como comprendido hasta poder resolver y explicar ejemplos manualmente.
