@@ -16,10 +16,10 @@
     "dotenv": "18.0.5",
     "express": "5.1.0",
     "lucide": "1.51.0",
+    "microsoft-cognitiveservices-speech-sdk": "1.52.0",
     "motion": "14.0.0",
     "pg": "8.16.3",
-    "xstate": "5.33.2",
-    "microsoft-cognitiveservices-speech-sdk": "1.52.0"
+    "xstate": "5.33.2"
   },
   "devDependencies": {
     "vite": "8.3.2"
