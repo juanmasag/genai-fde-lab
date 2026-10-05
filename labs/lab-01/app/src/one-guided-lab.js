@@ -1,4 +1,4 @@
-import { narrationPayload, naturalSpeechText } from './one-speech-text.js';
+import { naturalSpeechText } from './one-speech-text.js';
 const $=selector=>document.querySelector(selector);
 const $$=selector=>[...document.querySelectorAll(selector)];
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));

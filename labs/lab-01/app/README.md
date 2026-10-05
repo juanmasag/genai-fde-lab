@@ -263,3 +263,54 @@ Narrative controls retract during longer observation periods and can be brought 
 Speech still uses the browser Web Speech engine because voice availability is device-specific. v2 ranks the installed Spanish voices and prefers, in order, a high-quality Argentine/Latin-American voice and then the best natural Spanish voice available. Neural/natural/online voices from the platform receive preference, while legacy robotic engines receive a strong penalty. The selected voice uses a slightly slower, lower-pitch delivery than v1.
 
 The exact voice heard on a phone must still be validated on that phone because Android/browser voice inventories differ.
+
+
+## ONE Neural Speech v15
+
+ONE no longer treats browser Web Speech as the primary voice engine. The preferred path is a server-side Azure Speech synthesis request using the Argentine male voice `es-AR-TomasNeural`.
+
+### Provider architecture
+
+The browser sends only narration text to `POST /api/one/tts`. Azure credentials stay on the Express server and are never exposed to JavaScript delivered to the phone.
+
+When Azure is configured, one synthesis result contains:
+
+- a complete MP3 for uninterrupted playback;
+- word-boundary audio offsets;
+- viseme offsets for the facial rig;
+- bookmarks that identify narration segments.
+
+The browser uses the audio player's own `currentTime` as the common clock for progressive bubble text and mouth changes. Moving ONE changes only layout; it does not restart or replace the audio object.
+
+If the Speech SDK cannot produce timing metadata, the server makes a second attempt through Azure Speech REST to preserve a continuous neural MP3 and the client estimates text/mouth timing from the real audio duration. Browser Web Speech is now the last fallback only.
+
+### Display text versus spoken text
+
+The text shown in the educational bubble is no longer required to be the exact string synthesized by the voice. `src/one-speech-text.js` converts technical display copy into a more conversational spoken form and provides pronunciation aliases for terms such as RAG, pgvector, E2E, LLM, top-k, threshold, Q/K/V, WordPiece and model names.
+
+This lets ONE teach with precise written terminology while speaking it naturally.
+
+### Configuration
+
+Copy the Azure Speech settings into a local untracked `.env`:
+
+```bash
+AZURE_SPEECH_KEY=<secret>
+AZURE_SPEECH_REGION=<resource-region>
+AZURE_SPEECH_VOICE=es-AR-TomasNeural
+```
+
+Do not commit the key.
+
+Runtime status can be checked through:
+
+```text
+GET /api/one/tts/status
+GET /api/health
+```
+
+When Azure is not configured, these endpoints report that state and ONE continues through the Web Speech fallback rather than breaking the laboratory.
+
+### Drag geometry
+
+The draggable box now matches the visible rig instead of using the former padded transparent stage. While dragging, the guide has no background, border, shadow or backdrop filter. This allows the visible character to approach viewport edges without the old invisible margin controlling its position.
