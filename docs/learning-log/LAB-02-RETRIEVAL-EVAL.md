@@ -4,10 +4,10 @@ Este documento registra comprensión demostrada por explicación propia y experi
 
 ## Estado actual
 
-**Etapa:** MRR
+**Etapa:** Failure analysis
 **Laboratorio:** iniciado el 2026-10-04
-**Checkpoint alcanzado:** golden dataset + relevance judgment + Recall@k + Precision@k + Reciprocal Rank comprendidos
-**Objetivo inmediato:** comprender cómo MRR promedia el Reciprocal Rank de múltiples consultas.
+**Checkpoint alcanzado:** golden dataset + relevance judgment + Recall@k + Precision@k + Reciprocal Rank + MRR comprendidos
+**Objetivo inmediato:** comprender y clasificar los fallos de retrieval antes de implementar la evaluación automatizada.
 
 ## Regla de registro de aprendizaje
 
@@ -28,7 +28,7 @@ Se mantiene el mismo criterio utilizado en LAB-01:
 - [x] recall@k
 - [x] precision@k
 - [x] reciprocal rank
-- [ ] MRR
+- [x] MRR
 - [ ] failure analysis
 - [ ] comparación objetiva de configuraciones
 
@@ -199,10 +199,15 @@ Ya se puede explicar y calcular manualmente:
 
 **Estado:** Reciprocal Rank comprendido. Se habilita MRR.
 
-## Próximo concepto — MRR
+## Checkpoint: MRR comprendido
 
-La próxima pregunta a poder responder con palabras propias será:
+- Ejercicio validado: tres consultas con RR de `1`, `0,5` y `0` producen `MRR = (1 + 0,5 + 0) / 3 = 0,50`.
+- El estudiante seleccionó `0,50` y explicó correctamente que se divide entre `3` porque MRR es el promedio de **todas las consultas** evaluadas.
+- También explicó por qué una consulta sin resultados relevantes aporta `0` al numerador pero sigue contando en el denominador: continúa siendo una consulta del dataset.
+- La comprensión verificada comprende tanto el cálculo como el efecto que tiene una consulta fallida sobre el promedio. No se ha implementado todavía el evaluador de métricas.
 
-> Si cada consulta tiene su propio Reciprocal Rank, ¿cómo resumimos en un único número qué tan pronto suele aparecer el primer resultado relevante en todo el dataset?
+**Estado:** MRR comprendido mediante ejercicio y explicación propia (2026-10-27). Se habilita Failure analysis.
 
-No se marcará MRR como comprendido hasta poder calcularlo manualmente sobre varias consultas.
+## Próximo concepto — Failure analysis
+
+Examinar casos en que el retrieval devuelve chunks irrelevantes, omite relevantes o los posiciona demasiado abajo. Clasificar las causas antes de proponer cambios y comprobarlas con evidencia.
